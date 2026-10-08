@@ -1,0 +1,47 @@
+case_id: P-071
+patient:
+  age: 66
+  sex: female
+triage_level: 3
+chief_complaint: syncope
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 98
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 118
+  heart_rate: 72
+  consciousness: alert
+  temperature: 36.7
+
+labs:
+  wbc: 7.4
+  hemoglobin: 13.1
+  sodium: 139
+  potassium: 4.2
+  creatinine: 0.8
+  glucose: 101
+  troponin: 4
+
+background_conditions: "היפותירואידיזם"
+medications: [eltroxin 75mcg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "התעלפה בתור בקופת חולים."
+
+physician_note: |
+  בת 66, היפותירואידיזם. התעלפה בעמידה ארוכה בתור בחום, לפני כן הרגישה חום, בחילה והזעה, "השחיר לה".
+  נפלה לאט, התעוררה תוך פחות מדקה, ללא בלבול אחר כך, ללא נשיכת לשון, ללא כאב חזה או דפיקות לב.
+  סינקופה, לא ברור - לשלול סיבה קרדיאלית, להשגחה עם מוניטור. (ד"ר כהן, מתמחה)
+  ---
+  בכיר, 4 שעות אחרי: עברתי על המקרה. ECG סינוס 70, PR ו-QT תקינים, ללא חסימות. אקו ליד המיטה - תפקוד
+  תקין, ללא מחלה מסתמית. טרופונין 4 ו-5, שלילי פעמיים. במוניטור 4 שעות - סינוס בלבד. אורתוסטטי שלילי.
+  פרודרום מובהק בעמידה בחום - סינקופה וזו-וגאלית. אין צורך במוניטור ולא בהשגחה. מיטה רגילה, להשלים
+  הולטר אמבולטורי. נשארת לאשפוז קצר כי גרה לבד והבת בחו"ל. (ד"ר לוי, בכיר)
+
+  סינקופה וזו-וגאלית, ללא עדות לסיבה קרדיאלית. לאשפוז בפנימית

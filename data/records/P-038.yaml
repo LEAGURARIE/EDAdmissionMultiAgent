@@ -1,0 +1,45 @@
+case_id: P-038
+patient:
+  age: 74
+  sex: male
+triage_level: 2
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 22
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 118
+  heart_rate: 112
+  consciousness: alert
+  temperature: 38.8
+
+labs:
+  wbc: 21.2
+  hemoglobin: 13.2
+  platelets: 310
+  sodium: 133
+  potassium: 4.0
+  creatinine: 1.4
+  glucose: 148
+  crp: 286
+  lactate: 2.8
+
+background_conditions: "HTN, BPH, DM2"
+medications: [amlodipine 5mg, tamsulosin 0.4mg, metformin 850mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חום וחולשה 4 ימים."
+
+physician_note: |
+  בן 74 HTN BPH DM2. חום 4 ימים, חולשה, "בטן לא נוחה". רופא המשפחה נתן אמוקסיצילין לפני יומיים בחשד ל-UTI,
+  ללא שיפור. PMHx ללא ניתוחי בטן. ב.ג. רגישות RLQ עם מסה מוחשת קלה, ללא גירוי צפקי מפושט
+  U/A תקין. CT A/P - appendicitis מנוקבת עם abscess 4 ס"מ ב-RLQ, ללא אוויר חופשי. lact 2.8, WBC 21
+  pip-tazo + נוזלים. IR - לניקוז מלעורי מחר. ייעוץ כירורגי - טיפול שמרני + ניקוז, ניתוח בהמשך
+
+  appendicitis מנוקבת עם אבצס ותגובה ספטית. לאשפוז

@@ -1,0 +1,44 @@
+case_id: P-073
+patient:
+  age: 81
+  sex: male
+triage_level: 3
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 95
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 146
+  heart_rate: 88
+  consciousness: alert
+  temperature: 36.8
+
+labs:
+  wbc: 8.1
+  hemoglobin: 11.9
+  sodium: 136
+  potassium: 4.5
+  creatinine: 1.4
+  glucose: 118
+  troponin: 22
+
+background_conditions: "אי ספיקת לב EF 35%, AF כרוני, CKD, נשא MRSA (משטח אף באשפוז הקודם)"
+medications: [furosemide 40mg, bisoprolol 5mg, apixaban 2.5mg x2, sacubitril/valsartan]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "קוצר נשימה במאמץ, בצקות ברגליים. נשא MRSA - לבידוד??"
+
+physician_note: |
+  בן 81 CHF EF 35%, AF כרוני, CKD. שבועיים עלייה במשקל 3 ק"ג, בצקות ברגליים, קוצר נשימה בעלייה של קומה
+  אחת, ישן על 2 כריות. במנוחה נושם בנוחות. לא לקח את הפוסיד כמה ימים כי "יצא הרבה לשירותים".
+  ב.ג. בצקות פיטינג עד הברכיים, חרחורים בבסיסים, JVP מוגבר. CXR - גודש קל, תפליט קטן ימין.
+  סט' 95% באוויר, לא צריך חמצן. AF קצב 88. טרופונין 22 יציב (בסיס 20). furosemide 80 iv
+  נשא MRSA ידוע מהאשפוז הקודם, משטח אף בלבד, ללא זיהום פעיל. אמצעי מגע לפי נוהל - לא צריך חדר בידוד.
+
+  CHF exacerbation קל, אי היענות לטיפול. לאשפוז

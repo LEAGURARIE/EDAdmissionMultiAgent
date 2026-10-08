@@ -1,0 +1,48 @@
+case_id: P-008
+patient:
+  age: 66
+  sex: male
+triage_level: 3
+chief_complaint: abdominal_pain
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 128
+  heart_rate: 94
+  consciousness: alert
+  temperature: 38.4
+
+labs:
+  wbc: 15.6
+  hemoglobin: 14.1
+  sodium: 136
+  potassium: 4.0
+  creatinine: 1.1
+  glucose: 104
+  crp: 168
+  lactate: 1.4
+
+background_conditions: "COPD קל, מעשן לשעבר, s/p כריתת תוספתן בילדות"
+medications: [tiotropium]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "כאב בבטן עליונה ימנית."
+
+physician_note: |
+  בן 66 COPD קל, מעשן לשעבר, s/p כריתת תוספתן בילדות. כאב בבטן עליונה ימנית יומיים עם חום וחולשה.
+  מספר שלפני שבוע אכל במסעדה חדשה ושניים מהחברים שאכלו איתו היו עם כאבי בטן קלים שעברו תוך יום, הוא
+  בטוח שזה מהאוכל. לפני חצי שנה בירור כאבי בטן עם קולונוסקופיה תקינה, לפני שנה דלקת בגיד אכילס
+  שטופלה בפיזיותרפיה. עובד כנגר, הולך 5 ק"מ ביום. ללא שינוי ביציאות ללא הקאות. אשתו אומרת שאוכל פחות
+  בימים האחרונים. בטן רכה רגישות קלה RUQ בלבד, מרפי שלילי, ללא גירוי צפקי. US בטן - כיס מרה כבד
+  ודרכי מרה תקינים. נבדק ע"י כירורג - ללא בעיה כירורגית, ממליץ להמשיך בירור במיון. בתשאול חוזר
+  מתאר שיעול עם כיח צהוב 3 ימים והכאב מחמיר בנשימה עמוקה ובשיעול, בהאזנה חוזרת חרחורים ונשימה
+  צינורית בבסיס ימין. CXR - תסנין RLL. ceftriaxone + azithromycin
+
+  דלקת ריאות בסיס ימין עם כאב מוקרן לבטן העליונה, ללא פתולוגיה בטנית. לאשפוז

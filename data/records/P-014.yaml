@@ -1,0 +1,46 @@
+case_id: P-014
+patient:
+  age: 61
+  sex: male
+triage_level: 3
+chief_complaint: general_weakness
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 134
+  heart_rate: 88
+  consciousness: alert
+  temperature: 36.9
+
+labs:
+  wbc: 8.2
+  hemoglobin: 14.8
+  sodium: 134
+  potassium: 4.6
+  creatinine: 1.2
+  glucose: 318
+  ph: 7.38
+  crp: 8
+
+background_conditions: "DM1 מגיל 20, s/p MI 2018 עם PCI, s/p DKA 2023 עם אשפוז בטנ\"מ, HTN"
+medications: [insulin glargine 24u, insulin aspart לפי סקאלה, aspirin 100mg, bisoprolol 2.5mg, atorvastatin 40mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "סוכר גבוה בבית, חולשה."
+
+physician_note: |
+  בן 61 DM1 מגיל 20, s/p MI 2018 עם PCI ל-LAD, s/p DKA ב-2023 עם אשפוז בטנ"מ ואינטובציה, HTN.
+  מגיע עם חולשה וצמא 3 ימים, סוכרים בבית 300-350, לדבריו נגמרו לו האינסולין הבזאלי לפני 4 ימים
+  ולא הספיק לחדש מרשם. "בפעם הקודמת שזה קרה נכנסתי לטיפול נמרץ" - מאוד חושש. שולל בחילות והקאות,
+  שולל כאבי בטן, שולל כאבי חזה. ב.ג. במ"כ טוב, מעט מיובש, נשימה רגילה לא קוסמאול, לב סדיר.
+  גלוקוז 318, pH 7.38, ביקרבונט תקין, קטונים בשתן שליליים, אניון גאפ תקין. ECG ללא שינוי לעומת
+  ישן. ניתן אינסולין + נוזלים, סוכר ירד ל-240
+
+  היפרגליקמיה על רקע הפסקת אינסולין, ללא DKA. לאשפוז לאיזון סוכר וחינוך, שוחח עם דיאטנית מחר

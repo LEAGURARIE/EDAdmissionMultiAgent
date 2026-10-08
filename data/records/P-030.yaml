@@ -1,0 +1,44 @@
+case_id: P-030
+patient:
+  age: 74
+  sex: male
+triage_level: 2
+chief_complaint: general_weakness
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 148
+  heart_rate: 58
+  consciousness: alert
+  temperature: 36.6
+
+labs:
+  wbc: 8.4
+  hemoglobin: 10.9
+  sodium: 136
+  potassium: 6.6
+  creatinine: 3.8
+  glucose: 142
+  ph: 7.29
+
+background_conditions: "CKD st. 4, DM2, HTN, CHF EF 40%"
+medications: [spironolactone 25mg, ramipril 10mg, furosemide 40mg, insulin glargine]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: internal_medicine_a
+
+triage_note: "חולשה כללית, ידוע עם מחלת כליות."
+
+physician_note: |
+  בן 74 CKD st 4, DM2, HTN, CHF. חולשה כללית ושלשולים קלים 4 ימים, שתה מעט. לפני שבועיים הוסף
+  spironolactone במרפאת לב. K 6.6, Cr 3.8 (בסיס 2.6). ECG - גלי T מחודדים, ברדיקרדיה 58 ללא חסם.
+  ניתן קלציום גלוקונט, אינסולין + גלוקוז, ונטולין באינהלציה, סודיום ביקרבונט. הופסקו spironolactone ו-ramipril
+  K חוזר אחרי שעתיים 5.9. ייעוץ נפרולוג - כרגע ללא צורך בדיאליזה דחופה, המשך טיפול שמרני ומעקב K כל 4 שעות,
+  "ממליץ לשקול אשפוז בקרדיולוגיה בגלל ה-CHF והשינויים באק"ג"
+
+  היפרקלמיה משמעותית על רקע AKI על CKD ותרופות. יש לאשפז בפנימית א' בניטור, דובר עם התורן

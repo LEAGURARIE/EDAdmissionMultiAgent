@@ -1,0 +1,44 @@
+case_id: P-041
+patient:
+  age: 71
+  sex: male
+triage_level: 2
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 22
+  oxygen_saturation: 90
+  supplemental_oxygen: true
+  spo2_scale_2: true
+  systolic_bp: 138
+  heart_rate: 96
+  consciousness: alert
+  temperature: 37.2
+
+labs:
+  wbc: 10.8
+  hemoglobin: 15.9
+  sodium: 138
+  potassium: 4.6
+  creatinine: 1.0
+  glucose: 142
+  ph: 7.31
+  pco2: 64
+
+background_conditions: "COPD קשה GOLD 3 עם יעד סטורציה 88-92, מעשן פעיל, HTN"
+medications: [tiotropium, budesonide/formoterol, amlodipine 5mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "קוצר נשימה מחמיר, ידוע COPD."
+
+physician_note: |
+  בן 71 COPD קשה GOLD 3, ממשיך לעשן, יעד סטורציה 88-92 לפי מכתב פולמונולוג. 3 ימים החמרה בקוצר נשימה,
+  כיח ירקרק מוגבר. בקבלה סט' 84% באוויר, הוחל O2 1L בונטורי - 90%. צפצופים מפושטים, שימוש בשרירי עזר
+  גזים: pH 7.31, pCO2 64 - חמצת נשימתית. CXR ללא תסנין. אינהלציות, סטרואידים, אזיתרומיצין
+  גזים חוזרים אחרי שעה - pH 7.33 pCO2 61, ערני, לא צריך BiPAP כרגע לפי התורן, מעקב גזים
+
+  החמרת COPD עם חמצת נשימתית, צורך בחמצן מבוקר. לאשפוז בפנימית

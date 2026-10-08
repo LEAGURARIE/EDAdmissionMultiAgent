@@ -1,0 +1,49 @@
+case_id: P-018
+patient:
+  age: 45
+  sex: male
+triage_level: 3
+chief_complaint: chest_pain
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 95
+  supplemental_oxygen: true
+  spo2_scale_2: false
+  systolic_bp: 122
+  heart_rate: 98
+  consciousness: alert
+  temperature: 38.1
+
+labs:
+  wbc: 11.4
+  hemoglobin: 11.9
+  platelets: 410
+  sodium: 134
+  potassium: 4.0
+  creatinine: 0.8
+  glucose: 101
+  crp: 88
+  troponin: 4
+
+background_conditions: "ללא רקע רפואי ידוע"
+medications: []
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "כאב בחזה מימין, מחמיר בנשימה."
+
+physician_note: |
+  בן 45 ללא רקע. כאב בחזה מימין 4 ימים, דוקר, מחמיר בנשימה עמוקה ובשיעול. עובד כמהנדס בחברת בנייה,
+  בשנה האחרונה עבד בפרויקט בדרום אפריקה וחזר לפני חודשיים, בדרך עשה טיול בתאילנד של שבועיים ללא בעיות.
+  לפני 3 חודשים נפל מפיגום, כאבי גב שחלפו, ללא צילום. אשתו בהריון בחודש שישי, מאוד מודאג שידביק אותה.
+  מעשן בעבר 5 שנים, הפסיק לפני 10 שנים. מתאמן בחדר כושר 3 פעמים בשבוע, לאחרונה "אין כוח".
+  ECG סינוס ללא שינויי ST, טרופונין 4 - תקין, D-dimer גבולי, CTA - ללא PE. בתשאול חוזר שיעול
+  כחודש וחצי לסירוגין, לפעמים עם פסים של דם, הזעות לילה, ירד כ-5 ק"ג "בגלל הלחץ בעבודה".
+  CTA - בנוסף תסנין באונה עליונה ימנית עם חלל 2 ס"מ. סט' 91% באוויר, הוחל O2 1L - 95%.
+  כיח ל-AFB x3 נשלח, הוחל בידוד אוויר במיון, לשלול TB
+
+  כאב חזה פלאוריטי, ACS ו-PE נשללו. חשד ל-TB ריאתי עם חלל. לאשפוז

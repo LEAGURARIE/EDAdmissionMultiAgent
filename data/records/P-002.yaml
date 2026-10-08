@@ -1,0 +1,45 @@
+case_id: P-002
+patient:
+  age: 74
+  sex: male
+triage_level: 2
+chief_complaint: chest_pain
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: null
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 148
+  heart_rate: 98
+  consciousness: alert
+  temperature: 36.8
+
+labs:
+  wbc: 8.4
+  hemoglobin: 13.1
+  sodium: 137
+  potassium: 4.6
+  creatinine: 1.4
+  glucose: 168
+  troponin: 32
+
+background_conditions: "IHD s/p CABG, CHF EF 35%, DM2, CKD"
+medications: [bisoprolol 5mg, furosemide 40mg, aspirin 100mg, empagliflozin 10mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "לחץ בחזה. ידוע עם אי ספיקת לב."
+
+physician_note: |
+  בן 74 IHD s/p CABG, CHF EF 35%, DM2, CKD. מגיע עם לחץ בחזה וקוצר נשימה במאמץ שהולך ומחמיר
+  יומיים, ישן על 3 כריות, אשתו אומרת שעלה כ3 ק"ג בשבוע. בקבלה טכיפנאי קלות בשכיבה, סט' 90% באוויר
+  החדר - הוחל O2 2L בקנולה עם שיפור ל95%. חרחורים בבסיסים דו"צ, בצקות פיטינג עד הברכיים, JVP מוגבר.
+  ECG סינוס ללא שינוי לעומת קודם (השוואה לאק"ג מ-2025). CXR - גודש + תפליטים קטנים דו"צ
+  טרופונין 32 ממתינים לחוזר. קיבל פוסיד 80 iv, תפוקת שתן טובה
+
+  הערכה חוזרת: עדיין צריך O2 2L כדי לשמור סט' מעל 94, בלי חמצן יורד ל90-91. AHF על רקע CHF ידוע.
+  לאשפוז בקרדיולוגיה

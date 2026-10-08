@@ -1,0 +1,35 @@
+# T13 — staffing limit (second set: ward notes). Design: docs/design/ward_state_templates.md.
+# The target ward shows a free observation bed, but its private note says it cannot take another observation
+# patient tonight. Level 2 has a free observation bed.
+id: T13
+name: מגבלת כוח אדם
+day: Tuesday
+time: "23:30"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 0
+  isolation_free: false
+
+ladder:
+  level_1:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: true
+    notes:
+      - "הלילה אחות אחת על שתי מיטות ההשגחה, ובמיטה השנייה מטופל לא יציב. לא נוכל לקבל עוד מטופל השגחה עד הבוקר."
+    note_effects:
+      - {effect: unavailable, bed_type: observation}
+  level_2:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: false
+    notes:
+      - "גם אצלנו הלילה אין אחות פנויה למיטת ההשגחה. מיטה רגילה אפשר."
+    note_effects:
+      - {effect: unavailable, bed_type: observation}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

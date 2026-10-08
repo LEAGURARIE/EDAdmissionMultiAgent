@@ -1,0 +1,35 @@
+case_id: P-038
+template: T8
+patient_type: B
+challenge: 3
+situation: null
+traps:
+- 5
+wording: admit_only
+target_ward: general_surgery
+needs:
+  severe: true
+  observation: true
+  isolation: false
+  intensive_care: false
+news2: 5
+expected:
+  action: place
+  ward_id: general_surgery
+  acceptable_wards:
+  - general_surgery
+  bed_type: observation
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: 1
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: observation bed free in the target ward
+ward_notes:
+- 'general_surgery: שבת. הכונן שחרר בבוקר שני מטופלים, ממיטה רגילה וממיטת השגחה. המיטות
+  נקיות ופנויות, המזכירה תעדכן רק ביום ראשון.'
+reports_alone_would_give: temporary_place internal_medicine_a or internal_medicine_b,
+  observation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

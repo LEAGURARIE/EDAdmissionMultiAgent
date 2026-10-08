@@ -1,0 +1,44 @@
+case_id: P-069
+patient:
+  age: 58
+  sex: female
+triage_level: 3
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 84
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 128
+  heart_rate: 92
+  consciousness: alert
+  temperature: 38.1
+
+labs:
+  wbc: 13.2
+  hemoglobin: 13.8
+  sodium: 137
+  potassium: 4.0
+  creatinine: 0.8
+  glucose: 96
+  crp: 88
+
+background_conditions: "סקלרודרמה עם Raynaud קשה, GERD"
+medications: [nifedipine 30mg, omeprazole 20mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חום ושיעול, סט' 84 בטריאז'. ידיים קרות."
+
+physician_note: |
+  בת 58 סקלרודרמה עם Raynaud קשה. 4 ימים שיעול עם כיח צהוב, חום עד 38.5, ללא קוצר נשימה במנוחה. בטריאז'
+  נמדדה סט' 84% מאצבע - האצבעות קרות ולבנות (Raynaud), גל לא טוב במוניטור. מדידה חוזרת עם גלאי
+  אוזן: 97% באוויר, גל תקין, גם בהמשך 96-97%. נושמת בנוחות, מדברת משפטים מלאים, נשימות 18
+  ב.ג. חרחורים בבסיס שמאל. CXR - תסנין LLL. גזים ורידיים תקינים. ceftriaxone + azithromycin
+  לא צריכה חמצן
+
+  CAP LLL, סטורציה תקינה באוויר - המדידה הראשונה מאצבע קרה לא אמינה. לאשפוז בפנימית

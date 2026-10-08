@@ -1,0 +1,46 @@
+case_id: P-013
+patient:
+  age: 58
+  sex: female
+triage_level: 2
+chief_complaint: vomiting_or_diarrhea
+
+vitals:
+  respiratory_rate: 22
+  oxygen_saturation: 95
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 124
+  heart_rate: 112
+  consciousness: alert
+  temperature: 37.6
+
+labs:
+  wbc: 13.4
+  hemoglobin: 15.1
+  sodium: 132
+  potassium: 3.3
+  creatinine: 1.4
+  glucose: 128
+  crp: 64
+  lactate: 1.9
+
+background_conditions: "s/p כריתת רחם בטנית 2015, s/p כריתת תוספתן, תת פעילות בלוטת התריס"
+medications: [eltroxin 100mcg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "הקאות מאתמול, לא מצליחה לשתות."
+
+physician_note: |
+  בת 58 s/p כריתת רחם בטנית ו-appendectomy. הקאות חוזרות מאתמול בערב, בהתחלה מזון ועכשיו ירקרק,
+  לא מצליחה להחזיק נוזלים. שוללת חום בבית, שוללת שלשולים, שוללת דם בהקאות, שוללת כאבי חזה.
+  בתשאול - ללא יציאות וללא גזים מאתמול בבוקר, בטן "נפוחה וכואבת בגלים". חשבה שזה וירוס כי לנכד היה
+  שלשול בשבוע שעבר. ב.ג. מיובשת, בטן תפוחה, רגישות מפושטת ללא גירוי צפקי, קולות מעיים מתכתיים
+  K 3.3 - תיקון iv. Cr 1.4. CT בטן: הרחבת לולאות מעי דק עם נקודת מעבר באגן, חשד להידבקויות,
+  ללא סימני איסכמיה, ללא אוויר חופשי. הוכנס זונדה עם יציאה של כ-800cc. נבדקה ע"י כירורג תורן
+
+  חסימת מעי דק על רקע הידבקויות. לאשפוז

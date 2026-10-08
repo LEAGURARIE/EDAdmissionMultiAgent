@@ -1,0 +1,47 @@
+case_id: P-017
+patient:
+  age: 64
+  sex: male
+triage_level: 3
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 132
+  heart_rate: 92
+  consciousness: alert
+  temperature: 38.2
+
+labs:
+  wbc: 18.6
+  hemoglobin: 12.4
+  platelets: 290
+  sodium: 134
+  potassium: 4.5
+  creatinine: 1.3
+  glucose: 284
+  crp: 236
+  lactate: 2.9
+
+background_conditions: "DM2 לא מאוזן, PVD, נשא CRE מאשפוז קודם 2025"
+medications: [insulin glargine 30u, metformin 1g, clopidogrel 75mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "פצע בכף רגל שמאל, חום. סוכרתי."
+
+physician_note: |
+  בן 64 DM2 לא מאוזן, PVD, ידוע כנשא CRE מאשפוז בכירורגיה כלי דם ב-2025 - בתיק מסומן לבידוד מגע.
+  מגיע עם פצע בכף רגל שמאל שבועיים, ב-3 ימים האחרונים אודם עולה ונפיחות, הפרשה מוגלתית וריח, חום מאתמול.
+  ב.ג. במ"כ סביר. כיב בכרית כף הרגל 3 ס"מ עם הפרשה מוגלתית, אודם עד הקרסול, קרפיטציות - ללא.
+  רנטגן כף רגל - ללא גז, חשד לאוסטאומיאליטיס MT2. לקטט 2.9. תרביות דם x2. pip-tazo
+  הערכה חוזרת אחרי 3 שעות: מרגיש רע יותר, ל"ד 102/60, דופק 112, נשימות 20, חום 38.9. קיבל עוד 1L
+  עם עליה ל"ד ל-112/66. נבדק ע"י כירורג - לניקוז וניקוי בחדר ניתוח מחר בבוקר
+
+  רגל סוכרתית מזוהמת עם תגובה ספטית ולקטט מוגבר, נשא CRE. לאשפוז בכירורגיה

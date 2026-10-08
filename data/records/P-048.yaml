@@ -1,0 +1,45 @@
+case_id: P-048
+patient:
+  age: 63
+  sex: female
+triage_level: 3
+chief_complaint: chest_pain
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 128
+  heart_rate: 94
+  consciousness: alert
+  temperature: 38.3
+
+labs:
+  wbc: 6.2
+  hemoglobin: 13.2
+  sodium: 137
+  potassium: 4.0
+  creatinine: 0.9
+  glucose: 112
+  crp: 42
+  troponin: 4
+
+background_conditions: "אסתמה, HTN"
+medications: [budesonide/formoterol, amlodipine 5mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "כאב בחזה בשיעול, חום."
+
+physician_note: |
+  בת 63 אסתמה HTN. כאב בחזה מימין שמחמיר בשיעול ובנשימה עמוקה, יומיים, עם חום, כאבי שרירים ושיעול יבש.
+  ECG סינוס ללא שינויי ST, טרופונין 4 ו-4 - ללא עדות ל-ACS. CXR ללא תסנין, ללא pneumothorax.
+  בעבודה (גננת) כמה מהילדים והצוות חולים בשבוע האחרון. לא התחסנה לשפעת השנה. ב.ג. צפצופים קלים.
+  PCR שפעת ו-COVID נלקחו, תשובה ממתינה. לא ניתן לשלול שפעת - הוחל oseltamivir אמפירי.
+  אינהלציות, משככי כאבים. הכאב כנראה שרירי על רקע השיעול
+
+  כאב חזה פלאוריטי על רקע זיהום נשימתי, חשד לשפעת. ACS נשלל. לאשפוז

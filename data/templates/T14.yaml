@@ -1,0 +1,33 @@
+# T14 — a discharge that will not happen today (second set: ward notes). Design: docs/design/ward_state_templates.md.
+# The target ward is full and reports a regular-bed discharge expected today; its private note says the discharge
+# depends on a transport that was cancelled. Level 2 has free beds.
+id: T14
+name: שחרור לא סביר היום
+day: Wednesday
+time: "11:00"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 1
+  isolation_free: false
+
+ladder:
+  level_1:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+    discharges_today:
+      - {bed_type: regular}
+    notes:
+      - "המטופל שאמור להשתחרר היום ממיטה רגילה ממתין להסעה לבית אבות, וההסעה בוטלה. כנראה ישתחרר רק מחר."
+    note_effects:
+      - {effect: discharge_not_today}
+  level_2:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: false
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

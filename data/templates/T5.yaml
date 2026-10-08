@@ -1,0 +1,38 @@
+# T5 — bed in cleaning. Design: docs/design/ward_state_templates.md.
+# The target ward has no free bed; one regular bed is being cleaned and will be ready in about 30 minutes.
+# Level 2 has a free regular bed and a free observation bed.
+# Private notes: another regular bed is free but not yet updated; level 2 has no nurse for its observation bed.
+id: T5
+name: מיטה בניקוי
+day: Tuesday
+time: "13:00"
+relative_to: target_ward
+
+default:                          # every regular ward not set below
+  regular_free: 2
+  observation_free: 1
+  isolation_free: true
+
+ladder:
+  level_1:                        # the patient's target ward
+    regular_free: 0
+    observation_free: 0
+    isolation_free: true
+    cleaning:
+      - {bed_type: regular, ready_in: 30}
+    notes:
+      - "מטופל ממיטה 7 שוחרר לפני חצי שעה, המיטה נוקתה ופנויה, עוד לא עודכן במחשב. המיטה שבניקוי תהיה מוכנה כמתוכנן."
+    note_effects:
+      - {effect: hidden_free, bed_type: regular}
+  level_2:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: true
+    notes:
+      - "אין אחות פנויה למיטת ההשגחה עד הערב."
+    note_effects:
+      - {effect: unavailable, bed_type: observation}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

@@ -1,0 +1,44 @@
+case_id: P-054
+patient:
+  age: 77
+  sex: male
+triage_level: 2
+chief_complaint: trauma_or_fall
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 95
+  supplemental_oxygen: true
+  spo2_scale_2: false
+  systolic_bp: 132
+  heart_rate: 96
+  consciousness: alert
+  temperature: null
+
+labs:
+  wbc: 11.6
+  hemoglobin: 13.2
+  platelets: 210
+  sodium: 139
+  potassium: 4.3
+  creatinine: 1.1
+  inr: 1.1
+
+background_conditions: "HTN, היפרליפידמיה"
+medications: [amlodipine 5mg, atorvastatin 20mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "נפל מגובה במדרגות. הובא כטראומה."
+
+physician_note: |
+  בן 77 HTN. נפל במדרגות בבית, כ-10 מדרגות, הובא בנט"ן כטראומה עם "חשד לפגיעה פנימית". ללא איבוד הכרה,
+  לא נוטל נוגדי קרישה. GCS 15. שולל כאב ראש, שולל כאבי צוואר, שולל כאבי בטן. FAST שלילי.
+  CT ראש - ללא דימום. CT צוואר - ללא שבר. CT חזה-בטן - שברים בצלעות 4-8 מימין, pneumothorax קטן
+  מימין של כ-1 ס"מ ללא צורך בנקז, ללא hemothorax, ללא פגיעה בכבד ובטחול, ללא נוזל חופשי.
+  סט' 91% באוויר, הוחל O2 2L - 95%. משככי כאבים iv. כירורג חזה: מעקב צילום חזה בעוד 6 שעות
+
+  שברי צלעות מרובים עם pneumothorax קטן וצורך בחמצן, ללא פגיעה תוך-בטנית. לאשפוז בכירורגיה

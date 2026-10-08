@@ -1,0 +1,64 @@
+# T1 — quiet. Design: docs/design/ward_state_templates.md.
+# Every ward reports room — but each ward's private note says its bed for one need is not really available.
+id: T1
+name: שקט
+day: Monday
+time: "10:00"
+relative_to: none
+
+default:
+  regular_free: 2
+  observation_free: 1
+  isolation_free: true
+  discharges_today:
+    - {bed_type: regular}
+
+wards:
+  internal_medicine_a:
+    regular_free: 2
+    observation_free: 1
+    isolation_free: true
+    discharges_today:
+      - {bed_type: regular}
+    notes:
+      - "חדר 8 סגור, נזילה מהתקרה. שתי המיטות הרגילות הפנויות שם לא בשימוש עד שהאחזקה יסיימו."
+    note_effects:
+      - {effect: unavailable, bed_type: regular}
+  cardiology:
+    regular_free: 2
+    observation_free: 1
+    isolation_free: true
+    discharges_today:
+      - {bed_type: regular}
+    notes:
+      - "המוניטור של מיטת ההשגחה הפנויה לא עובד, טכנאי רק מחר. אי אפשר לקבל אליה."
+    note_effects:
+      - {effect: unavailable, bed_type: observation}
+  internal_medicine_b:
+    regular_free: 2
+    observation_free: 1
+    isolation_free: true
+    discharges_today:
+      - {bed_type: regular}
+    notes:
+      - "חדר הבידוד בניקוי יסודי אחרי מטופל עם C. diff, לפחות 3 שעות."
+    note_effects:
+      - {effect: unavailable, bed_type: isolation}
+  general_surgery:
+    regular_free: 2
+    observation_free: 1
+    isolation_free: true
+    discharges_today:
+      - {bed_type: regular}
+    notes:
+      - "בחדר הבידוד הלחץ השלילי לא עובד מהבוקר, החדר סגור."
+    note_effects:
+      - {effect: unavailable, bed_type: isolation}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true
+  notes:
+    - "המיטה הפנויה שמורה למטופל מחדר ניתוח, מגיע בעוד שעה."
+  note_effects:
+    - {effect: unavailable, bed_type: intensive_care}

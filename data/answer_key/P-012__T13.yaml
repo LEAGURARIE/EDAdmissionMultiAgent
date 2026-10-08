@@ -1,0 +1,37 @@
+case_id: P-012
+template: T13
+patient_type: B
+challenge: 2
+situation: null
+traps:
+- 12
+- 5
+wording: specialty
+target_ward: internal_medicine_b
+needs:
+  severe: true
+  observation: true
+  isolation: false
+  intensive_care: false
+news2: 6
+expected:
+  action: place
+  ward_id: internal_medicine_b
+  acceptable_wards:
+  - internal_medicine_b
+  bed_type: isolation
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: 1
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: no observation bed on the whole ladder — isolation room as a last resort,
+  with approval
+ward_notes:
+- 'internal_medicine_b: הלילה אחות אחת על שתי מיטות ההשגחה, ובמיטה השנייה מטופל לא
+  יציב. לא נוכל לקבל עוד מטופל השגחה עד הבוקר.'
+- 'internal_medicine_a: גם אצלנו הלילה אין אחות פנויה למיטת ההשגחה. מיטה רגילה אפשר.'
+reports_alone_would_give: place internal_medicine_b, observation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

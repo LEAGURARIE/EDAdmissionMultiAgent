@@ -1,0 +1,46 @@
+case_id: P-024
+patient:
+  age: 70
+  sex: female
+triage_level: 3
+chief_complaint: vomiting_or_diarrhea
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 98
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 108
+  heart_rate: 94
+  consciousness: alert
+  temperature: 37.2
+
+labs:
+  wbc: 8.9
+  hemoglobin: 14.6
+  sodium: 131
+  potassium: 3.2
+  creatinine: 1.6
+  glucose: 104
+  crp: 12
+
+background_conditions: "HTN, היפותירואידיזם"
+medications: [hydrochlorothiazide 25mg, eltroxin 75mcg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "שלשולים והקאות 3 ימים. הנכד מאושפז בטיפול נמרץ."
+
+physician_note: |
+  בת 70 HTN על HCTZ, היפותירואידיזם. 3 ימים הקאות ושלשולים מימיים כ-6 ביום, לא מצליחה לשתות, חולשה.
+  כל המשפחה הייתה בחתונה בשבוע שעבר, כמה מהאורחים עם שלשולים. מאוד דואגת - הנכד שלה בן 19 מאושפז
+  מאתמול בטיפול נמרץ עם דלקת קרום המוח, המשפחה אמרה לה שאולי צריך "לבדוק את כולם". לא הייתה בקשר עם
+  הנכד מעל שבועיים, הוא גר בעיר אחרת. שוללת חום, שוללת כאב ראש, שוללת קשיון עורף, שוללת פריחה.
+  ב.ג. מיובשת, ערנית, ללא סימני גירוי מנינגיאלי, בטן רכה רגישות קלה מפושטת. Cr 1.6 (0.9 בבסיס), K 3.2, Na 131
+  נוזלים iv + תיקון K, הופסק HCTZ. דובר עם היחידה למניעת זיהומים לגבי הנכד - לא נדרש טיפול מונע,
+  ללא מגע קרוב
+
+  גסטרואנטריטיס עם התייבשות ופגיעה כלייתית חריפה. לאשפוז

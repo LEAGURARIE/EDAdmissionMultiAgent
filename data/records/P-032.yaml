@@ -1,0 +1,46 @@
+case_id: P-032
+patient:
+  age: 71
+  sex: female
+triage_level: 3
+chief_complaint: abdominal_pain
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 128
+  heart_rate: 88
+  consciousness: alert
+  temperature: 38.3
+
+labs:
+  wbc: 16.9
+  hemoglobin: 12.8
+  platelets: 180
+  sodium: 136
+  potassium: 3.9
+  creatinine: 1.2
+  glucose: 132
+  crp: 168
+  lactate: 1.7
+
+background_conditions: "אבני מרה ידועות, HTN, היפותירואידיזם"
+medications: [amlodipine 5mg, eltroxin 50mcg]
+allergies: [penicillin]
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "כאב בבטן ימנית עליונה וחום, עיניים צהובות."
+
+physician_note: |
+  בת 71 אבני מרה ידועות, סירבה לניתוח בעבר. יומיים כאב RUQ, חום עם צמרמורות, הבת שמה לב שהעיניים צהובות.
+  ב.ג. צהבת, רגישות RUQ, מרפי חיובי. בילירובין 4.8, ALP ו-GGT מוגברים. US - כיס מרה עם אבנים, הרחבת
+  דרכי מרה, CBD 11 מ"מ. רגישות לפניצילין - meropenem + נוזלים
+  הערכה חוזרת אחרי שעתיים: צמרמורת נוספת, ל"ד 98/62, דופק 118, חום 39.1, נשימות 20, סט' 96%.
+  קיבלה 1L נוסף עם עליה ל"ד ל-108/66. גסטרו - ERCP מחר בבוקר. כירורג - לאשפוז אצלם
+
+  cholangitis חריפה על רקע אבן בצינור המרה. לאשפוז בכירורגיה

@@ -1,0 +1,43 @@
+case_id: P-046
+patient:
+  age: 72
+  sex: male
+triage_level: 3
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 134
+  heart_rate: 90
+  consciousness: alert
+  temperature: 38.2
+
+labs:
+  wbc: 5.9
+  hemoglobin: 13.4
+  sodium: 137
+  potassium: 4.2
+  creatinine: 1.0
+  glucose: 162
+  crp: 34
+
+background_conditions: "פוליארטריטיס ראומטית על פרדניזון, DM2"
+medications: [prednisone 15mg, metformin 850mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: internal_medicine_b
+
+triage_note: "פריחה עם שלפוחיות בכל הגוף, חום."
+
+physician_note: |
+  בן 72 על prednisone 15 מ"ג ביום כבר שנה בגלל פוליארטריטיס, DM2. לפני 4 ימים פריחה כואבת עם שלפוחיות
+  בפס על בית החזה מימין, מאתמול שלפוחיות חדשות מפוזרות על הגב, הידיים והרגליים, מחוץ לדרמטום. חום 38.2
+  ב.ג. במ"כ טוב, ערני, ללא סימני מעורבות עינית או נוירולוגית. ריאות נקיות, סט' תקינה. CXR תקין
+  הרפס זוסטר מפושט בחולה מדוכא חיסונית. acyclovir iv. דובר עם היחידה למניעת זיהומים - בידוד
+
+  herpes zoster מפושט. יש לאשפז בפנימית ב' בבידוד, דובר עם התורן

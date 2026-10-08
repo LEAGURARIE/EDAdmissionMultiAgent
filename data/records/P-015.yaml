@@ -1,0 +1,45 @@
+case_id: P-015
+patient:
+  age: 79
+  sex: male
+triage_level: 2
+chief_complaint: syncope
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 128
+  heart_rate: 48
+  consciousness: alert
+  temperature: 36.5
+
+labs:
+  wbc: 7.4
+  hemoglobin: 13.6
+  sodium: 138
+  potassium: 4.4
+  creatinine: 1.1
+  glucose: 112
+  troponin: 18
+
+background_conditions: "HTN, BPH, גלאוקומה"
+medications: [amlodipine 10mg, tamsulosin 0.4mg, timolol טיפות עיניים]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: cardiology
+
+triage_note: "התעלף בבית הכנסת, התאושש מהר."
+
+physician_note: |
+  בן 79 HTN BPH גלאוקומה. התעלף בעמידה בבית הכנסת, לפי עדים איבוד הכרה כחצי דקה, התאושש מהר ללא
+  בלבול, ללא פרכוס ללא הטלת שתן. אירוע שני החודש, הראשון "רק סחרחורת חזקה". שולל כאבי חזה, שולל דפיקות.
+  משתמש בטיפות timolol לגלאוקומה. ב.ג. במ"כ טוב, ברדיקרדי 48 סדיר, ללא אוושות, ללא חבלה בראש
+  ECG - Mobitz II עם הולכה 2:1 לסירוגין, QRS רחב. טרופונין 18. אורתוסטטי שלילי
+  שוחחתי עם תורן קרדיו - צריך ניטור, שקילת קוצב, הפסקת timolol
+  המשפחה (הבן) מבקשת שיאושפז בפנימית ב' כי "הרופא של המשפחה עובד שם ומכיר אותו"
+
+  סינקופה על רקע הפרעת הולכה, Mobitz II. יש לאשפז בקרדיולוגיה, דובר עם התורן

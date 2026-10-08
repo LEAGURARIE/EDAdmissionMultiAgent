@@ -1,0 +1,45 @@
+case_id: P-051
+patient:
+  age: 54
+  sex: male
+triage_level: 1
+chief_complaint: altered_consciousness
+
+vitals:
+  respiratory_rate: 14
+  oxygen_saturation: 98
+  supplemental_oxygen: true
+  spo2_scale_2: false
+  systolic_bp: 104
+  heart_rate: 112
+  consciousness: unresponsive
+  temperature: 37.9
+
+labs:
+  wbc: 13.1
+  hemoglobin: 14.4
+  sodium: 138
+  potassium: 4.0
+  creatinine: 1.1
+  glucose: 146
+  lactate: 6.2
+  ph: 7.18
+  pco2: 52
+
+background_conditions: "אפילפסיה, אלכוהול"
+medications: [levetiracetam 1g]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: intensive_care
+
+triage_note: "פרכוסים חוזרים, מונשם ע\"י צוות נט\"ן."
+
+physician_note: |
+  בן 54 אפילפסיה, צריכת אלכוהול מוגברת, הפסיק לקחת levetiracetam לפני שבוע. הובא בנט"ן עם פרכוסים חוזרים
+  ללא חזרה להכרה ביניהם, כ-40 דקות, קיבל מידזולם בדרך. במיון פרכוס נוסף - לורזפאם, לבטירצטם iv,
+  פניטואין. הונשם בגלל הגנה על נתיב אוויר. CT ראש - ללא דימום. לקטט 6.2 אחרי פרכוסים
+  status epilepticus, מונשם ומורדם. נוירולוג - EEG רציף. שוחחתי עם תורן טנ"מ
+
+  status epilepticus, מונשם. יש לאשפז בטיפול נמרץ, דובר עם התורן

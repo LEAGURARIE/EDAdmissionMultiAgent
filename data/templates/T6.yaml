@@ -1,0 +1,32 @@
+# T6 — held beds. Design: docs/design/ward_state_templates.md.
+# The target ward has one free regular bed and one free observation bed, and one of each type held
+# for someone else — the held beds must not be taken.
+# Private note: the free beds too are promised to patients back from the operating room, not yet held.
+id: T6
+name: מיטה משוריינת
+day: Wednesday
+time: "11:00"
+relative_to: target_ward
+
+default:
+  regular_free: 2
+  observation_free: 1
+  isolation_free: true
+
+ladder:
+  level_1:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: true
+    held:
+      - {bed_type: regular}
+      - {bed_type: observation}
+    notes:
+      - "המיטה הרגילה ומיטת ההשגחה הפנויות מובטחות לשני מטופלים שחוזרים מחדר ניתוח אחר הצהריים, עוד לא שוריינו במערכת."
+    note_effects:
+      - {effect: unavailable, bed_type: regular}
+      - {effect: unavailable, bed_type: observation}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

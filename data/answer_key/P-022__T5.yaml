@@ -1,0 +1,37 @@
+case_id: P-022
+template: T5
+patient_type: B
+challenge: 2
+situation: null
+traps:
+- 10
+- 7
+wording: specialty
+target_ward: internal_medicine_a
+needs:
+  severe: true
+  observation: true
+  isolation: false
+  intensive_care: false
+news2: null
+expected:
+  action: temporary_place
+  ward_id: cardiology
+  acceptable_wards:
+  - cardiology
+  bed_type: observation
+  awaiting_transfer_to: internal_medicine_a
+  wait_for: null
+  ladder_level: 3
+  needs_typed_reason: true
+  physician_approval_for_icu: false
+  required_flags:
+  - missing_vital_sign
+rationale: no observation bed in the target ward — nearest on the ladder, level 3
+ward_notes:
+- 'internal_medicine_a: מטופל ממיטה 7 שוחרר לפני חצי שעה, המיטה נוקתה ופנויה, עוד
+  לא עודכן במחשב. המיטה שבניקוי תהיה מוכנה כמתוכנן.'
+- 'internal_medicine_b: אין אחות פנויה למיטת ההשגחה עד הערב.'
+reports_alone_would_give: temporary_place internal_medicine_b, observation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

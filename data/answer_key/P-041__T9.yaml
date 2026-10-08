@@ -1,0 +1,33 @@
+case_id: P-041
+template: T9
+patient_type: B
+challenge: 1
+situation: null
+traps: []
+wording: specialty
+target_ward: internal_medicine_a
+needs:
+  severe: true
+  observation: true
+  isolation: false
+  intensive_care: false
+news2: 5
+expected:
+  action: temporary_place
+  ward_id: general_surgery
+  acceptable_wards:
+  - general_surgery
+  bed_type: observation
+  awaiting_transfer_to: internal_medicine_a
+  wait_for: null
+  ladder_level: 4
+  needs_typed_reason: true
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: no observation bed in the target ward — nearest on the ladder, level 4
+ward_notes:
+- 'cardiology: הלילה אחות אחת על כל המחלקה ושני מטופלים אחרי צנתור דחוף. מקבלים רק
+  מטופלים קרדיולוגיים עד הבוקר.'
+reports_alone_would_give: temporary_place cardiology, observation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

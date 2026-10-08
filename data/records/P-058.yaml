@@ -1,0 +1,46 @@
+case_id: P-058
+patient:
+  age: 79
+  sex: female
+triage_level: 3
+chief_complaint: syncope
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 112
+  heart_rate: 96
+  consciousness: alert
+  temperature: 37.6
+
+labs:
+  wbc: 14.2
+  hemoglobin: 13.8
+  sodium: 134
+  potassium: 3.2
+  creatinine: 1.5
+  glucose: 104
+  crp: 92
+  lactate: 1.5
+  troponin: 8
+
+background_conditions: "HTN, אוסטאופורוזיס, אשפוז עם UTI לפני 3 שבועות"
+medications: [amlodipine 5mg, alendronate]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "התעלפה בשירותים."
+
+physician_note: |
+  בת 79 HTN, s/p אשפוז לפני 3 שבועות עם UTI שטופל ב-cipro. התעלפה הבוקר בשירותים אחרי יציאה, התאוששה מהר.
+  בתשאול: שלשולים מימיים 8-10 ביום 5 ימים, כאבי בטן מתכווצים, לא אוכלת. s/p ABx - לשלול C. diff.
+  ECG סינוס 96, ללא הפרעות קצב או הולכה, טרופונין 8. אורתוסטטי חיובי - ירידה בל"ד ל-88 בעמידה.
+  Cr 1.5 (0.9 בבסיס), K 3.2. CT בטן - קוליטיס מפושטת ללא נקב. דגימת צואה ל-C. diff נשלחה, תשובה ממתינה
+  נוזלים iv, תיקון K, vancomycin פומי אמפירי. ללא עדות לסיבה לבבית לעילפון
+
+  סינקופה על רקע התייבשות מקוליטיס, חשד ל-C. diff אחרי אנטיביוטיקה. לאשפוז

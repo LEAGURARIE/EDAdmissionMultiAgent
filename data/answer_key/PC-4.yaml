@@ -1,0 +1,88 @@
+id: PC-4
+template: T1
+patients:
+- case_id: P-016
+  target_ward: internal_medicine_b
+  decided_minutes_before: 30
+- case_id: P-017
+  target_ward: general_surgery
+  decided_minutes_before: 0
+priority:
+- P-016
+- P-017
+answers:
+- case_id: P-016
+  template: T1
+  patient_type: D
+  challenge: 1
+  situation: null
+  traps: []
+  wording: binding_request
+  target_ward: internal_medicine_b
+  needs:
+    severe: true
+    observation: true
+    isolation: true
+    intensive_care: false
+  news2: 5
+  expected:
+    action: temporary_place
+    ward_id: internal_medicine_a
+    acceptable_wards:
+    - internal_medicine_a
+    bed_type: isolation
+    awaiting_transfer_to: internal_medicine_b
+    wait_for: null
+    ladder_level: 2
+    needs_typed_reason: false
+    physician_approval_for_icu: false
+    required_flags: []
+  rationale: no isolation bed in the target ward — nearest on the ladder, level 2
+  ward_notes:
+  - 'internal_medicine_a: חדר 8 סגור, נזילה מהתקרה. שתי המיטות הרגילות הפנויות שם
+    לא בשימוש עד שהאחזקה יסיימו.'
+  - 'cardiology: המוניטור של מיטת ההשגחה הפנויה לא עובד, טכנאי רק מחר. אי אפשר לקבל
+    אליה.'
+  - 'internal_medicine_b: חדר הבידוד בניקוי יסודי אחרי מטופל עם C. diff, לפחות 3 שעות.'
+  - 'general_surgery: בחדר הבידוד הלחץ השלילי לא עובד מהבוקר, החדר סגור.'
+  - 'intensive_care: המיטה הפנויה שמורה למטופל מחדר ניתוח, מגיע בעוד שעה.'
+  reports_alone_would_give: place internal_medicine_b, isolation
+- case_id: P-017
+  template: T1
+  patient_type: D
+  challenge: 2
+  situation: null
+  traps:
+  - 6
+  wording: specialty
+  target_ward: general_surgery
+  needs:
+    severe: true
+    observation: true
+    isolation: true
+    intensive_care: false
+  news2: 4
+  expected:
+    action: temporary_place
+    ward_id: cardiology
+    acceptable_wards:
+    - cardiology
+    bed_type: isolation
+    awaiting_transfer_to: general_surgery
+    wait_for: null
+    ladder_level: 3
+    needs_typed_reason: true
+    physician_approval_for_icu: false
+    required_flags: []
+  rationale: no isolation bed in the target ward — nearest on the ladder, level 3
+  ward_notes:
+  - 'internal_medicine_a: חדר 8 סגור, נזילה מהתקרה. שתי המיטות הרגילות הפנויות שם
+    לא בשימוש עד שהאחזקה יסיימו.'
+  - 'cardiology: המוניטור של מיטת ההשגחה הפנויה לא עובד, טכנאי רק מחר. אי אפשר לקבל
+    אליה.'
+  - 'internal_medicine_b: חדר הבידוד בניקוי יסודי אחרי מטופל עם C. diff, לפחות 3 שעות.'
+  - 'general_surgery: בחדר הבידוד הלחץ השלילי לא עובד מהבוקר, החדר סגור.'
+  - 'intensive_care: המיטה הפנויה שמורה למטופל מחדר ניתוח, מגיע בעוד שעה.'
+  reports_alone_would_give: place general_surgery, isolation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

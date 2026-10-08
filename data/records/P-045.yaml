@@ -1,0 +1,43 @@
+case_id: P-045
+patient:
+  age: 75
+  sex: female
+triage_level: 2
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 95
+  supplemental_oxygen: true
+  spo2_scale_2: false
+  systolic_bp: 132
+  heart_rate: 98
+  consciousness: alert
+  temperature: 38.6
+
+labs:
+  wbc: 6.4
+  hemoglobin: 12.8
+  sodium: 136
+  potassium: 4.0
+  creatinine: 1.1
+  glucose: 138
+  crp: 58
+
+background_conditions: "CHF EF 45%, HTN, s/p החלפת מסתם אאורטלי 2020"
+medications: [furosemide 40mg, bisoprolol 5mg, warfarin]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: internal_medicine_a
+
+triage_note: "חום ושיעול יומיים. מחוסנת?"
+
+physician_note: |
+  בת 75 CHF, s/p AVR מכני 2020 על warfarin. יומיים חום, שיעול, כאבי שרירים. PCR שפעת A חיובי.
+  בקבלה סט' 90% באוויר, O2 2L - 95%. ללא סימני גודש, CXR ללא תסנין. oseltamivir
+  הבן מבקש שתאושפז בקרדיולוגיה "כי שם מכירים את הלב שלה ושם אושפזה אחרי הניתוח". הסברתי שהבעיה כעת
+  זיהומית ונשימתית. INR 2.6 תקין
+
+  שפעת A עם צורך בחמצן. יש לאשפז בפנימית א' בבידוד, דובר עם התורן

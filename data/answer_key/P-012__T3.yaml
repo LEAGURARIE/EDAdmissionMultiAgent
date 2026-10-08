@@ -1,0 +1,34 @@
+case_id: P-012
+template: T3
+patient_type: B
+challenge: 2
+situation: null
+traps:
+- 12
+- 5
+wording: specialty
+target_ward: internal_medicine_b
+needs:
+  severe: true
+  observation: true
+  isolation: false
+  intensive_care: false
+news2: 6
+expected:
+  action: escalate
+  ward_id: null
+  acceptable_wards: null
+  bed_type: null
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: null
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: no free observation bed on the target ward's ladder — no safe option
+ward_notes:
+- 'internal_medicine_b: חדר הבידוד בניקוי יסודי אחרי מטופל עם TB, לא יהיה מוכן לפני
+  הלילה. המיטה הרגילה הפנויה, המנוע שלה התקלקל, לא בשימוש.'
+reports_alone_would_give: place internal_medicine_b, isolation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

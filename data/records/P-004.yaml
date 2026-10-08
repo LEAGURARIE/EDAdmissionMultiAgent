@@ -1,0 +1,51 @@
+case_id: P-004
+patient:
+  age: 63
+  sex: male
+triage_level: 2
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 22
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 112
+  heart_rate: 108
+  consciousness: alert
+  temperature: 38.9
+
+labs:
+  wbc: 17.8
+  hemoglobin: 13.9
+  platelets: 210
+  sodium: 135
+  potassium: 4.2
+  creatinine: 1.2
+  glucose: 156
+  crp: 214
+  lactate: 3.1
+
+background_conditions: "DM2, היפרליפידמיה, BPH"
+medications: [metformin 850mg, atorvastatin 20mg, tamsulosin 0.4mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חום וצמרמורות מאתמול."
+
+physician_note: |
+  בן 63 DM2, היפרליפידמיה, BPH. חום עד 39.2 וצמרמורות מאתמול, לדבריו "כנראה תפס משהו מהנכדים" שחזרו
+  מהגן עם הצטננות. בשבוע שעבר עבד הרבה בגינה, בחודש שעבר טיול בצפון איטליה היה בריא כל הטיול. לפני
+  שנתיים כריתת פוליפ בקולונוסקופיה לא ממאיר. חיסונים עדכניים לדבריו. אשתו בבית חולה בשפעת מאובחנת
+  מתחילת השבוע, הוא עצמו עם מעט שיעול יבש. שואל אם אפשר לקבל אנטיביוטיקה הביתה כי יש לו טיסה
+  לחתונה של אחיינית בשבוע הבא, מאוד מוטרד מזה. ללא שלשולים, ללא תלונות שתן.
+  בתשאול ממוקד - כאב בבטן עליונה ימנית יומיים, החמיר אחרי ארוחה שמנה, בחילה ללא הקאות.
+  ב.ג. נראה חולה, ללא צהבת, ריאות נקיות, רגישות ניכרת RUQ מרפי חיובי.
+  US: כיס מרה מעובה עם אבנים ונוזל פריכולציסטי - acute cholecystitis. לקטט 3.1, תרביות דם נלקחו.
+  PCR שפעת נלקח לאור החשיפה בבית + השיעול, תשובה ממתינה - לשלול שפעת
+  ceftriaxone + metronidazole + נוזלים. נבדק ע"י כירורג תורן ממליץ טיפול שמרני ראשוני ושקילת ניתוח
+
+  לאשפוז

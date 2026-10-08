@@ -1,0 +1,66 @@
+# The 60 evaluation pairs: each record is placed in one ward-state template.
+# Source: docs/design/ward_state_templates.md, "the 60-case plan" section (case C01 = record P-001, and so on).
+# target_ward is the true target ward — the runner needs it to build a relative template.
+# It is part of the answer, so only the evaluation code reads this folder; the decider never sees it.
+
+pairs:
+  - {case_id: P-001, template: T1, target_ward: internal_medicine_a}
+  - {case_id: P-002, template: T1, target_ward: cardiology}
+  - {case_id: P-003, template: T1, target_ward: internal_medicine_b}
+  - {case_id: P-004, template: T1, target_ward: general_surgery}
+  - {case_id: P-005, template: T1, target_ward: intensive_care}
+  - {case_id: P-006, template: T2, target_ward: internal_medicine_a}
+  - {case_id: P-007, template: T2, target_ward: cardiology}
+  - {case_id: P-008, template: T2, target_ward: internal_medicine_b}
+  - {case_id: P-009, template: T2, target_ward: general_surgery}
+  - {case_id: P-010, template: T2, target_ward: internal_medicine_a}
+  - {case_id: P-011, template: T3, target_ward: cardiology}
+  - {case_id: P-012, template: T3, target_ward: internal_medicine_b}
+  - {case_id: P-013, template: T3, target_ward: general_surgery}
+  - {case_id: P-014, template: T3, target_ward: internal_medicine_a}
+  - {case_id: P-015, template: T3, target_ward: cardiology}
+  - {case_id: P-016, template: T4, target_ward: internal_medicine_b}
+  - {case_id: P-017, template: T4, target_ward: general_surgery}
+  - {case_id: P-018, template: T4, target_ward: internal_medicine_a}
+  - {case_id: P-019, template: T4, target_ward: cardiology}
+  - {case_id: P-020, template: T4, target_ward: internal_medicine_b}
+  - {case_id: P-021, template: T5, target_ward: general_surgery}
+  - {case_id: P-022, template: T5, target_ward: internal_medicine_a}
+  - {case_id: P-023, template: T5, target_ward: cardiology}
+  - {case_id: P-024, template: T5, target_ward: internal_medicine_b}
+  - {case_id: P-025, template: T5, target_ward: general_surgery}
+  - {case_id: P-026, template: T6, target_ward: internal_medicine_a}
+  - {case_id: P-027, template: T6, target_ward: cardiology}
+  - {case_id: P-028, template: T6, target_ward: internal_medicine_b}
+  - {case_id: P-029, template: T6, target_ward: general_surgery}
+  - {case_id: P-030, template: T6, target_ward: internal_medicine_a}
+  - {case_id: P-031, template: T7, target_ward: cardiology}
+  - {case_id: P-032, template: T7, target_ward: general_surgery}
+  - {case_id: P-033, template: T7, target_ward: cardiology}
+  - {case_id: P-034, template: T7, target_ward: general_surgery}
+  - {case_id: P-035, template: T7, target_ward: cardiology}
+  - {case_id: P-036, template: T8, target_ward: cardiology}
+  - {case_id: P-037, template: T8, target_ward: internal_medicine_b}
+  - {case_id: P-038, template: T8, target_ward: general_surgery}
+  - {case_id: P-039, template: T8, target_ward: internal_medicine_a}
+  - {case_id: P-040, template: T8, target_ward: cardiology}
+  - {case_id: P-041, template: T9, target_ward: internal_medicine_a}
+  - {case_id: P-042, template: T9, target_ward: internal_medicine_b}
+  - {case_id: P-043, template: T9, target_ward: internal_medicine_a}
+  - {case_id: P-044, template: T9, target_ward: internal_medicine_b}
+  - {case_id: P-045, template: T9, target_ward: internal_medicine_a}
+  - {case_id: P-046, template: T10, target_ward: internal_medicine_b}
+  - {case_id: P-047, template: T10, target_ward: general_surgery}
+  - {case_id: P-048, template: T10, target_ward: internal_medicine_a}
+  - {case_id: P-049, template: T10, target_ward: cardiology}
+  - {case_id: P-050, template: T10, target_ward: internal_medicine_b}
+  - {case_id: P-051, template: T11, target_ward: intensive_care}
+  - {case_id: P-052, template: T11, target_ward: intensive_care}
+  - {case_id: P-053, template: T11, target_ward: intensive_care}
+  - {case_id: P-054, template: T11, target_ward: general_surgery}
+  - {case_id: P-055, template: T11, target_ward: intensive_care}
+  - {case_id: P-056, template: T12, target_ward: internal_medicine_a}
+  - {case_id: P-057, template: T12, target_ward: cardiology}
+  - {case_id: P-058, template: T12, target_ward: internal_medicine_b}
+  - {case_id: P-059, template: T12, target_ward: general_surgery}
+  - {case_id: P-060, template: T12, target_ward: internal_medicine_a}

@@ -1,0 +1,45 @@
+case_id: P-037
+patient:
+  age: 79
+  sex: female
+triage_level: 3
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 95
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 112
+  heart_rate: null
+  consciousness: alert
+  temperature: 38.6
+
+labs:
+  wbc: 19.4
+  hemoglobin: 11.9
+  platelets: 142
+  sodium: 134
+  potassium: 4.4
+  creatinine: 1.7
+  glucose: 188
+  crp: 224
+  lactate: 3.2
+
+background_conditions: "DM2, HTN, אי ספיקת כליות כרונית קלה, קטטר שתן קבוע"
+medications: [insulin glargine 18u, amlodipine 5mg]
+allergies: []
+functional_status: dependent
+
+physician_request:
+  ward: null
+
+triage_note: "חום מהבוקר, מבית אבות. קטטר שתן."
+
+physician_note: |
+  בת 79 DM2 HTN CKD, מבית אבות סיעודי, קטטר שתן קבוע. מהבוקר חום עד 38.8 וירידה בתפקוד לפי המכתב, לא אוכלת.
+  ב.ג. ערנית, מגיבה, ללא גירוי מנינגיאלי, ריאות נקיות, בטן רכה. שתן עכור בקטטר. U/A פיוריה, תרבית נשלחה,
+  תרביות דם x2. לקטט 3.2, Cr 1.7 (1.1 בבסיס), WBC 19.4. הוחלף קטטר. pip-tazo + נוזלים 1.5L
+  הערכה חוזרת - ל"ד 108/64, עדיין חום
+
+  urosepsis הקשורה לקטטר עם לקטט מוגבר ופגיעה כלייתית. לאשפוז בפנימית

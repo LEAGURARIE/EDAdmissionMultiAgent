@@ -1,0 +1,44 @@
+case_id: P-074
+patient:
+  age: 86
+  sex: female
+triage_level: 3
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 128
+  heart_rate: 90
+  consciousness: alert
+  temperature: 38.3
+
+labs:
+  wbc: 12.6
+  hemoglobin: 11.4
+  sodium: 137
+  potassium: 4.1
+  creatinine: 1.1
+  glucose: 132
+  crp: 92
+
+background_conditions: "DM2, אוסטאופורוזיס, גרה בבית אבות, נשאית MRSA ידועה"
+medications: [metformin 500mg x2, alendronate 70mg שבועי]
+allergies: [sulfa]
+functional_status: partly_dependent
+
+physician_request:
+  ward: internal_medicine_b
+
+triage_note: "חום מבית אבות. מכתב: נשאית MRSA."
+
+physician_note: |
+  בת 86 DM2, מבית אבות. יומיים חום וצריבה בשתן, ירידה בתיאבון. מכתב מבית האבות: נשאית MRSA ידועה
+  (משטח מפשעה לפני 4 חודשים), ללא פצעים.
+  ב.ג. ערה, מתמצאת, רגישות סופרה-פובית, ניקוש מותני שלילי. עור שלם, ללא פצעי לחץ, ללא צנתרים.
+  שתן - ניטריטים +, לויקו ++. תרבית שתן ודם. ceftriaxone (רגישה לסולפה)
+  שוחחתי עם היחידה למניעת זיהומים: נשאות MRSA בלבד - אמצעי מגע, אין צורך בחדר בידוד.
+
+  UTI בנשאית MRSA. יש לאשפז בפנימית ב', דובר עם התורן

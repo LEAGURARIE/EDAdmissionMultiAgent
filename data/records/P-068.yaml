@@ -1,0 +1,45 @@
+case_id: P-068
+patient:
+  age: 79
+  sex: male
+triage_level: 3
+chief_complaint: trauma_or_fall
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 95
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 142
+  heart_rate: 88
+  consciousness: confusion
+  temperature: 36.8
+
+labs:
+  wbc: 8.9
+  hemoglobin: 13.6
+  sodium: 139
+  potassium: 4.1
+  creatinine: 1.0
+  glucose: 104
+  crp: 6
+
+background_conditions: "דמנציה וסקולרית, CVA ישן, גר במוסד סיעודי-תשוש, HTN"
+medications: [aspirin 100mg, atorvastatin 20mg, ramipril 2.5mg, quetiapine 25mg לילה]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "נפל במוסד, כאב בצלעות ימין."
+
+physician_note: |
+  בן 79 דמנציה וסקולרית, גר במוסד. נפל הבוקר מהמיטה במוסד, נחבל בבית חזה ימין. ללא חבלת ראש לפי הצוות,
+  לא על נוגדי קרישה. כאב בנשימה עמוקה. ב.ג. רגישות צלעות 6-7 ימין, כניסת אוויר שווה. CXR - שבר צלעות
+  6 ו-7 ימין, ללא PTX, ללא המוטורקס. CT ראש ליתר ביטחון - ללא דימום, אוטמים ישנים
+  לא מתמצא, חוזר על שאלות. האחות מהמוסד שמלווה אותו ומכירה אותו שנתיים: "ככה הוא כל יום, לא השתנה
+  כלום". מכתב העברה מהמוסד - מבולבל כרוני, לא מתמצא, עצמאי חלקית בהליכה עם הליכון. אקמול, oxycodone 5
+  סטורציה 95% באוויר, נושם בנוחות אחרי משככים. ספירומטר תמריצי
+
+  שבר צלעות 6-7 ימין אחרי נפילה, בלבול כרוני במצבו הרגיל. לאשפוז בכירורגיה

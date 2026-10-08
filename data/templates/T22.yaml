@@ -1,0 +1,35 @@
+# T22 — a weekday morning discharge that will not happen (ward notes and the shift rule). Design:
+# docs/design/ward_state_templates.md.
+# Tuesday 14:30, still the morning shift: the target ward is full and reports a regular-bed discharge expected
+# today — by the rule a non-severe patient would wait, but the private note says the discharge will be tomorrow.
+# Level 2 has room.
+id: T22
+name: בוקר, השחרור לא יקרה
+day: Tuesday
+time: "14:30"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 0
+  isolation_free: false
+
+ladder:
+  level_1:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+    discharges_today:
+      - {bed_type: regular}
+    notes:
+      - "השחרור של היום תלוי ברופא שעוד לא חתם על המכתב, כנראה ישתחרר רק מחר."
+    note_effects:
+      - {effect: discharge_not_today}
+  level_2:
+    regular_free: 1
+    observation_free: 0
+    isolation_free: false
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

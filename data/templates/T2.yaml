@@ -1,0 +1,32 @@
+# T2 — only an observation bed left. Design: docs/design/ward_state_templates.md.
+# The target ward has no regular bed and no discharge today, only one free observation bed.
+# Level 2 has a regular bed. Private note: no nurse for the observation bed; a regular bed frees within an hour.
+id: T2
+name: נשארה רק השגחה
+day: Thursday
+time: "15:00"
+relative_to: target_ward
+
+default:
+  regular_free: 2
+  observation_free: 1
+  isolation_free: true
+
+ladder:
+  level_1:
+    regular_free: 0
+    observation_free: 1
+    isolation_free: false
+    notes:
+      - "אין אחות למיטת ההשגחה הפנויה במשמרת הזו. מטופל ממיטה רגילה הולך הביתה בעוד כשעה, ברגע שהמשפחה מגיעה."
+    note_effects:
+      - {effect: unavailable, bed_type: observation}
+      - {effect: discharge_within_hour, bed_type: regular}
+  level_2:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: true
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

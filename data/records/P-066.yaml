@@ -1,0 +1,48 @@
+case_id: P-066
+patient:
+  age: 74
+  sex: male
+triage_level: 2
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 24
+  oxygen_saturation: 94
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 98
+  heart_rate: 118
+  consciousness: alert
+  temperature: 39.2
+
+labs:
+  wbc: 19.4
+  hemoglobin: 10.8
+  platelets: 210
+  sodium: 134
+  potassium: 3.8
+  creatinine: 1.3
+  glucose: 122
+  crp: 260
+  lactate: 2.6
+
+background_conditions: "סרטן לבלב גרורתי (כבד), פליאטיבי, סטנט ביליארי לפני 3 חודשים. סיים כימותרפיה לפני 4 חודשים"
+medications: [oxycodone 10mg x2, creon, pantoprazole 40mg]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "חום וצמרמורות, צהוב."
+
+physician_note: |
+  בן 74 ca לבלב גרורתי לכבד, בטיפול פליאטיבי בלבד, סטנט ביליארי לפני 3 ח', כימו הופסקה לפני 4 ח' לבקשתו.
+  יומיים חום עם צמרמורות, כאב RUQ, צהבת שהחמירה. ב.ג. איקטרי, רגישות RUQ, ללא גירוי צפקי. בילירובין 6.8,
+  ALP גבוה. US - הרחבת דרכי מרה, חשד לחסימת סטנט. cholangitis. piptazo, נוזלים 2L, אקמול
+  שוחחתי עם המטופל, צלול ומבין, יחד עם אשתו והבכיר: המטופל לא רוצה הנשמה ולא טיפול נמרץ, "לא רוצה
+  מכונות", כן מסכים לאנטיביוטיקה ולניסיון ERCP אם יתאפשר. הוחלט DNR, לא מועמד לטנ"מ - תועד בגיליון.
+  ייעוץ גסטרו - ERCP מחר בבוקר אם יציב
+  עדכון אחרי הנוזלים: ל"ד 98/56 דופק 118 נשימות 24 חום 39.2
+
+  cholangitis על רקע חסימת סטנט, sepsis. DNR, לא לטנ"מ לבקשת המטופל. לאשפוז בפנימית

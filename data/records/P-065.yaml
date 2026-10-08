@@ -1,0 +1,46 @@
+case_id: P-065
+patient:
+  age: 89
+  sex: female
+triage_level: 2
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 26
+  oxygen_saturation: 92
+  supplemental_oxygen: true
+  spo2_scale_2: false
+  systolic_bp: 108
+  heart_rate: 112
+  consciousness: alert
+  temperature: 38.6
+
+labs:
+  wbc: 17.5
+  hemoglobin: 11.2
+  sodium: 131
+  potassium: 4.8
+  creatinine: 1.6
+  glucose: 140
+  crp: 220
+  lactate: 2.4
+
+background_conditions: "דמנציה מתקדמת, CVA ישן עם המיפלגיה שמאל, סיעודית במוסד, PEG"
+medications: [aspirin 100mg, PEG feeding]
+allergies: []
+functional_status: dependent
+
+physician_request:
+  ward: null
+
+triage_note: "ממוסד סיעודי, חום ונשימה מהירה."
+
+physician_note: |
+  בת 89 סיעודית ממוסד, CVA ישן, דמנציה מתקדמת, מוזנת ב-PEG. מהבוקר חום, נשימה מהירה, לפי הצוות במוסד
+  הקיאה בלילה אחרי ההזנה. ב.ג. חרחורים דו"צ בבסיסים, CXR תסנינים בשני הבסיסים - aspiration pneumonia.
+  בחמצן 4L משקפיים סט' 92%. piptazo, נוזלים 1L
+  שיחה עם הבן (אפוטרופוס) יחד עם הבכיר במשמרת: יש הנחיות מקדימות. הוחלט על DNR, לא להנשמה ולא מועמדת
+  לטיפול נמרץ. כן אנטיביוטיקה, נוזלים, חמצן, טיפול תומך. הבן מבין ומסכים
+  עדכון אחרי הנוזלים: ל"ד 108/60, דופק 112, נשימות 26, חום 38.6
+
+  aspiration pneumonia, sepsis. DNR, לא לטנ"מ - החלטה של הבכיר עם המשפחה. לאשפוז בפנימית

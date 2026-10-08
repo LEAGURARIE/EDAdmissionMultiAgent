@@ -1,0 +1,33 @@
+case_id: P-069
+template: T19
+patient_type: A
+challenge: 6
+situation: faulty_measurement
+traps: []
+wording: specialty
+target_ward: internal_medicine_b
+needs:
+  severe: false
+  observation: false
+  isolation: false
+  intensive_care: false
+news2: 2
+expected:
+  action: place
+  ward_id: internal_medicine_b
+  acceptable_wards:
+  - internal_medicine_b
+  bed_type: regular
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: 1
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: regular bed free in the target ward
+ward_notes:
+- 'internal_medicine_b: מיטה רגילה התפנתה אחרי הביקור ועוד לא עודכנה, מטופל יציב אפשר
+  לקבל אליה. הלילה אח אחד על כל החדרים הרחוקים, אין לנו צוות לחולה לא יציב.'
+reports_alone_would_give: temporary_place internal_medicine_a, regular
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

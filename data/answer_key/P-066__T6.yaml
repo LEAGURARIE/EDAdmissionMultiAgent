@@ -1,0 +1,34 @@
+case_id: P-066
+template: T6
+patient_type: B
+challenge: 6
+situation: limit_on_treatment
+traps: []
+wording: specialty
+target_ward: internal_medicine_b
+needs:
+  severe: true
+  observation: true
+  isolation: false
+  intensive_care: false
+news2: 9
+expected:
+  action: temporary_place
+  ward_id: internal_medicine_a
+  acceptable_wards:
+  - internal_medicine_a
+  bed_type: observation
+  awaiting_transfer_to: internal_medicine_b
+  wait_for: null
+  ladder_level: 2
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags:
+  - severity_judgment_note
+rationale: no observation bed in the target ward — nearest on the ladder, level 2
+ward_notes:
+- 'internal_medicine_b: המיטה הרגילה ומיטת ההשגחה הפנויות מובטחות לשני מטופלים שחוזרים
+  מחדר ניתוח אחר הצהריים, עוד לא שוריינו במערכת.'
+reports_alone_would_give: place internal_medicine_b, observation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

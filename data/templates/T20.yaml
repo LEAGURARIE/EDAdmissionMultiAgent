@@ -1,0 +1,33 @@
+# T20 — a discharge at night (ward notes and the shift rule). Design: docs/design/ward_state_templates.md.
+# 02:00: the target ward is full and reports a regular-bed discharge expected today — at night it is not waited for.
+# Level 2 reports a free regular bed, but its private note says it is promised. Level 3 has a free regular bed.
+id: T20
+name: שחרור בלילה
+day: Wednesday
+time: "02:00"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 0
+  isolation_free: false
+
+ladder:
+  level_1:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+    discharges_today:
+      - {bed_type: regular}
+  level_2:
+    regular_free: 1
+    observation_free: 0
+    isolation_free: false
+    notes:
+      - "המיטה הרגילה הפנויה שמורה למטופל שיוצא עכשיו מחדר ניתוח דחוף."
+    note_effects:
+      - {effect: unavailable, bed_type: regular}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

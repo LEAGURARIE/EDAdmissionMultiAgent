@@ -1,0 +1,28 @@
+# T3 — observation taken, isolation room free. Design: docs/design/ward_state_templates.md.
+# No observation bed is free in any ward; the target ward's isolation room is free.
+# Private note: the isolation room needs hours of terminal cleaning; the free regular bed is broken.
+id: T3
+name: השגחה תפוסה, בידוד פנוי
+day: Sunday
+time: "17:00"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 0
+  isolation_free: false
+
+ladder:
+  level_1:
+    regular_free: 1
+    observation_free: 0
+    isolation_free: true
+    notes:
+      - "חדר הבידוד בניקוי יסודי אחרי מטופל עם TB, לא יהיה מוכן לפני הלילה. המיטה הרגילה הפנויה, המנוע שלה התקלקל, לא בשימוש."
+    note_effects:
+      - {effect: unavailable, bed_type: isolation}
+      - {effect: unavailable, bed_type: regular}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: false

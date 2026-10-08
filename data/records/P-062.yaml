@@ -1,0 +1,47 @@
+case_id: P-062
+patient:
+  age: 69
+  sex: female
+triage_level: 2
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 22
+  oxygen_saturation: 90
+  supplemental_oxygen: true
+  spo2_scale_2: true
+  systolic_bp: 138
+  heart_rate: 96
+  consciousness: alert
+  temperature: 37.2
+
+labs:
+  wbc: 11.4
+  hemoglobin: 14.8
+  sodium: 139
+  potassium: 4.4
+  creatinine: 0.9
+  glucose: 154
+  crp: 34
+  ph: 7.29
+  pco2: 68
+
+background_conditions: "COPD קשה GOLD 4, חמצן ביתי 2 ליטר, אצירת CO2 ידועה, HTN"
+medications: [tiotropium 18mcg, budesonide/formoterol, amlodipine 5mg]
+allergies: [penicillin]
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "קוצר נשימה קשה, ישנונית. חמצן ביתי."
+
+physician_note: |
+  בת 69 COPD קשה עם חמצן ביתי 2L, אצירת CO2 ידועה, אשפוז קודם לפני שנה. 3 ימים החמרה בקוצר נשימה, כיח
+  ירקרק מוגבר. בקבלה ישנונית אבל מתעוררת לקול, נשימות 32, שימוש בשרירי עזר. גזים: pH 7.21 pCO2 88.
+  הוחל BiPAP IPAP 16 EPAP 6, אינהלציות ventolin+atrovent, solu-medrol 40, levofloxacin (רגישה לפניצילין)
+  הערכה חוזרת אחרי שעתיים על BiPAP: ערה, משתפת, נשימות 22, סט' 90% (יעד 88-92), גזים pH 7.29 pCO2 68.
+  ניסיון להוריד מ-BiPAP ל-15 דק' למשקפיים - תוך כמה דקות נשימות 30, סט' 84%, שוב ישנונית. הוחזרה ל-BiPAP.
+  CXR ללא תסנין, ללא PTX
+
+  AECOPD עם חמצת נשימתית, תלויה ב-BiPAP רציף. לאשפוז

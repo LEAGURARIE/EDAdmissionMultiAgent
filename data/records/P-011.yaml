@@ -1,0 +1,45 @@
+case_id: P-011
+patient:
+  age: 69
+  sex: male
+triage_level: 2
+chief_complaint: chest_pain
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 152
+  heart_rate: 84
+  consciousness: alert
+  temperature: 36.6
+
+labs:
+  wbc: 9.1
+  hemoglobin: 14.2
+  platelets: 240
+  sodium: 139
+  potassium: 4.3
+  creatinine: 1.0
+  glucose: 134
+  troponin: 412
+
+background_conditions: "HTN, היפרליפידמיה, מעשן פעיל 40 pack-years"
+medications: [ramipril 5mg, atorvastatin 40mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "כאב לוחץ בחזה מהבוקר, מקרין ללסת."
+
+physician_note: |
+  בן 69 HTN היפרליפידמיה מעשן כבד. כאב לוחץ בחזה מהבוקר במנוחה, מקרין ללסת ולזרוע שמאל, עם הזעה,
+  נמשך כשעה ועבר חלקית אחרי ניטרו בטריאז'. לדבריו בשבועיים האחרונים לחץ דומה בעלייה במדרגות שעבר במנוחה,
+  לא פנה. ב.ג. במ"כ סביר, לב סדיר ללא אוושות, ריאות נקיות, ללא בצקות. ECG - ירידות ST V4-V6 שלא
+  היו באק"ג מ-2024. טרופונין 412, חוזר אחרי 3 שעות ממתין. אספירין + קלקסן + ניטרו
+  עדכון - טרופונין חוזר 1,180 בעליה. עדיין כאב קל 2/10. דובר עם תורן קרדיו, NSTEMI, לצנתור מחר בבוקר
+
+  לאשפוז

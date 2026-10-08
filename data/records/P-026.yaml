@@ -1,0 +1,44 @@
+case_id: P-026
+patient:
+  age: 27
+  sex: female
+triage_level: 2
+chief_complaint: vomiting_or_diarrhea
+
+vitals:
+  respiratory_rate: 24
+  oxygen_saturation: 99
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 112
+  heart_rate: 108
+  consciousness: alert
+  temperature: 36.9
+
+labs:
+  wbc: 14.2
+  hemoglobin: 14.8
+  sodium: 132
+  potassium: 5.4
+  creatinine: 1.2
+  glucose: 486
+  lactate: 1.8
+  ph: 7.14
+
+background_conditions: "DM1 מגיל 12"
+medications: [insulin pump]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "הקאות מאתמול, סוכר HI במד."
+
+physician_note: |
+  בת 27 DM1 עם משאבה. הקאות מאתמול, כאבי בטן, צמא מוגבר, במד סוכר "HI". לדבריה הקטטר של המשאבה
+  כנראה יצא בלילה ולא שמה לב. ב.ג. מיובשת, נשימה עמוקה מהירה, ריח אצטון, בטן רכה רגישות מפושטת קלה
+  גלוקוז 486, pH 7.14, ביקרבונט 9, אניון גאפ 24, קטונים בדם 5.8. K 5.4
+  הוחל פרוטוקול DKA - נוזלים, אינסולין בעירוי, ניטור K כל שעתיים. הפסקת משאבה
+
+  DKA בינונית על רקע תקלה במשאבת אינסולין. לאשפוז

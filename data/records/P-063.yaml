@@ -1,0 +1,46 @@
+case_id: P-063
+patient:
+  age: 72
+  sex: male
+triage_level: 3
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 22
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 112
+  heart_rate: 104
+  consciousness: alert
+  temperature: 38.3
+
+labs:
+  wbc: 15.8
+  hemoglobin: 13.2
+  sodium: 135
+  potassium: 3.9
+  creatinine: 1.2
+  glucose: 130
+  crp: 145
+  lactate: 1.7
+
+background_conditions: "DM2, HTN, היפרליפידמיה"
+medications: [metformin 1g, ramipril 5mg, atorvastatin 20mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חום ושיעול 3 ימים."
+
+physician_note: |
+  בן 72 DM2 HTN, 3 ימים חום עד 38.5 בבית, שיעול עם כיח, כאב בצד ימין בנשימה עמוקה. אשתו אומרת שהיום
+  נראה יותר עייף. בקבלה במ"כ טוב, מדבר משפטים מלאים, נשימות 16 סט' 97% באוויר ל"ד 134/80 דופק 84 חום 37.6
+  ב.ג. חרחורים בבסיס ימין, ללא בצקות. CXR - תסנין קטן RLL. ceftriaxone + azithromycin, נוזלים 1L, אקמול
+  הערכה חוזרת שעה וחצי אחרי - נשימות 20, דופק 96, ל"ד 122/70, חום 38.0
+  עדכון לפני ההעברה: נשימות 22, דופק 104, ל"ד 112/68, חום 38.3, סט' 96% באוויר. עייף יותר, מתנשם קצת
+  בדיבור. כל מדידה גרועה מהקודמת למרות אנטיביוטיקה ונוזלים. לחזור על לקטט בעוד שעתיים. ramipril הופסק
+
+  CAP RLL, מגמת החמרה במדדים בשעות האחרונות. לאשפוז בפנימית

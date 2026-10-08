@@ -1,0 +1,43 @@
+case_id: P-003
+patient:
+  age: 59
+  sex: female
+triage_level: 3
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 95
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 124
+  heart_rate: 96
+  consciousness: alert
+  temperature: 38.6
+
+labs:
+  wbc: 6.2
+  hemoglobin: 13.4
+  sodium: 136
+  potassium: 3.9
+  creatinine: 0.8
+  glucose: 110
+  crp: 38
+
+background_conditions: "אסתמה קלה"
+medications: [ventolin PRN]
+allergies: [penicillin]
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חום, שיעול וכאבי שרירים. קיבלה מסכה."
+
+physician_note: |
+  בת 59 אסתמה קלה, רגישות לפניצילין. 3 ימים חום עד 39, שיעול יבש, כאבי שרירים וחולשה, לא התחסנה
+  לשפעת השנה, שבוע שעבר טיפלה בנכדה שהייתה חולה בשפעת. נראית חולה ומסמיקה, לא במצוקה נשימתית,
+  צפצופים בודדים ללא חרחורים. CXR ללא תסנין. PCR שפעת A חיובי. קיבלה oseltamivir ואקמול
+  עדיין חום, מתקשה לשתות, לא מצליחה לאכול כלום מאתמול
+
+  שפעת A מאובחנת. לאשפוז בפנימית בבידוד, טיפול + נוזלים

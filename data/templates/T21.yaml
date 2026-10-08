@@ -1,0 +1,33 @@
+# T21 — the ward says otherwise (ward notes and the shift rule). Design: docs/design/ward_state_templates.md.
+# Saturday noon: the target ward is full and reports a regular-bed discharge expected today — at the weekend it is
+# not waited for, but the ward's private note says the patient leaves within half an hour. Level 2 has room.
+id: T21
+name: סוף שבוע, המחלקה אומרת אחרת
+day: Saturday
+time: "12:00"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 0
+  isolation_free: false
+
+ladder:
+  level_1:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+    discharges_today:
+      - {bed_type: regular}
+    notes:
+      - "המשפחה כבר כאן, המטופל ממיטה רגילה יוצא בעוד חצי שעה."
+    note_effects:
+      - {effect: discharge_within_hour, bed_type: regular}
+  level_2:
+    regular_free: 1
+    observation_free: 0
+    isolation_free: false
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

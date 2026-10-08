@@ -1,0 +1,78 @@
+id: PC-7
+template: T12
+patients:
+- case_id: P-011
+  target_ward: cardiology
+  decided_minutes_before: 30
+- case_id: P-003
+  target_ward: internal_medicine_b
+  decided_minutes_before: 0
+priority:
+- P-003
+- P-011
+answers:
+- case_id: P-011
+  template: T12
+  patient_type: B
+  challenge: 1
+  situation: null
+  traps: []
+  wording: admit_only
+  target_ward: cardiology
+  needs:
+    severe: true
+    observation: true
+    isolation: false
+    intensive_care: false
+  news2: 0
+  expected:
+    action: escalate
+    ward_id: null
+    acceptable_wards: null
+    bed_type: null
+    awaiting_transfer_to: null
+    wait_for: null
+    ladder_level: null
+    needs_typed_reason: false
+    physician_approval_for_icu: false
+    required_flags: []
+  rationale: no free observation bed on the target ward's ladder — no safe option
+  ward_notes:
+  - 'internal_medicine_a: המטופל מחדר הבידוד עבר לטיפול נמרץ לפני שעה, החדר נוקה ופנוי.
+    עוד לא עודכן.'
+  - 'general_surgery: חדר 5 סגור, נזילה מהמזגן. שתי המיטות הרגילות הפנויות שם לא בשימוש.'
+  reports_alone_would_give: escalate
+- case_id: P-003
+  template: T12
+  patient_type: C
+  challenge: 1
+  situation: null
+  traps: []
+  wording: specialty
+  target_ward: internal_medicine_b
+  needs:
+    severe: false
+    observation: false
+    isolation: true
+    intensive_care: false
+  news2: 3
+  expected:
+    action: temporary_place
+    ward_id: internal_medicine_a
+    acceptable_wards:
+    - internal_medicine_a
+    bed_type: isolation
+    awaiting_transfer_to: internal_medicine_b
+    wait_for: null
+    ladder_level: 2
+    needs_typed_reason: false
+    physician_approval_for_icu: false
+    required_flags: []
+  rationale: no isolation bed in the target ward — nearest on the ladder, level 2
+  ward_notes:
+  - 'internal_medicine_a: המטופל מחדר הבידוד עבר לטיפול נמרץ לפני שעה, החדר נוקה ופנוי.
+    עוד לא עודכן.'
+  - 'general_surgery: חדר 5 סגור, נזילה מהמזגן. שתי המיטות הרגילות הפנויות שם לא בשימוש.'
+  reports_alone_would_give: escalate
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

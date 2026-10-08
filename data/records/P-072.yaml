@@ -1,0 +1,45 @@
+case_id: P-072
+patient:
+  age: 76
+  sex: female
+triage_level: 3
+chief_complaint: general_weakness
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 134
+  heart_rate: 78
+  consciousness: alert
+  temperature: 36.6
+
+labs:
+  wbc: 6.8
+  hemoglobin: 12.4
+  sodium: 118
+  potassium: 3.9
+  creatinine: 0.7
+  glucose: 94
+
+background_conditions: "HTN, דיכאון"
+medications: [hydrochlorothiazide 25mg, sertraline 50mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חולשה ובחילות, הקיאה פעמיים."
+
+physician_note: |
+  בת 76 HTN, דיכאון. שבוע חולשה, בחילות, הקיאה פעמיים היום, כאב ראש קל. ללא נפילה. הבן אומר שהיא שותה
+  "הרבה מים" לאחרונה. החלה sertraline לפני חודש, על HCTZ שנים. ב.ג. ערה, מתמצאת, ללא סימנים פוקאליים.
+  Na 118 (לפני 3 חודשים 136). היפונתרמיה, כנראה HCTZ + SSRI. הפסקת HCTZ ו-sertraline, הגבלת נוזלים,
+  מחלקה רגילה. (מתמחה)
+  ---
+  בכיר: Na 118 תסמיני - בחילות, הקאות, כאב ראש - בסיכון לפרכוס. צריך סליין 3% בבולוסים לפי פרוטוקול, Na
+  כל 4 שעות, מאזן נוזלים ושתן קפדני ומניעת תיקון מהיר מדי. לא מתאים למיטה רגילה - להשגחה. (בכיר)
+
+  היפונתרמיה תסמינית קשה, תרופתית. לאשפוז

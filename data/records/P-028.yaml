@@ -1,0 +1,45 @@
+case_id: P-028
+patient:
+  age: 84
+  sex: female
+triage_level: 3
+chief_complaint: trauma_or_fall
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 132
+  heart_rate: 84
+  consciousness: alert
+  temperature: 37.4
+
+labs:
+  wbc: 11.8
+  hemoglobin: 12.1
+  sodium: 127
+  potassium: 3.9
+  creatinine: 1.0
+  glucose: 110
+  crp: 54
+
+background_conditions: "HTN, אוסטאופורוזיס, דיכאון"
+medications: [hydrochlorothiazide 12.5mg, citalopram 20mg, alendronate]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "נפלה בבית, נמצאה על הרצפה ע\"י המטפלת."
+
+physician_note: |
+  בת 84 HTN אוסטאופורוזיס דיכאון, גרה עם מטפלת. נמצאה הבוקר על הרצפה ליד המיטה, לא זוכרת איך נפלה,
+  כנראה שכבה כשעה. לפי המטפלת ב-3 הימים האחרונים מרבה ללכת לשירותים.
+  CT ראש - ללא דימום, ללא שבר. צילומי אגן וירך - ללא שבר. CK תקין. לא ניתן לשלול זיהום בדרכי השתן
+  כגורם לנפילה - U/A עם לויקו +, ניטריטים +, תרבית נשלחה. Na 127 (135 לפני חצי שנה), על HCTZ +
+  citalopram. בבדיקה ערנית ומתמצאת כרגע, ללא חסר נוירולוגי, ללא רגישות בעמוד השדרה. הליכה עם
+  הליכון יציבה. ceftriaxone, הופסק HCTZ, הגבלת נוזלים קלה
+
+  נפילה על רקע UTI והיפונתרמיה קלה עד בינונית, ללא חבלה משמעותית. לאשפוז

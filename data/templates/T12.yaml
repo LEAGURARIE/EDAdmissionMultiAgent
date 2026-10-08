@@ -1,0 +1,35 @@
+# T12 — no observation and no isolation anywhere. Design: docs/design/ward_state_templates.md.
+# Every observation bed and every isolation room is occupied, in all wards including intensive care.
+# Private notes: Internal Medicine A's isolation room is free but not updated; general surgery's free beds are closed.
+id: T12
+name: אין השגחה ואין בידוד
+day: Friday
+time: "18:00"
+relative_to: none
+
+default:
+  regular_free: 2
+  observation_free: 0
+  isolation_free: false
+
+wards:
+  internal_medicine_a:
+    regular_free: 2
+    observation_free: 0
+    isolation_free: false
+    notes:
+      - "המטופל מחדר הבידוד עבר לטיפול נמרץ לפני שעה, החדר נוקה ופנוי. עוד לא עודכן."
+    note_effects:
+      - {effect: hidden_free, bed_type: isolation}
+  general_surgery:
+    regular_free: 2
+    observation_free: 0
+    isolation_free: false
+    notes:
+      - "חדר 5 סגור, נזילה מהמזגן. שתי המיטות הרגילות הפנויות שם לא בשימוש."
+    note_effects:
+      - {effect: unavailable, bed_type: regular}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: false

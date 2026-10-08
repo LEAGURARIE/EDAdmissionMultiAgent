@@ -1,0 +1,43 @@
+case_id: P-036
+patient:
+  age: 57
+  sex: female
+triage_level: 3
+chief_complaint: chest_pain
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 98
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 196
+  heart_rate: 80
+  consciousness: alert
+  temperature: 36.8
+
+labs:
+  wbc: 7.3
+  hemoglobin: 13.6
+  sodium: 141
+  potassium: 3.8
+  creatinine: 0.9
+  glucose: 106
+  troponin: 7
+
+background_conditions: "HTN מטופל באופן לא סדיר"
+medications: [amlodipine 10mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: cardiology
+
+triage_note: "לחץ קל בחזה, ל\"ד גבוה בבית."
+
+physician_note: |
+  בת 57 HTN, לא לוקחת תרופות בקביעות "כשמרגישה טוב". מאתמול כאב ראש קל ולחץ קל בחזה, מדדה בבית ל"ד 210/115.
+  ב.ג. במ"כ טוב, ללא חסר נוירולוגי, קרקעית עין ללא בצקת. ECG - LVH ללא שינויי ST, טרופונין 7 ו-7.
+  Cr תקין, בשתן ללא חלבון. קיבלה labetalol פומי, ל"ד ירד ל-168/96, הכאבים חלפו.
+  שוחחתי עם תורן קרדיו - יתר לחץ דם לא מאוזן ללא נזק לאיברי מטרה, לאיזון ו-Echo, אין צורך בניטור
+
+  hypertensive urgency ללא נזק לאיברי מטרה. יש לאשפז בקרדיולוגיה לאיזון, דובר עם התורן

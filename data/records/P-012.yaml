@@ -1,0 +1,46 @@
+case_id: P-012
+patient:
+  age: 82
+  sex: female
+triage_level: 3
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 95
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 118
+  heart_rate: 96
+  consciousness: null
+  temperature: 38.4
+
+labs:
+  wbc: 15.8
+  hemoglobin: 11.6
+  sodium: 133
+  potassium: 4.0
+  creatinine: 1.5
+  glucose: 156
+  crp: 142
+  lactate: 1.6
+
+background_conditions: "HTN, DM2, OA, s/p TKR R"
+medications: [amlodipine 5mg, metformin 500mg, paracetamol PRN]
+allergies: [sulfa]
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חום מאתמול. הבת אומרת שהיא לא כרגיל."
+
+physician_note: |
+  בת 82 PMHx HTN DM2 OA s/p TKR R, בד"כ עצמאית לגמרי גרה לבד, מבשלת, עושה קניות. מובאת ע"י הבת עם חום
+  מאתמול עד 38.6, c/o צריבה במתן שתן ותכיפות 3 ימים, כאבי גב מימין. לפי הבת "היא לא כרגיל מהבוקר",
+  שאלה אותה פעמיים מה השעה, לא זיהתה את הנכד בטלפון. ב.ג. במ"כ סביר, מבולבלת חדש - לא מתמצאת בזמן
+  ובמקום, GCS 14, ללא חסר נוירו פוקלי. CVA tenderness R. ריאות נקיות, בטן רכה
+  U/A - לויקו + ניטריטים +, תרבית נשלחה, תרביות דם x2. לקטט 1.6, Cr 1.5 (בסיס 0.9 לפני חצי שנה)
+  ceftriaxone + נוזלים iv. CT ראש לא בוצע - ללא נפילה ללא חבלה, ההערכה שהבלבול על רקע הזיהום
+
+  פיאלונפריטיס עם delirium חדש ופגיעה כלייתית חריפה. לאשפוז בפנימית

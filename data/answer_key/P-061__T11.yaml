@@ -1,0 +1,34 @@
+case_id: P-061
+template: T11
+patient_type: E
+challenge: 6
+situation: treatment_needs_icu
+traps: []
+wording: admit_only
+target_ward: intensive_care
+needs:
+  severe: true
+  observation: false
+  isolation: false
+  intensive_care: true
+news2: 2
+expected:
+  action: place
+  ward_id: intensive_care
+  acceptable_wards:
+  - intensive_care
+  bed_type: intensive_care
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: 1
+  needs_typed_reason: false
+  physician_approval_for_icu: true
+  required_flags: []
+rationale: intensive care bed free
+ward_notes:
+- 'intensive_care: המטופל ממיטה 3 הועבר למחלקה לפני שעה, המיטה מוכנה. עוד לא עודכן
+  במערכת.'
+- 'general_surgery: אין אחות למיטת ההשגחה הפנויה עד הלילה.'
+reports_alone_would_give: escalate
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

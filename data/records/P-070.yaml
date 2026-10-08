@@ -1,0 +1,44 @@
+case_id: P-070
+patient:
+  age: 71
+  sex: male
+triage_level: 3
+chief_complaint: vomiting_or_diarrhea
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 124
+  heart_rate: 162
+  consciousness: alert
+  temperature: 37.4
+
+labs:
+  wbc: 10.1
+  hemoglobin: 15.2
+  sodium: 141
+  potassium: 3.5
+  creatinine: 1.5
+  glucose: 98
+  crp: 22
+
+background_conditions: "פרקינסון עם רעד בולט, HTN"
+medications: [levodopa/carbidopa 100/25 x4, amlodipine 5mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: internal_medicine_a
+
+triage_note: "הקאות ושלשולים יומיים. דופק 162 במוניטור."
+
+physician_note: |
+  בן 71 פרקינסון עם רעד בולט בידיים. יומיים הקאות ושלשולים, הרבה אנשים חולים בבית הכנסת השבוע. לא מצליח
+  לשמור על כדורי הלבודופה, הרעד החמיר. במוניטור בטריאז' דופק 162 - קריאה קופצת עם הרעד, גל לא סדיר.
+  דופק ידני ברדיאליס 84 סדיר, ECG - סינוס 86, ללא הפרעת קצב, הרבה ארטיפקט של רעד. במעקב ידני 80-88.
+  ב.ג. מיובש קלות, בטן רכה, לא רגישה. Cr 1.5 (בסיס 1.0) - prerenal. נוזלים 2L, פרמין
+  ייעוץ נוירולוג טלפוני - להחזיר לבודופה כשיפסיק להקיא, לשקול מדבקה
+
+  גסטרואנטריטיס עם התייבשות ו-AKI prerenal, דופק 162 = ארטיפקט של רעד. יש לאשפז בפנימית א', דובר עם התורן

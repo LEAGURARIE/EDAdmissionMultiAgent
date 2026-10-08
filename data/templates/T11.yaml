@@ -1,0 +1,37 @@
+# T11 — intensive care full. Design: docs/design/ward_state_templates.md.
+# Intensive care and its isolation room are full; an observation bed in Internal Medicine B is held.
+# Private notes: an intensive care bed is free but not updated; general surgery has no nurse for its observation bed.
+id: T11
+name: טיפול נמרץ מלא
+day: Tuesday
+time: "11:00"
+relative_to: none
+
+default:
+  regular_free: 2
+  observation_free: 1
+  isolation_free: true
+
+wards:
+  internal_medicine_b:
+    regular_free: 2
+    observation_free: 0
+    isolation_free: true
+    held:
+      - {bed_type: observation}
+  general_surgery:
+    regular_free: 2
+    observation_free: 1
+    isolation_free: true
+    notes:
+      - "אין אחות למיטת ההשגחה הפנויה עד הלילה."
+    note_effects:
+      - {effect: unavailable, bed_type: observation}
+
+intensive_care:
+  intensive_care_free: 0
+  isolation_free: false
+  notes:
+    - "המטופל ממיטה 3 הועבר למחלקה לפני שעה, המיטה מוכנה. עוד לא עודכן במערכת."
+  note_effects:
+    - {effect: hidden_free, bed_type: intensive_care}

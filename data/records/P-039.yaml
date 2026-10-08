@@ -1,0 +1,45 @@
+case_id: P-039
+patient:
+  age: 78
+  sex: male
+triage_level: 3
+chief_complaint: altered_consciousness
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 142
+  heart_rate: 84
+  consciousness: alert
+  temperature: 37.8
+
+labs:
+  wbc: 12.6
+  hemoglobin: 13.1
+  sodium: 137
+  potassium: 4.1
+  creatinine: 1.1
+  glucose: 124
+  crp: 72
+
+background_conditions: "s/p CVA 2022 עם חולשה קלה ביד ימין, HTN, AF על OAC"
+medications: [apixaban 5mg, amlodipine 5mg, atorvastatin 40mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "הבת חשבה שיש לו שבץ - מדבר לא ברור."
+
+physician_note: |
+  בן 78 s/p CVA 2022 עם חולשה שארית קלה ביד ימין, AF על OAC. הבת הביאה אותו כי חשבה שיש שבץ חדש - "מדבר
+  לא ברור מהבוקר". בבדיקה - דיבור ללא שינוי ממצב קודם לפי אשתו (מאז השבץ מדבר קצת לא ברור כשעייף),
+  ערני ומתמצא, חולשה ביד ימין ללא שינוי מבדיקה קודמת במרפאה הנוירולוגית. NIHSS 1 - ללא שינוי מהבסיס.
+  נוירולוג: ללא עדות לאירוע חדש. CT ראש - ללא ממצא חריף, לא ניתן לשלול אוטם ישן קטן נוסף - ללא משמעות
+  חריפה. שיעול לחלי 3 ימים, חום 37.8. CXR - לא ניתן לשלול תסנין קטן בבסיס שמאל
+  amoxi-clav פומי
+
+  ללא אירוע מוחי חדש. דלקת ריאות קלה בבסיס שמאל, ללא צורך בחמצן. לאשפוז

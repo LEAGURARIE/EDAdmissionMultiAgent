@@ -1,0 +1,44 @@
+case_id: P-027
+patient:
+  age: 68
+  sex: female
+triage_level: 3
+chief_complaint: chest_pain
+
+vitals:
+  respiratory_rate: null
+  oxygen_saturation: 95
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 146
+  heart_rate: 90
+  consciousness: alert
+  temperature: 36.7
+
+labs:
+  wbc: 8.1
+  hemoglobin: 12.7
+  sodium: 138
+  potassium: 4.1
+  creatinine: 1.0
+  glucose: 168
+  troponin: 11
+
+background_conditions: "DM2, HTN, היפרליפידמיה, s/p PCI 2022"
+medications: [metformin 1g, ramipril 5mg, aspirin 100mg, atorvastatin 40mg, ticagrelor - הפסיקה לפני חודש]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "לחץ בחזה במנוחה."
+
+physician_note: |
+  בת 68 DM2 HTN, s/p PCI ל-RCA 2022, הפסיקה ticagrelor לפני חודש על דעת עצמה בגלל "דימומים מהחניכיים".
+  לחץ בחזה במנוחה מהבוקר, 3 אפיזודות של 10-15 דקות, האחרונה בהמתנה במיון. ECG בזמן כאב - ירידות ST
+  קלות בלידים תחתונים, חזר לבסיס אחרי ניטרו. טרופונין 11 ו-13 בחוזר. ב.ג. בזמן האפיזודה מתנשמת,
+  נשימות 26, סט' 95% באוויר, אחרי ניטרו נרגעה. בין האפיזודות ללא תלונות. הקרדיולוג התורן: UA,
+  לצנתור מוקדם. הוחלו הפרין + אספירין, הוחזר ticagrelor
+
+  תעוקה לא יציבה עם שינויים דינמיים באק"ג. לאשפוז בקרדיולוגיה

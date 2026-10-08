@@ -1,0 +1,37 @@
+# T18 — second-hand information (second set: ping-pong). Design: docs/design/ward_state_templates.md.
+# Every ward reports no free bed. Internal Medicine A's private note says it heard surgery has room; only general
+# surgery's own note confirms it: a regular bed freed an hour ago, not yet updated. Used only for patients meant
+# for Internal Medicine A (general surgery is level 4 of its ladder).
+id: T18
+name: מידע מיד שנייה
+day: Sunday
+time: "10:30"
+relative_to: none
+
+wards:
+  internal_medicine_a:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+    notes:
+      - "אנחנו מלאים לגמרי. שמענו מהאחראית בכירורגיה שהתפנו אצלם מיטות, אולי תנסו שם."
+  internal_medicine_b:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+  cardiology:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+  general_surgery:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+    notes:
+      - "מיטה 4 התפנתה לפני שעה, מיטה רגילה, נקייה. עוד לא עודכן במערכת."
+    note_effects:
+      - {effect: hidden_free, bed_type: regular}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

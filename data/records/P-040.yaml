@@ -1,0 +1,45 @@
+case_id: P-040
+patient:
+  age: 69
+  sex: male
+triage_level: 2
+chief_complaint: palpitations
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 124
+  heart_rate: 128
+  consciousness: alert
+  temperature: 36.9
+
+labs:
+  wbc: 7.9
+  hemoglobin: 14.1
+  sodium: 139
+  potassium: 3.7
+  creatinine: 1.0
+  glucose: 118
+  troponin: 12
+
+background_conditions: "HTN, דום נשימה בשינה"
+medications: [ramipril 5mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: cardiology
+
+triage_note: "דפיקות לב מהבוקר, לא חולפות."
+
+physician_note: |
+  בן 69 HTN, OSA ללא CPAP. דפיקות לב מהבוקר, לא חולפות, חולשה קלה. שולל כאבי חזה, שולל עילפון.
+  ECG - AF חדש עם תגובה חדרית 125-135, לא ידוע קודם. טרופונין 12 ללא דינמיקה. TSH נשלח.
+  קיבל metoprolol iv x2 עם ירידה זמנית ל-110 וחזרה ל-125-130. diltiazem בעירוי הוחל.
+  שוחחתי עם תורן קרדיו - AF חדש לא מאוזן, לניטור ואיזון קצב, לשקול קרדיוורסיה אחרי TEE
+
+  AF חדש עם תגובה חדרית מהירה, טרם הושג איזון. יש לאשפז בקרדיולוגיה, דובר עם התורן
+
+  הערה לשיבוץ: המטופל לא זקוק לניטור, ניתן לשבץ במיטה רגילה בכל מחלקה פנויה, ללא צורך באישור.

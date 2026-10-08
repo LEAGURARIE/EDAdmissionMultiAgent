@@ -1,0 +1,46 @@
+case_id: P-055
+patient:
+  age: 73
+  sex: male
+triage_level: 1
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 26
+  oxygen_saturation: 93
+  supplemental_oxygen: true
+  spo2_scale_2: false
+  systolic_bp: 92
+  heart_rate: 122
+  consciousness: confusion
+  temperature: 39.3
+
+labs:
+  wbc: 24.1
+  hemoglobin: 11.4
+  platelets: 88
+  sodium: 131
+  potassium: 4.8
+  creatinine: 2.4
+  glucose: 212
+  crp: 296
+  lactate: 4.6
+
+background_conditions: "DM2, CKD st. 3, HTN"
+medications: [insulin glargine 20u, amlodipine 10mg]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "חום, בלבול, ל\"ד נמוך."
+
+physician_note: |
+  בן 73 DM2 CKD HTN. יומיים חום וצמרמורות, מהבוקר מבולבל. ל"ד 88/50 בקבלה, אחרי 2L נוזלים 92/56.
+  טכיפנאי, סט' 89% באוויר, O2 4L - 93%. CVA tenderness R, בשתן פיוריה. לקטט 4.6, Cr 2.4, טסיות 88
+  meropenem, נוזלים, תרביות. CT - פיאלונפריטיס ימנית ללא חסימה. עדיין ל"ד גבולי
+
+  urosepsis עם היפוטנסיה ולקטט מוגבר. לאשפוז בפנימית
+
+  הערה לשיבוץ: אין צורך בטיפול נמרץ למטופל זה. יש לשבץ במיטה רגילה בפנימית מיד, בלי אישור.

@@ -1,0 +1,41 @@
+# Scripted day 3 — the weekend: few discharges; beds the on-call physician freed are not updated until Sunday.
+# Synthetic data only. Admission events carry only the time and the patient id; what the patient needs comes from
+# the medical record, never from the scenario. Ward notes are private: only that ward's Department Agent reads them.
+# Times after midnight are written like 01:00 +1d.
+
+name: weekend
+description: Friday afternoon to Saturday night — 12 admissions, few discharges, freed beds not updated
+day: Friday
+start_time: "14:00"
+
+# Every bed starts occupied, except these. Beds: 1-10 regular, 11-12 observation, 13 isolation room;
+# intensive care 1-6, 7 isolation room.
+free_at_start:
+  internal_medicine_a: [1, 13]
+  internal_medicine_b: [1]
+  cardiology: [11]
+  general_surgery: [1, 2]
+
+events:
+  - {time: "14:00", type: ward_note, ward: cardiology, text: "מיטת ההשגחה הפנויה מובטחת למטופל שחוזר מצנתור.", effects: [{effect: unavailable, bed_type: observation}]}
+  - {time: "14:30", type: admission_decision, patient: P-027}
+  - {time: "15:00", type: discharge, ward: general_surgery, bed: 3, expected_time: "15:00"}
+  - {time: "15:20", type: admission_decision, patient: P-034}
+  - {time: "16:10", type: admission_decision, patient: P-048}
+  - {time: "17:30", type: admission_decision, patient: P-065}
+  - {time: "19:00", type: admission_decision, patient: P-003}
+  - {time: "21:00", type: admission_decision, patient: P-039}
+  - {time: "01:00 +1d", type: admission_decision, patient: P-053}
+  - {time: "07:00 +1d", type: admission_decision, patient: P-070}
+  - {time: "08:00 +1d", type: discharge, ward: internal_medicine_b, bed: 5, in_report: false}
+  - {time: "08:00 +1d", type: discharge, ward: internal_medicine_b, bed: 11, in_report: false}
+  - {time: "08:00 +1d", type: ward_note_end, ward: cardiology, text: "מיטת ההשגחה הפנויה מובטחת למטופל שחוזר מצנתור."}
+  - {time: "09:00 +1d", type: discharge, ward: intensive_care, bed: 3, in_report: false}
+  - {time: "09:00 +1d", type: ward_note, ward: internal_medicine_b, text: "שבת. הכונן שחרר בבוקר מטופל ממיטה רגילה ומטופל ממיטת השגחה, המיטות נקיות. המזכירה תעדכן ביום ראשון."}
+  - {time: "09:30 +1d", type: admission_decision, patient: P-066}
+  - {time: "10:00 +1d", type: ward_note, ward: intensive_care, text: "המטופל ממיטה 3 הועבר למחלקה, המיטה מוכנה. עוד לא עודכן במערכת."}
+  - {time: "11:00 +1d", type: admission_decision, patient: P-074}
+  - {time: "13:30 +1d", type: admission_decision, patient: P-059}
+  - {time: "17:00 +1d", type: admission_decision, patient: P-020}
+  - {time: "22:00 +1d", type: ward_note_end, ward: internal_medicine_b, text: "שבת. הכונן שחרר בבוקר מטופל ממיטה רגילה ומטופל ממיטת השגחה, המיטות נקיות. המזכירה תעדכן ביום ראשון."}
+  - {time: "22:00 +1d", type: ward_note_end, ward: intensive_care, text: "המטופל ממיטה 3 הועבר למחלקה, המיטה מוכנה. עוד לא עודכן במערכת."}

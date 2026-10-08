@@ -1,0 +1,44 @@
+case_id: P-023
+patient:
+  age: 58
+  sex: male
+triage_level: 3
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 138
+  heart_rate: 92
+  consciousness: alert
+  temperature: 36.8
+
+labs:
+  wbc: 7.6
+  hemoglobin: 14.0
+  sodium: 136
+  potassium: 4.4
+  creatinine: 1.1
+  glucose: 112
+  troponin: 22
+
+background_conditions: "HTN לא מטופל, אלכוהול כ-4 משקאות ביום"
+medications: []
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "קוצר נשימה במאמץ חודש."
+
+physician_note: |
+  בן 58 HTN לא מטופל, EtOH ~4 משקאות ליום. c/o DOE הולך ומחמיר חודש, עכשיו אחרי קומה אחת, PND x2 השבוע,
+  נפיחות ברגליים. שולל CP. ב.ג. במ"כ טוב במנוחה, JVP מוגבר, S3, חרחורים עדינים בבסיסים, בצקות 1+
+  ECG - LBBB חדש (לא ידוע קודם). trop 22 ללא דינמיקה בחוזר. BNP 1,850. CXR - קרדיומגליה + גודש קל
+  TTE ליד המיטה: EF ~25%, LV מורחב. סט' 96% RA במנוחה ובהליכה במסדרון לא ירדה מ-95
+  פוסיד iv עם תגובה טובה. ACS לא סביר - trop ללא דינמיקה
+
+  HFrEF חדש, חשד לקרדיומיופתיה מורחבת, יציב ללא צורך בחמצן. לאשפוז

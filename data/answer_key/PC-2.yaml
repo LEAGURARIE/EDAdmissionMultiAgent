@@ -1,0 +1,83 @@
+id: PC-2
+template: T2
+patients:
+- case_id: P-012
+  target_ward: internal_medicine_b
+  decided_minutes_before: 30
+- case_id: P-037
+  target_ward: internal_medicine_b
+  decided_minutes_before: 0
+priority:
+- P-012
+- P-037
+answers:
+- case_id: P-012
+  template: T2
+  patient_type: B
+  challenge: 2
+  situation: null
+  traps:
+  - 12
+  - 5
+  wording: specialty
+  target_ward: internal_medicine_b
+  needs:
+    severe: true
+    observation: true
+    isolation: false
+    intensive_care: false
+  news2: 6
+  expected:
+    action: temporary_place
+    ward_id: internal_medicine_a
+    acceptable_wards:
+    - internal_medicine_a
+    bed_type: observation
+    awaiting_transfer_to: internal_medicine_b
+    wait_for: null
+    ladder_level: 2
+    needs_typed_reason: false
+    physician_approval_for_icu: false
+    required_flags: []
+  rationale: no observation bed in the target ward — nearest on the ladder, level
+    2
+  ward_notes:
+  - 'internal_medicine_b: אין אחות למיטת ההשגחה הפנויה במשמרת הזו. מטופל ממיטה רגילה
+    הולך הביתה בעוד כשעה, ברגע שהמשפחה מגיעה.'
+  reports_alone_would_give: place internal_medicine_b, observation
+- case_id: P-037
+  template: T2
+  patient_type: B
+  challenge: 2
+  situation: null
+  traps:
+  - 10
+  wording: specialty
+  target_ward: internal_medicine_b
+  needs:
+    severe: true
+    observation: true
+    isolation: false
+    intensive_care: false
+  news2: null
+  expected:
+    action: temporary_place
+    ward_id: cardiology
+    acceptable_wards:
+    - cardiology
+    bed_type: observation
+    awaiting_transfer_to: internal_medicine_b
+    wait_for: null
+    ladder_level: 3
+    needs_typed_reason: true
+    physician_approval_for_icu: false
+    required_flags:
+    - missing_vital_sign
+  rationale: no observation bed in the target ward — nearest on the ladder, level
+    3
+  ward_notes:
+  - 'internal_medicine_b: אין אחות למיטת ההשגחה הפנויה במשמרת הזו. מטופל ממיטה רגילה
+    הולך הביתה בעוד כשעה, ברגע שהמשפחה מגיעה.'
+  reports_alone_would_give: temporary_place internal_medicine_a, observation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

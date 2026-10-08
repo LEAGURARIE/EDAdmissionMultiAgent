@@ -1,0 +1,35 @@
+case_id: P-007
+template: T2
+patient_type: B
+challenge: 2
+situation: null
+traps:
+- 6
+wording: specialty
+target_ward: cardiology
+needs:
+  severe: true
+  observation: true
+  isolation: false
+  intensive_care: false
+news2: 4
+expected:
+  action: temporary_place
+  ward_id: internal_medicine_a
+  acceptable_wards:
+  - internal_medicine_a
+  - internal_medicine_b
+  bed_type: observation
+  awaiting_transfer_to: cardiology
+  wait_for: null
+  ladder_level: 2
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: no observation bed in the target ward — nearest on the ladder, level 2
+ward_notes:
+- 'cardiology: אין אחות למיטת ההשגחה הפנויה במשמרת הזו. מטופל ממיטה רגילה הולך הביתה
+  בעוד כשעה, ברגע שהמשפחה מגיעה.'
+reports_alone_would_give: place cardiology, observation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

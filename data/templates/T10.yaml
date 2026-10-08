@@ -1,0 +1,35 @@
+# T10 — isolation taken. Design: docs/design/ward_state_templates.md.
+# Every isolation room is occupied except the one in general surgery.
+# Private notes: that isolation room is closed; cardiology's free regular beds are kept for the cath lab.
+id: T10
+name: בידוד תפוס
+day: Monday
+time: "13:00"
+relative_to: none
+
+default:
+  regular_free: 2
+  observation_free: 1
+  isolation_free: false
+
+wards:
+  general_surgery:
+    regular_free: 2
+    observation_free: 1
+    isolation_free: true
+    notes:
+      - "הלחץ השלילי בחדר הבידוד לא עובד מהבוקר, החדר סגור."
+    note_effects:
+      - {effect: unavailable, bed_type: isolation}
+  cardiology:
+    regular_free: 2
+    observation_free: 1
+    isolation_free: false
+    notes:
+      - "שתי המיטות הרגילות הפנויות שמורות למטופלים שיוצאים היום מחדר הצנתורים."
+    note_effects:
+      - {effect: unavailable, bed_type: regular}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: false

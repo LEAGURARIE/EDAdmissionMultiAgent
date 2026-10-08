@@ -1,0 +1,44 @@
+case_id: P-044
+patient:
+  age: 76
+  sex: male
+triage_level: 3
+chief_complaint: general_weakness
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 116
+  heart_rate: 88
+  consciousness: alert
+  temperature: 36.8
+
+labs:
+  wbc: 8.2
+  hemoglobin: 14.8
+  sodium: 151
+  potassium: 4.2
+  creatinine: 1.5
+  glucose: 132
+  crp: 6
+
+background_conditions: "HTN, BPH, s/p TURP"
+medications: [amlodipine 5mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חולשה, שותה מעט. אשתו מאושפזת עם שחפת."
+
+physician_note: |
+  בן 76 HTN BPH. חולשה ושתייה מועטה שבוע, מאז שאשתו אושפזה בבידוד בפנימית עם TB ריאתי פעיל.
+  לדבריו "כל המשפחה עברה בדיקות", בדיקת IGRA שלו לפני 5 ימים שלילית, צילום חזה מאז - תקין, היחידה למניעת
+  זיהומים קבעה שלא נדרש בידוד. שולל שיעול, שולל חום, שולל הזעות לילה, שולל ירידה במשקל.
+  חי לבד כרגע, לא אוכל ולא שותה כמו שצריך. ב.ג. מיובש, ריאות נקיות. Na 151, Cr 1.5 (1.0 בבסיס)
+  נוזלים iv היפוטוניים, מעקב נתרן
+
+  היפרנתרמיה והתייבשות עם פגיעה כלייתית קלה. לאשפוז בפנימית

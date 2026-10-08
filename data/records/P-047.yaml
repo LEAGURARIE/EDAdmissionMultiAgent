@@ -1,0 +1,46 @@
+case_id: P-047
+patient:
+  age: 59
+  sex: male
+triage_level: 2
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: null
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 122
+  heart_rate: 98
+  consciousness: alert
+  temperature: 38.4
+
+labs:
+  wbc: 0.9
+  hemoglobin: 9.8
+  platelets: 64
+  sodium: 136
+  potassium: 3.8
+  creatinine: 1.0
+  glucose: 128
+  crp: 182
+  lactate: 1.8
+
+background_conditions: "לימפומה, בטיפול כימותרפי - מחזור אחרון לפני 9 ימים"
+medications: [allopurinol 300mg, acyclovir prophylaxis, ondansetron PRN]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חום וכאב בפי הטבעת. בכימותרפיה."
+
+physician_note: |
+  בן 59 לימפומה בכימותרפיה, מחזור אחרון לפני 9 ימים. יומיים כאב חזק בפי הטבעת וחום מאתמול.
+  ב.ג. נפיחות אדומה רגישה פריאנלית משמאל עם תנודתיות. WBC 0.9, ANC 280 - נויטרופניה קשה. טסיות 64.
+  במדידה ידנית של האחות אחרי שעה: נשימות 25, דופק 102, ל"ד 120/72, סט' 96%. מטופל מרגיש "חלש מאוד"
+  תרביות דם x2, cefepime + metronidazole. המטולוג - G-CSF, בידוד הגנתי. כירורג - לניקוז האבצס בחדר ניתוח
+  היום-מחר אחרי עירוי טסיות
+
+  אבצס פריאנלי עם חום נויטרופני. לאשפוז בכירורגיה

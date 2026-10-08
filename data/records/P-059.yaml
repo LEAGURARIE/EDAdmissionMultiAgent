@@ -1,0 +1,45 @@
+case_id: P-059
+patient:
+  age: 66
+  sex: male
+triage_level: 2
+chief_complaint: abdominal_pain
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 98
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 142
+  heart_rate: 84
+  consciousness: alert
+  temperature: 37.9
+
+labs:
+  wbc: 12.8
+  hemoglobin: 14.6
+  platelets: 260
+  sodium: 138
+  potassium: 4.1
+  creatinine: 1.0
+  glucose: 122
+  crp: 64
+
+background_conditions: "s/p תיקון מפרצת אבי העורקים הבטני (AAA) 2018, HTN, היפרליפידמיה"
+medications: [aspirin 100mg, atorvastatin 40mg, amlodipine 10mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "כאב בטן. מבוהל - אחיו נפטר מקרע במפרצת."
+
+physician_note: |
+  בן 66, s/p תיקון AAA אנדווסקולרי ב-2018 עם מעקב תקין, HTN. כאב בבטן ימנית עליונה מאתמול אחרי ארוחה,
+  בחילה, חום קל. מאוד מבוהל - אחיו נפטר לפני חצי שנה מקרע במפרצת אבי העורקים, "בדיוק ככה זה התחיל אצלו".
+  שולל כאב גב, שולל כאב שמקרין למפשעה. ב.ג. במ"כ טוב, יציב, דפקים פריפריים סימטריים, רגישות RUQ, מרפי חיובי.
+  CT עם חומר ניגוד: שתל אבי העורקים תקין ללא דליפה, ללא ממצא וסקולרי חריף. כיס מרה מעובה עם אבנים -
+  acute cholecystitis. ceftriaxone + metronidazole. כירורג - טיפול שמרני, ניתוח בהמשך האשפוז
+
+  acute cholecystitis לא מסובכת. מפרצת מתוקנת ללא ממצא. לאשפוז בכירורגיה

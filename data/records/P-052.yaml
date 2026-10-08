@@ -1,0 +1,46 @@
+case_id: P-052
+patient:
+  age: 68
+  sex: female
+triage_level: 2
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 24
+  oxygen_saturation: null
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 112
+  heart_rate: 114
+  consciousness: alert
+  temperature: 38.6
+
+labs:
+  wbc: 22.6
+  hemoglobin: 12.1
+  platelets: 168
+  sodium: 132
+  potassium: 4.2
+  creatinine: 1.6
+  glucose: 188
+  crp: 312
+  lactate: 2.6
+
+background_conditions: "DM2, HTN, השמנה"
+medications: [metformin 1g, empagliflozin 10mg, losartan 100mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "קוצר נשימה וחום 3 ימים. מד הסטורציה לא קרא בטריאז'."
+
+physician_note: |
+  בת 68 DM2 HTN השמנה. 3 ימים חום, שיעול עם כיח חלודה, קוצר נשימה הולך ומחמיר. במד הסטורציה בטריאז'
+  לא התקבלה קריאה (ידיים קרות). בבדיקה - טכיפנאית, משתמשת בשרירי עזר, מדברת במשפטים קצרים. במדידה
+  חוזרת באוזן: סט' 84% באוויר החדר, הוחל O2 במסכה עם שקית 15L - 92%. חרחורים ונשימה צינורית משמאל
+  CXR - תסנין LLL ו-LUL. גזים: pO2 52 באוויר. לקטט 2.6. ceftriaxone + azithromycin, נוזלים בזהירות
+  נשארת על מסכה 15L
+
+  דלקת ריאות קשה עם כשל נשימתי היפוקסמי. לאשפוז

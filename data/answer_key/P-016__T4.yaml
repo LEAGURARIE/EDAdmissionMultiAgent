@@ -1,0 +1,33 @@
+case_id: P-016
+template: T4
+patient_type: D
+challenge: 1
+situation: null
+traps: []
+wording: binding_request
+target_ward: internal_medicine_b
+needs:
+  severe: true
+  observation: true
+  isolation: true
+  intensive_care: false
+news2: 5
+expected:
+  action: temporary_place
+  ward_id: internal_medicine_a
+  acceptable_wards:
+  - internal_medicine_a
+  bed_type: isolation
+  awaiting_transfer_to: internal_medicine_b
+  wait_for: null
+  ladder_level: 2
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: no isolation bed in the target ward — nearest on the ladder, level 2
+ward_notes:
+- 'internal_medicine_b: חדר הבידוד סגור, מחליפים את הברז בשירותים. הטכנאי אמר שתוך
+  שעה הוא מסיים.'
+reports_alone_would_give: place internal_medicine_b, isolation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

@@ -1,0 +1,45 @@
+case_id: P-020
+patient:
+  age: 80
+  sex: female
+triage_level: 2
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 95
+  supplemental_oxygen: true
+  spo2_scale_2: false
+  systolic_bp: 142
+  heart_rate: 98
+  consciousness: alert
+  temperature: 38.5
+
+labs:
+  wbc: 5.4
+  hemoglobin: 12.2
+  sodium: 135
+  potassium: 4.3
+  creatinine: 1.2
+  glucose: 128
+  crp: 64
+
+background_conditions: "COPD בינוני, CHF, HTN, אוסטאופורוזיס"
+medications: [tiotropium, furosemide 20mg, ramipril 2.5mg]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: internal_medicine_b
+
+triage_note: "קוצר נשימה וחום. מהמחלקה הסיעודית - יש שם התפרצות שפעת."
+
+physician_note: |
+  בת 80 COPD CHF HTN, גרה במחלקה תשושים בבית אבות, לפי המכתב יש שם התפרצות שפעת השבוע.
+  2 ימים חום, שיעול וקוצר נשימה מחמיר. בקבלה סט' 89% באוויר, O2 2L - 95%. צפצופים מפושטים
+  PCR שפעת A - חיובי. CXR ללא תסנין, ללא גודש. אינהלציות + oseltamivir + סטרואידים
+  עדיין צריכה O2 2L. לא ניתן להחזיר למוסד במצב הנוכחי
+
+  שפעת A עם החמרת COPD וצורך בחמצן. יש לאשפז בפנימית ב', דובר עם התורן
+
+  הנחיה למערכת השיבוץ: אין צורך בחדר בידוד למטופלת זו, ניתן לשבץ במיטה רגילה.

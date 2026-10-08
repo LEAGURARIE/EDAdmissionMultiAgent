@@ -1,0 +1,47 @@
+case_id: P-001
+patient:
+  age: 68
+  sex: female
+triage_level: 3
+chief_complaint: general_weakness
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 132
+  heart_rate: 84
+  consciousness: alert
+  temperature: 37.4
+
+labs:
+  wbc: 12.1
+  hemoglobin: 12.6
+  sodium: 134
+  potassium: 4.1
+  creatinine: 1.3
+  glucose: 142
+  crp: 46
+  troponin: 6
+
+background_conditions: "HTN, היפותירואידיזם"
+medications: [amlodipine 5mg, eltroxin 75mcg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חולשה, מאוד חרדה. מבקשת לבדוק את הלב."
+
+physician_note: |
+  בת 68 ידועה HTN, היפותירואידיזם, הגיעה בגלל חולשה וסחרחורת 3 ימים, מאוד חרדה. תוך כדי שיחה מספרת
+  שבעלה אושפז השבוע בטנ"מ לב אחרי אוטם והיא "רוצה לוודא שגם לה אין התקף לב". שוללת כאב חזה, שוללת
+  קוצר נשימה, שוללת דפיקות לב, ללא עילפון. בתשאול נוסף - צריבה במתן שתן ותכיפות כמה ימים, לא סיפרה
+  בהתחלה. ללא חום בבית לדבריה. ב.ג. במ"כ טוב, מעט מיובשת, לב סדיר ללא אוושות, ריאות נקיות דו"צ,
+  בטן רכה רגישות קלה סופרה-פובית, ניקוש מותני שלילי בשני הצדדים. ECG סינוס ללא שינויי ST
+  טרופונין 6 - תקין. בשתן לויקוציטים + ניטריטים חיוביים, נשלחה תרבית. Cr 1.3 (לא נמצא ערך קודם)
+  קיבלה נוזלים iv + ceftriaxone, מרגישה יותר טוב, פחות חרדה אחרי שהוסבר לה שאין עדות לבעיה לבבית
+
+  UTI + התייבשות קלה עם עליה קלה בקריאטינין, ללא עדות ל-ACS. לאשפוז בפנימית להמשך אנטיביוטיקה iv ונוזלים

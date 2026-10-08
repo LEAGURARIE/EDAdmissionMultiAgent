@@ -1,0 +1,42 @@
+case_id: P-035
+patient:
+  age: 79
+  sex: female
+triage_level: 3
+chief_complaint: palpitations
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 142
+  heart_rate: 70
+  consciousness: alert
+  temperature: 36.7
+
+labs:
+  wbc: 6.8
+  hemoglobin: 12.9
+  sodium: 139
+  potassium: 4.4
+  creatinine: 1.0
+  glucose: 98
+  troponin: 6
+
+background_conditions: "s/p השתלת קוצב 2017 על רקע SSS, HTN"
+medications: [amlodipine 5mg, apixaban 2.5mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: cardiology
+
+triage_note: "הקוצב מצפצף, תחושת דפיקות קלה."
+
+physician_note: |
+  בת 79 s/p קוצב 2017 על רקע SSS, HTN. מאתמול הקוצב "מצפצף" בלילה, תחושת דפיקות קלה שחולפת.
+  בדיקת קוצב במיון: סוללה בסוף חיים (ERI), חישה וקיצוב תקינים. לא תלויה בקוצב - קצב עצמוני 68-72.
+  ECG סינוס 70. ללא עילפון, ללא סחרחורת. שוחחתי עם תורן אלקטרופיזיולוגיה - להחלפת גנרטור מחר
+
+  קוצב בסוף חיי סוללה, יציבה, לא תלויה בקוצב. יש לאשפז בקרדיולוגיה להחלפת גנרטור, דובר עם התורן

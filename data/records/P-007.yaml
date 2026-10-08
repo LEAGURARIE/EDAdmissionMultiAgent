@@ -1,0 +1,49 @@
+case_id: P-007
+patient:
+  age: 77
+  sex: female
+triage_level: 3
+chief_complaint: palpitations
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 136
+  heart_rate: 88
+  consciousness: alert
+  temperature: 36.7
+
+labs:
+  wbc: 7.9
+  hemoglobin: 12.8
+  sodium: 139
+  potassium: 3.4
+  creatinine: 1.0
+  glucose: 121
+  troponin: 14
+
+background_conditions: "HTN, אוסטאופורוזיס"
+medications: [losartan 50mg, calcium + vit D]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "דפיקות לב שחלפו. כעת מרגישה טוב."
+
+physician_note: |
+  בת 77 HTN אוסטאופורוזיס, הגיעה עם בתה בשל "דפיקות" מהבוקר + חולשה, לדבריה נמשך כשעה ועבר
+  מעצמו בדרך, כרגע מרגישה טוב ומבקשת ללכת הביתה. שוללת כאבי חזה, שוללת עילפון. בבית לוקחת
+  losartan, הבת אומרת שלפעמים שוכחת. ב.ג. במ"כ טוב, נשימה תקינה, לב - סדיר, ללא אוושות, ריאות נקיות
+  דו"צ, ללא בצקות. ECG בקבלה סינוס 88 ללא שינויים חריפים. K 3.4 - נשלח תיקון פומי. טרופונין 14
+  ממתינים לחוזר
+
+  עדכון - כשעתיים אחרי הקבלה התלוננה שוב על דפיקות, בניטור AF מהיר 140-150 ללא כאב חזה.
+  במדידה חוזרת: דופק 146, ל"ד 112/70, נשימות 20, סט' 95% RA, חום 36.8. קיבלה metoprolol iv
+  עם ירידה ל118 בלבד, עדיין AF. לא ידוע על AF קודם (בדקתי בקופ"ח - אין). שוחחתי עם תורן קרדיו,
+  ממליץ ניטור + איזון דופק, CHA2DS2-VASc לשקול נוגדי קרישה בהמשך
+
+  לאשפוז בקרדיולוגיה בניטור

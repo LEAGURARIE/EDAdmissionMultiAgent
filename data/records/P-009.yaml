@@ -1,0 +1,47 @@
+case_id: P-009
+patient:
+  age: 46
+  sex: male
+triage_level: 2
+chief_complaint: trauma_or_fall
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 142
+  heart_rate: 96
+  consciousness: alert
+  temperature: 36.9
+
+labs:
+  wbc: 11.0
+  hemoglobin: 15.2
+  platelets: 260
+  sodium: 140
+  potassium: 4.2
+  creatinine: 0.9
+  inr: 1.0
+
+background_conditions: "ללא רקע רפואי"
+medications: []
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "נפל מסולם בגובה כ-3 מטר. כאבים חזקים בצד שמאל."
+
+physician_note: |
+  בן 46 ללא רקע רפואי ללא תרופות, לא נוטל נוגדי קרישה. נפל מסולם מגובה כ3 מטר על צד שמאל, ללא איבוד
+  הכרה, כאבים חזקים בבית החזה משמאל, מגיע בהליכה. ערני מתמצא, רגישות ניכרת צלעות 6-8 משמאל ללא
+  קרפיטציות, כניסת אוויר שווה, בטן רכה ללא רגישות, ללא חסר נוירולוגי.
+  CT טראומה: שברים צלעות 6 ו7 משמאל ללא תזוזה, ללא PTX ללא hemothorax, ללא פגיעה בטחול ללא נוזל
+  חופשי. CT ראש+צוואר ללא ממצא חריף. לא ניתן לשלול שבר נוסף בצלע 8 - ללא השלכה טיפולית.
+  משככי כאבים iv עם הקלה חלקית, נשימה עמוקה כואבת, סט' תקינה לאורך כל השהייה.
+  בדיקה חוזרת אחרי 6 שעות ללא שינוי לעומת הקודמת
+
+  שברי צלעות לא מסובכים, יציב המודינמית ונשימתית, אין סיבה להשגחה מוגברת. לאשפוז בכירורגיה כללית
+  לאיזון כאב ופיזיותרפיה נשימתית

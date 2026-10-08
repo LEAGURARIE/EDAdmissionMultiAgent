@@ -1,0 +1,28 @@
+# T4 — two options, one right. Design: docs/design/ward_state_templates.md.
+# The target ward has both a free observation bed and a free isolation room.
+# Private note: the isolation room is closed for a repair that ends within the hour.
+id: T4
+name: שתי אפשרויות, אחת נכונה
+day: Monday
+time: "09:30"
+relative_to: target_ward
+
+default:
+  regular_free: 2
+  observation_free: 1
+  isolation_free: true
+
+ladder:
+  level_1:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: true
+    notes:
+      - "חדר הבידוד סגור, מחליפים את הברז בשירותים. הטכנאי אמר שתוך שעה הוא מסיים."
+    note_effects:
+      - {effect: unavailable, bed_type: isolation}
+      - {effect: discharge_within_hour, bed_type: isolation}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

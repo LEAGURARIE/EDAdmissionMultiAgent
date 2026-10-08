@@ -1,0 +1,36 @@
+case_id: P-032
+template: T7
+patient_type: B
+challenge: 2
+situation: null
+traps:
+- 6
+wording: specialty
+target_ward: general_surgery
+needs:
+  severe: true
+  observation: true
+  isolation: false
+  intensive_care: false
+news2: 6
+expected:
+  action: place
+  ward_id: general_surgery
+  acceptable_wards:
+  - general_surgery
+  bed_type: observation
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: 1
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: observation bed free in the target ward
+ward_notes:
+- 'cardiology: השחרורים של היום לא יקרו, המטופלים ממתינים לצנתור חוזר מחר.'
+- 'general_surgery: השחרור בוטל, המשפחה לא יכולה לקחת אותו היום. מיטת השגחה 12 התפנתה
+  לפני רבע שעה, עוד לא עודכן.'
+reports_alone_would_give: temporary_place internal_medicine_a or internal_medicine_b,
+  observation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

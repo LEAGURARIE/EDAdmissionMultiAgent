@@ -1,0 +1,43 @@
+case_id: P-056
+patient:
+  age: 62
+  sex: male
+triage_level: 2
+chief_complaint: gastrointestinal_bleeding
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 124
+  heart_rate: 94
+  consciousness: alert
+  temperature: 36.6
+
+labs:
+  wbc: 9.6
+  hemoglobin: 10.1
+  platelets: 238
+  sodium: 139
+  potassium: 4.4
+  creatinine: 1.0
+  glucose: 118
+  inr: 1.0
+
+background_conditions: "כיב פפטי 2019, מעשן"
+medications: [aspirin 100mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "הקאה דמית פעמיים."
+
+physician_note: |
+  בן 62, כיב פפטי ב-2019, נוטל אספירין, מעשן. הבוקר הקאה דמית פעמיים, כוס בערך כל פעם, צואה שחורה מאתמול.
+  ב.ג. ערני, יציב המודינמית, ללא אורתוסטזיס. בטן רכה, רגישות קלה באפיגסטריום. Hb 10.1 (14 לפני שנה).
+  פנטופרזול iv בעירוי, הופסק אספירין, סוג והצלבה. גסטרו - גסטרוסקופיה דחופה הבוקר אחרי צום
+
+  דימום ממערכת העיכול העליונה, יציב. לאשפוז

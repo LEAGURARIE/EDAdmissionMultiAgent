@@ -1,0 +1,47 @@
+# T7 — specialty wards full, discharges expected today (hour unknown). Design: docs/design/ward_state_templates.md.
+# Cardiology and general surgery are full, each with a discharge expected today; the internal medicine
+# wards have room (one regular bed in Internal Medicine B is already held for someone else).
+# Private notes: neither discharge will happen today; general surgery has an observation bed not yet updated.
+id: T7
+name: מחלקה מקצועית מלאה, שחרור היום
+day: Wednesday
+time: "12:00"
+relative_to: none
+
+wards:
+  cardiology:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+    discharges_today:
+      - {bed_type: regular}
+      - {bed_type: observation}
+    notes:
+      - "השחרורים של היום לא יקרו, המטופלים ממתינים לצנתור חוזר מחר."
+    note_effects:
+      - {effect: discharge_not_today}
+  general_surgery:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+    discharges_today:
+      - {bed_type: regular}
+    notes:
+      - "השחרור בוטל, המשפחה לא יכולה לקחת אותו היום. מיטת השגחה 12 התפנתה לפני רבע שעה, עוד לא עודכן."
+    note_effects:
+      - {effect: discharge_not_today}
+      - {effect: hidden_free, bed_type: observation}
+  internal_medicine_a:
+    regular_free: 2
+    observation_free: 1
+    isolation_free: true
+  internal_medicine_b:
+    regular_free: 2
+    observation_free: 1
+    isolation_free: true
+    held:
+      - {bed_type: regular}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

@@ -1,0 +1,41 @@
+# Scripted day 2 — evening and night: almost no discharges, less staff, a ward that takes only its own patients.
+# Synthetic data only. Admission events carry only the time and the patient id; what the patient needs comes from
+# the medical record, never from the scenario. Ward notes are private: only that ward's Department Agent reads them.
+# Times after midnight are written like 01:45 +1d.
+
+name: evening_night
+description: Thursday evening to Friday morning — 12 admissions, almost no discharges, staffing limits at night
+day: Thursday
+start_time: "18:00"
+
+# Every bed starts occupied, except these. Beds: 1-10 regular, 11-12 observation, 13 isolation room;
+# intensive care 1-6, 7 isolation room.
+free_at_start:
+  internal_medicine_a: [1]
+  cardiology: [1, 11]
+  general_surgery: [1, 2, 13]
+  intensive_care: [1]
+
+events:
+  - {time: "18:00", type: ward_note, ward: internal_medicine_a, text: "אחות אחת על מיטות ההשגחה עד הבוקר, לא מקבלים עוד מטופל השגחה.", effects: [{effect: unavailable, bed_type: observation}]}
+  - {time: "18:30", type: admission_decision, patient: P-022}
+  - {time: "19:00", type: discharge, ward: internal_medicine_b, bed: 4, expected_time: "18:00"}
+  - {time: "19:15", type: admission_decision, patient: P-044}
+  - {time: "20:00", type: admission_decision, patient: P-061}
+  - {time: "20:00", type: discharge, ward: general_surgery, bed: 4, in_report: false}
+  - {time: "20:50", type: ward_note, ward: general_surgery, text: "מיטה 4 התפנתה בשמונה ונוקתה, עוד לא עודכנה במחשב."}
+  - {time: "21:10", type: admission_decision, patient: P-019}
+  - {time: "22:00", type: admission_decision, patient: P-067}
+  - {time: "22:40", type: admission_decision, patient: P-041}
+  - {time: "23:00", type: ward_note, ward: cardiology, text: "הלילה אחות אחת על כל המחלקה ושני מטופלים אחרי צנתור דחוף. מקבלים רק מטופלים קרדיולוגיים עד הבוקר.", effects: [{effect: only_own_patients}]}
+  - {time: "23:30", type: admission_decision, patient: P-045}
+  - {time: "00:30 +1d", type: admission_decision, patient: P-069}
+  - {time: "01:45 +1d", type: admission_decision, patient: P-062}
+  - {time: "03:00 +1d", type: admission_decision, patient: P-033}
+  - {time: "04:20 +1d", type: admission_decision, patient: P-064}
+  - {time: "06:00 +1d", type: admission_decision, patient: P-014}
+  - {time: "07:00 +1d", type: ward_note_end, ward: internal_medicine_a, text: "אחות אחת על מיטות ההשגחה עד הבוקר, לא מקבלים עוד מטופל השגחה."}
+  - {time: "07:00 +1d", type: ward_note_end, ward: cardiology, text: "הלילה אחות אחת על כל המחלקה ושני מטופלים אחרי צנתור דחוף. מקבלים רק מטופלים קרדיולוגיים עד הבוקר."}
+  - {time: "07:30 +1d", type: discharge, ward: internal_medicine_a, bed: 5, expected_time: "07:30 +1d"}
+  - {time: "07:30 +1d", type: discharge, ward: internal_medicine_a, bed: 6, expected_time: "07:30 +1d"}
+  - {time: "08:00 +1d", type: ward_note_end, ward: general_surgery, text: "מיטה 4 התפנתה בשמונה ונוקתה, עוד לא עודכנה במחשב."}

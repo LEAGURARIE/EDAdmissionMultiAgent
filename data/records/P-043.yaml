@@ -1,0 +1,45 @@
+case_id: P-043
+patient:
+  age: 67
+  sex: female
+triage_level: 3
+chief_complaint: abdominal_pain
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 122
+  heart_rate: 92
+  consciousness: alert
+  temperature: 37.8
+
+labs:
+  wbc: 13.8
+  hemoglobin: 12.6
+  sodium: 135
+  potassium: 3.4
+  creatinine: 1.1
+  glucose: 108
+  crp: 88
+  lactate: 1.4
+
+background_conditions: "HTN, אשפוז לפני שבועיים עם דלקת ריאות שטופלה באנטיביוטיקה"
+medications: [amlodipine 5mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "כאבי בטן ושלשולים."
+
+physician_note: |
+  בת 67 HTN, שוחררה לפני 10 ימים מאשפוז בפנימית עם דלקת ריאות שטופלה ב-ceftriaxone ואחר כך amoxi-clav.
+  4 ימים כאבי בטן מתכווצים ושלשולים מימיים 8-10 ביום, ללא דם, חום קל. ב.ג. רגישות מפושטת קלה בבטן
+  ללא גירוי צפקי. CT בטן - עיבוי דופן המעי הגס, ללא נקב, ללא הרחבה. נבדקה ע"י כירורג - ללא בעיה כירורגית
+  בדיקת צואה ל-C. difficile נשלחה, תשובה ממתינה - לשלול C. diff על רקע האנטיביוטיקה. K 3.4 - תיקון
+  נוזלים iv, vancomycin פומי אמפירי
+
+  קוליטיס, חשד ל-C. difficile אחרי טיפול אנטיביוטי. לאשפוז

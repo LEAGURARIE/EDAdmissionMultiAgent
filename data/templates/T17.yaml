@@ -1,0 +1,36 @@
+# T17 — an unsafe offer (second set: ping-pong). Design: docs/design/ward_state_templates.md.
+# The target ward reports a free observation bed; its private note says there is no nurse for it, and offers a
+# regular bed with a portable monitor instead — below an observation patient's need. Level 2 has a free
+# observation bed.
+id: T17
+name: הצעה לא בטוחה
+day: Friday
+time: "14:00"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 0
+  isolation_free: false
+
+ladder:
+  level_1:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: false
+    notes:
+      - "אין לנו אחות למיטת ההשגחה הפנויה. אם דחוף, אפשר לקבל למיטה רגילה ולחבר מוניטור נייד."
+    note_effects:
+      - {effect: unavailable, bed_type: observation}
+  level_2:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: false
+    notes:
+      - "מיטת ההשגחה שלנו מובטחת למטופל שחוזר מצנתור בעוד חצי שעה."
+    note_effects:
+      - {effect: unavailable, bed_type: observation}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

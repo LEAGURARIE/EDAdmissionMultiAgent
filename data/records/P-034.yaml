@@ -1,0 +1,44 @@
+case_id: P-034
+patient:
+  age: 38
+  sex: male
+triage_level: 2
+chief_complaint: trauma_or_fall
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 98
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 136
+  heart_rate: 90
+  consciousness: alert
+  temperature: 36.8
+
+labs:
+  wbc: 12.4
+  hemoglobin: 14.9
+  platelets: 280
+  sodium: 140
+  potassium: 4.1
+  creatinine: 0.9
+  inr: 1.0
+
+background_conditions: "ללא"
+medications: []
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: general_surgery
+
+triage_note: "תאונת אופנוע, הובא בניידת טיפול נמרץ. קסדה."
+
+physician_note: |
+  בן 38 בריא, תאונת אופנוע במהירות כ-70 קמ"ש, הובא בנט"ן כ"טראומה רב-מערכתית", עם קסדה, ללא איבוד הכרה.
+  ATLS: נתיב אוויר פתוח, נשימה שווה, יציב המודינמית, GCS 15. ללא כאב ראש, ללא כאבי צוואר, ללא כאבי בטן,
+  ללא קוצר נשימה. FAST שלילי. CT ראש - ללא דימום, CT צוואר - ללא שבר, CT חזה-בטן - ללא pneumothorax,
+  ללא פגיעה בכבד ובטחול, ללא נוזל חופשי. שבר בעצם הבריח שמאל ללא תזוזה משמעותית, חתכים ושפשופים
+  ביד ובברך שמאל - נתפרו. אורתופד: טיפול שמרני במתלה. כאבים קשים בכתף, צריך משככי כאבים iv
+
+  חבלה ממוקדת: שבר בעצם הבריח וחתכים, ללא פגיעה פנימית. יש לאשפז בכירורגיה כללית לאיזון כאב, דובר עם התורן

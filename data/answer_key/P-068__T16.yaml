@@ -1,0 +1,37 @@
+case_id: P-068
+template: T16
+patient_type: A
+challenge: 6
+situation: confusion_not_new
+traps: []
+wording: specialty
+target_ward: general_surgery
+needs:
+  severe: false
+  observation: false
+  isolation: false
+  intensive_care: false
+news2: 4
+expected:
+  action: wait
+  ward_id: null
+  acceptable_wards: null
+  bed_type: null
+  awaiting_transfer_to: null
+  wait_for:
+    ward_id: general_surgery
+    bed_number: null
+    because: ward_note
+  ladder_level: null
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags:
+  - severity_judgment_note
+rationale: not severe — waits up to an hour for a bed the target ward said will free
+  soon
+ward_notes:
+- 'general_surgery: המזגן בחדר 3 מקולקל, טכנאי בדרך. המטופלים מחדר 3 הועברו לחדר 5,
+  למיטה שהייתה פנויה שם. אחד מהם הולך הביתה בעוד כשעה.'
+reports_alone_would_give: place general_surgery, regular
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

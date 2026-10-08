@@ -1,0 +1,46 @@
+case_id: P-064
+patient:
+  age: 80
+  sex: female
+triage_level: 3
+chief_complaint: general_weakness
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 104
+  heart_rate: 102
+  consciousness: alert
+  temperature: 38.4
+
+labs:
+  wbc: 13.9
+  hemoglobin: 12.0
+  sodium: 136
+  potassium: 4.0
+  creatinine: 1.4
+  glucose: 118
+  crp: 98
+  lactate: 1.7
+
+background_conditions: "HTN, היפותירואידיזם, אוסטאופורוזיס"
+medications: [amlodipine 10mg, eltroxin 50mcg, calcium + vit D]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: internal_medicine_b
+
+triage_note: "חולשה, נפלה בבית. צריבה בשתן."
+
+physician_note: |
+  בת 80 HTN, היפותירואידיזם. יומיים חולשה וצריבה בשתן, הבוקר נפלה מהכיסא - החליקה, לא איבדה הכרה, ללא
+  חבלת ראש, ללא כאבים. ב.ג. רגישות סופרה-פובית קלה, ניקוש מותני ימין רגיש. שתן - ניטריטים +, לויקו +++.
+  בקבלה ל"ד 142/80 דופק 86 חום 37.9. ceftriaxone 2g, נוזלים 1 ליטר
+  מדידה שנייה אחרי שעתיים - ל"ד 122/70 דופק 94 חום 38.2
+  עדכון: ל"ד 104/62 דופק 102 חום 38.4 - יורד בהתמדה למרות הנוזלים. amlodipine הופסק. מתן שתן ירד, לשקול
+  קטטר ומעקב מאזן. אומרת שמרגישה חלשה יותר מאשר בבוקר. US כליות - ללא הידרונפרוזיס
+
+  פיאלונפריטיס, ל"ד בירידה מתמדת. יש לאשפז בפנימית ב', דובר עם התורן

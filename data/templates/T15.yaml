@@ -1,0 +1,31 @@
+# T15 — an offer after rounds (second set: ward notes). Design: docs/design/ward_state_templates.md.
+# The target ward is full and its report shows no discharge; its private note says a regular-bed patient will be
+# discharged right after the morning round, in about an hour. Level 2 has free beds.
+id: T15
+name: הצעה אחרי ביקור
+day: Monday
+time: "09:00"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 1
+  isolation_free: false
+
+ladder:
+  level_1:
+    regular_free: 0
+    observation_free: 0
+    isolation_free: false
+    notes:
+      - "אחרי ביקור הבוקר, בעוד כשעה, ישוחרר מטופל ממיטה רגילה. אפשר לשמור לכם אותה."
+    note_effects:
+      - {effect: discharge_within_hour, bed_type: regular}
+  level_2:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: false
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

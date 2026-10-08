@@ -1,0 +1,44 @@
+case_id: P-021
+patient:
+  age: 34
+  sex: female
+triage_level: 3
+chief_complaint: abdominal_pain
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 99
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 118
+  heart_rate: 88
+  consciousness: alert
+  temperature: 37.9
+
+labs:
+  wbc: 13.2
+  hemoglobin: 13.4
+  platelets: 260
+  sodium: 138
+  potassium: 4.0
+  creatinine: 0.7
+  glucose: 96
+  crp: 48
+
+background_conditions: "ללא"
+medications: [גלולות למניעת הריון]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: general_surgery
+
+triage_note: "כאב בבטן ימנית תחתונה מאתמול."
+
+physician_note: |
+  בת 34 בריאה, גלולות. כאב שהתחיל סביב הטבור אתמול בערב ועבר לבטן ימנית תחתונה, בחילה, הקאה אחת, ללא
+  שלשול. וסת אחרונה לפני שבועיים, בדיקת הריון שלילית. ב.ג. במ"כ טוב, רגישות RLQ עם rebound, מקברני
+  חיובי, רובזינג חיובי. US - תוספתן מעובה 9 מ"מ עם שומן דלקתי סביבו, ללא אבצס, ללא נוזל חופשי
+  שוחחתי עם כירורג תורן - לכריתת תוספתן לפרוסקופית הלילה או מחר בבוקר. ceftriaxone + metronidazole, צום
+
+  appendicitis חריפה לא מסובכת. יש לאשפז בכירורגיה כללית, דובר עם התורן

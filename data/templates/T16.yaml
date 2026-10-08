@@ -1,0 +1,28 @@
+# T16 — a note that looks unimportant (second set: ward notes). Design: docs/design/ward_state_templates.md.
+# The target ward reports every kind of free bed. Its private note is about a broken air conditioner — and, in
+# passing, says the patients moved from room 3 took the free regular bed in room 5.
+id: T16
+name: הערה שנראית לא חשובה
+day: Thursday
+time: "11:00"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 1
+  isolation_free: true
+
+ladder:
+  level_1:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: true
+    notes:
+      - "המזגן בחדר 3 מקולקל, טכנאי בדרך. המטופלים מחדר 3 הועברו לחדר 5, למיטה שהייתה פנויה שם. אחד מהם הולך הביתה בעוד כשעה."
+    note_effects:
+      - {effect: unavailable, bed_type: regular}
+      - {effect: discharge_within_hour, bed_type: regular}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

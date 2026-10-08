@@ -1,0 +1,79 @@
+id: PC-5
+template: T11
+patients:
+- case_id: P-051
+  target_ward: intensive_care
+  decided_minutes_before: 30
+- case_id: P-005
+  target_ward: intensive_care
+  decided_minutes_before: 0
+priority:
+- P-051
+- P-005
+answers:
+- case_id: P-051
+  template: T11
+  patient_type: E
+  challenge: 1
+  situation: null
+  traps: []
+  wording: binding_request
+  target_ward: intensive_care
+  needs:
+    severe: true
+    observation: false
+    isolation: false
+    intensive_care: true
+  news2: 8
+  expected:
+    action: place
+    ward_id: intensive_care
+    acceptable_wards:
+    - intensive_care
+    bed_type: intensive_care
+    awaiting_transfer_to: null
+    wait_for: null
+    ladder_level: 1
+    needs_typed_reason: false
+    physician_approval_for_icu: false
+    required_flags: []
+  rationale: intensive care bed free
+  ward_notes:
+  - 'intensive_care: המטופל ממיטה 3 הועבר למחלקה לפני שעה, המיטה מוכנה. עוד לא עודכן
+    במערכת.'
+  - 'general_surgery: אין אחות למיטת ההשגחה הפנויה עד הלילה.'
+  reports_alone_would_give: escalate
+- case_id: P-005
+  template: T11
+  patient_type: E
+  challenge: 5
+  situation: null
+  traps:
+  - 5
+  wording: binding_request
+  target_ward: intensive_care
+  needs:
+    severe: true
+    observation: false
+    isolation: false
+    intensive_care: true
+  news2: 18
+  expected:
+    action: escalate
+    ward_id: null
+    acceptable_wards: null
+    bed_type: null
+    awaiting_transfer_to: null
+    wait_for: null
+    ladder_level: null
+    needs_typed_reason: false
+    physician_approval_for_icu: false
+    required_flags: []
+  rationale: intensive care is full — no safe option
+  ward_notes:
+  - 'intensive_care: המטופל ממיטה 3 הועבר למחלקה לפני שעה, המיטה מוכנה. עוד לא עודכן
+    במערכת.'
+  - 'general_surgery: אין אחות למיטת ההשגחה הפנויה עד הלילה.'
+  reports_alone_would_give: escalate
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

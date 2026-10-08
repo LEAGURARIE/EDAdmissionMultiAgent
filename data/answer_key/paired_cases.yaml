@@ -1,0 +1,42 @@
+# Paired cases — two patients wait at the same moment for one suitable bed. Evaluation code only.
+# decided_minutes_before: how long before the decision moment the patient's admission was decided.
+# The rule (approved, config/clinical_rules/placement_rules.yaml): a patient who needs the bed type before one for
+# whom it is only a last resort; then severe before non-severe; then the earlier admission decision. The other
+# patient gets the next option by the usual rules. Every case must also need the wards' private notes.
+
+cases:
+  - id: PC-1                      # two non-severe patients, one target ward: the earlier one waits for the discharge
+    template: T1
+    patients:
+      - {case_id: P-006, target_ward: internal_medicine_a, decided_minutes_before: 30}
+      - {case_id: P-010, target_ward: internal_medicine_a, decided_minutes_before: 0}
+  - id: PC-2                      # two observation patients: the earlier one takes level 2, the other level 3
+    template: T2
+    patients:
+      - {case_id: P-012, target_ward: internal_medicine_b, decided_minutes_before: 30}
+      - {case_id: P-037, target_ward: internal_medicine_b, decided_minutes_before: 0}
+  - id: PC-3                      # two isolation patients, one isolation room on level 2
+    template: T1
+    patients:
+      - {case_id: P-003, target_ward: internal_medicine_b, decided_minutes_before: 30}
+      - {case_id: P-043, target_ward: internal_medicine_a, decided_minutes_before: 0}
+  - id: PC-4                      # two isolation + observation patients, one isolation room on level 2
+    template: T1
+    patients:
+      - {case_id: P-016, target_ward: internal_medicine_b, decided_minutes_before: 30}
+      - {case_id: P-017, target_ward: general_surgery, decided_minutes_before: 0}
+  - id: PC-5                      # two intensive care patients, one bed that is free but not yet updated
+    template: T11
+    patients:
+      - {case_id: P-051, target_ward: intensive_care, decided_minutes_before: 30}
+      - {case_id: P-005, target_ward: intensive_care, decided_minutes_before: 0}
+  - id: PC-6                      # severity before time: the later, severe patient gets the isolation room
+    template: T1
+    patients:
+      - {case_id: P-003, target_ward: internal_medicine_b, decided_minutes_before: 30}
+      - {case_id: P-016, target_ward: internal_medicine_b, decided_minutes_before: 0}
+  - id: PC-7                      # the isolation room goes to the patient who needs it, not to the severe patient
+    template: T12                 # for whom it is only a last resort (observation only)
+    patients:
+      - {case_id: P-011, target_ward: cardiology, decided_minutes_before: 30}
+      - {case_id: P-003, target_ward: internal_medicine_b, decided_minutes_before: 0}

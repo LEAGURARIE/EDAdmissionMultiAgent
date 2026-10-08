@@ -1,0 +1,37 @@
+case_id: P-062
+template: T1
+patient_type: E
+challenge: 6
+situation: treatment_needs_icu
+traps: []
+wording: admit_only
+target_ward: intensive_care
+needs:
+  severe: true
+  observation: false
+  isolation: false
+  intensive_care: true
+news2: 5
+expected:
+  action: escalate
+  ward_id: null
+  acceptable_wards: null
+  bed_type: null
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: null
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: intensive care is full — no safe option
+ward_notes:
+- 'internal_medicine_a: חדר 8 סגור, נזילה מהתקרה. שתי המיטות הרגילות הפנויות שם לא
+  בשימוש עד שהאחזקה יסיימו.'
+- 'cardiology: המוניטור של מיטת ההשגחה הפנויה לא עובד, טכנאי רק מחר. אי אפשר לקבל
+  אליה.'
+- 'internal_medicine_b: חדר הבידוד בניקוי יסודי אחרי מטופל עם C. diff, לפחות 3 שעות.'
+- 'general_surgery: בחדר הבידוד הלחץ השלילי לא עובד מהבוקר, החדר סגור.'
+- 'intensive_care: המיטה הפנויה שמורה למטופל מחדר ניתוח, מגיע בעוד שעה.'
+reports_alone_would_give: place intensive_care, intensive_care
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

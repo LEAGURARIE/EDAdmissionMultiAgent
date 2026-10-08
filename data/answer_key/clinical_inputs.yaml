@@ -1,0 +1,85 @@
+# Clinical inputs for the expected answers — one entry per case. Read only by the evaluation code.
+# patient_type: the true type (A non-severe · B severe, observation · C isolation · D isolation + observation
+#   · E intensive care). challenge 1-5 and traps 1-12: docs/design/ward_state_templates.md.
+# challenge 6: a Severity judgment situation, named in `situation` — treatment_needs_icu · deteriorating_trend
+#   · limit_on_treatment · confusion_not_new · faulty_measurement · physicians_disagree.
+# challenge 7: looks like isolation but is not — MRSA carriage only (contact precautions, no isolation room).
+# wording: how the physician wrote the admitting ward — admit_only · specialty · binding_request.
+# true_vitals: values the text corrects or completes (traps 6 and 12); a field left empty and not in the text
+#   stays missing (trap 10).
+
+cases:
+  P-001: {patient_type: A, challenge: 4, traps: [1, 4], wording: specialty}
+  P-002: {patient_type: B, challenge: 2, traps: [12], wording: specialty, true_vitals: {oxygen_saturation: 90}}
+  P-003: {patient_type: C, challenge: 1, traps: [], wording: specialty}
+  P-004: {patient_type: D, challenge: 3, traps: [2, 7], wording: admit_only}
+  P-005: {patient_type: E, challenge: 5, traps: [5], wording: binding_request}
+  P-006: {patient_type: A, challenge: 1, traps: [], wording: specialty}
+  P-007: {patient_type: B, challenge: 2, traps: [6], wording: specialty, true_vitals: {heart_rate: 146, systolic_bp: 112, respiratory_rate: 20, oxygen_saturation: 95, temperature: 36.8}}
+  P-008: {patient_type: A, challenge: 3, traps: [7], wording: admit_only}
+  P-009: {patient_type: A, challenge: 4, traps: [11], wording: specialty}
+  P-010: {patient_type: A, challenge: 5, traps: [9], wording: specialty}
+  P-011: {patient_type: B, challenge: 1, traps: [], wording: admit_only}
+  P-012: {patient_type: B, challenge: 2, traps: [12, 5], wording: specialty, true_vitals: {consciousness: confusion}}
+  P-013: {patient_type: B, challenge: 3, traps: [1], wording: admit_only}
+  P-014: {patient_type: A, challenge: 4, traps: [3], wording: admit_only}
+  P-015: {patient_type: B, challenge: 5, traps: [8], wording: binding_request}
+  P-016: {patient_type: D, challenge: 1, traps: [], wording: binding_request}
+  P-017: {patient_type: D, challenge: 2, traps: [6], wording: specialty, true_vitals: {systolic_bp: 102, heart_rate: 112, respiratory_rate: 20, temperature: 38.9}}
+  P-018: {patient_type: D, challenge: 3, traps: [2, 7], wording: admit_only}
+  P-019: {patient_type: C, challenge: 4, traps: [1], wording: specialty}
+  P-020: {patient_type: D, challenge: 5, traps: [9], wording: binding_request}
+  P-021: {patient_type: A, challenge: 1, traps: [], wording: binding_request}
+  P-022: {patient_type: B, challenge: 2, traps: [10, 7], wording: specialty}
+  P-023: {patient_type: A, challenge: 3, traps: [5], wording: admit_only}
+  P-024: {patient_type: A, challenge: 4, traps: [4], wording: admit_only}
+  P-025: {patient_type: A, challenge: 5, traps: [9], wording: binding_request}
+  P-026: {patient_type: B, challenge: 1, traps: [], wording: admit_only}
+  P-027: {patient_type: B, challenge: 2, traps: [12], wording: specialty, true_vitals: {respiratory_rate: 26}}
+  P-028: {patient_type: A, challenge: 3, traps: [11], wording: admit_only}
+  P-029: {patient_type: A, challenge: 4, traps: [3], wording: binding_request}
+  P-030: {patient_type: B, challenge: 5, traps: [8], wording: binding_request}
+  P-031: {patient_type: A, challenge: 1, traps: [], wording: binding_request}
+  P-032: {patient_type: B, challenge: 2, traps: [6], wording: specialty, true_vitals: {systolic_bp: 98, heart_rate: 118, temperature: 39.1, respiratory_rate: 20, oxygen_saturation: 96}}
+  P-033: {patient_type: A, challenge: 3, traps: [7, 5], wording: admit_only}
+  P-034: {patient_type: A, challenge: 4, traps: [1], wording: binding_request}
+  P-035: {patient_type: A, challenge: 5, traps: [], wording: binding_request}
+  P-036: {patient_type: A, challenge: 1, traps: [], wording: binding_request}
+  P-037: {patient_type: B, challenge: 2, traps: [10], wording: specialty}
+  P-038: {patient_type: B, challenge: 3, traps: [5], wording: admit_only}
+  P-039: {patient_type: A, challenge: 4, traps: [11], wording: admit_only}
+  P-040: {patient_type: B, challenge: 5, traps: [9], wording: binding_request}
+  P-041: {patient_type: B, challenge: 1, traps: [], wording: specialty}
+  P-042: {patient_type: B, challenge: 2, traps: [6, 10], wording: admit_only, true_vitals: {respiratory_rate: 26, oxygen_saturation: 96, systolic_bp: 118, heart_rate: 88}}
+  P-043: {patient_type: C, challenge: 3, traps: [2], wording: admit_only}
+  P-044: {patient_type: A, challenge: 4, traps: [4], wording: specialty}
+  P-045: {patient_type: D, challenge: 5, traps: [8], wording: binding_request}
+  P-046: {patient_type: C, challenge: 1, traps: [], wording: binding_request}
+  P-047: {patient_type: D, challenge: 2, traps: [12], wording: specialty, true_vitals: {respiratory_rate: 25}}
+  P-048: {patient_type: C, challenge: 3, traps: [11, 2], wording: admit_only}
+  P-049: {patient_type: A, challenge: 4, traps: [3], wording: binding_request}
+  P-050: {patient_type: C, challenge: 5, traps: [9], wording: binding_request}
+  P-051: {patient_type: E, challenge: 1, traps: [], wording: binding_request}
+  P-052: {patient_type: E, challenge: 2, traps: [12], wording: admit_only, true_vitals: {oxygen_saturation: 84}}
+  P-053: {patient_type: E, challenge: 3, traps: [7], wording: binding_request}
+  P-054: {patient_type: B, challenge: 4, traps: [1, 10], wording: specialty}
+  P-055: {patient_type: E, challenge: 5, traps: [9], wording: specialty}
+  P-056: {patient_type: B, challenge: 1, traps: [], wording: admit_only}
+  P-057: {patient_type: D, challenge: 2, traps: [10, 6], wording: admit_only}
+  P-058: {patient_type: C, challenge: 3, traps: [2, 5], wording: admit_only}
+  P-059: {patient_type: A, challenge: 4, traps: [4, 3], wording: specialty}
+  P-060: {patient_type: B, challenge: 5, traps: [8, 11], wording: binding_request}
+  P-061: {patient_type: E, challenge: 6, situation: treatment_needs_icu, traps: [], wording: admit_only}
+  P-062: {patient_type: E, challenge: 6, situation: treatment_needs_icu, traps: [], wording: admit_only}
+  P-063: {patient_type: B, challenge: 6, situation: deteriorating_trend, traps: [], wording: specialty}
+  P-064: {patient_type: B, challenge: 6, situation: deteriorating_trend, traps: [], wording: binding_request}
+  P-065: {patient_type: B, challenge: 6, situation: limit_on_treatment, traps: [], wording: specialty}
+  P-066: {patient_type: B, challenge: 6, situation: limit_on_treatment, traps: [], wording: specialty}
+  P-067: {patient_type: A, challenge: 6, situation: confusion_not_new, traps: [], wording: admit_only}
+  P-068: {patient_type: A, challenge: 6, situation: confusion_not_new, traps: [], wording: specialty}
+  P-069: {patient_type: A, challenge: 6, situation: faulty_measurement, traps: [], wording: specialty, true_vitals: {oxygen_saturation: 97}}
+  P-070: {patient_type: A, challenge: 6, situation: faulty_measurement, traps: [], wording: binding_request, true_vitals: {heart_rate: 84}}
+  P-071: {patient_type: A, challenge: 6, situation: physicians_disagree, traps: [], wording: specialty}
+  P-072: {patient_type: B, challenge: 6, situation: physicians_disagree, traps: [], wording: admit_only}
+  P-073: {patient_type: A, challenge: 7, traps: [], wording: admit_only}
+  P-074: {patient_type: A, challenge: 7, traps: [], wording: binding_request}

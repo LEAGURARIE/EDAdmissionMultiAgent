@@ -1,0 +1,45 @@
+case_id: P-067
+patient:
+  age: 84
+  sex: female
+triage_level: 3
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 136
+  heart_rate: 84
+  consciousness: confusion
+  temperature: 37.9
+
+labs:
+  wbc: 12.8
+  hemoglobin: 12.3
+  sodium: 138
+  potassium: 4.3
+  creatinine: 0.9
+  glucose: 112
+  crp: 74
+
+background_conditions: "דמנציה מסוג אלצהיימר בינונית-מתקדמת, HTN, אוסטאופורוזיס"
+medications: [donepezil 10mg, memantine 20mg, amlodipine 5mg]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "רגל שמאל אדומה ונפוחה. מבולבלת, מלווה בבת."
+
+physician_note: |
+  בת 84 דמנציה אלצהיימר, גרה עם הבת ומטפלת. 3 ימים אודם, חום מקומי ונפיחות בשוק שמאל, חום 38 אתמול.
+  ב.ג. אודם מפושט בשוק שמאל עם גבול לא חד, חם, רגיש, ללא מורסה, ללא קרפיטציות. US ורידי - ללא DVT.
+  מבולבלת, לא מתמצאת בזמן ובמקום, עונה בקצרה. לפי הבת זה בדיוק המצב הרגיל שלה כבר יותר משנה, לא השתנה
+  בימים האחרונים, ממשיכה לאכול ולזהות את הבת. מכתב ממרפאה גריאטרית לפני חודש: MMSE 14, דיסאוריינטציה
+  לזמן ולמקום, "יציבה". ללא סימנים פוקאליים. cefazolin iv, סימון גבולות האודם
+  הערכה חוזרת: ללא שינוי במצב ההכרה לעומת הבסיס, שותה
+
+  cellulitis שוק שמאל, בלבול על רקע דמנציה ידועה - במצבה הרגיל. לאשפוז

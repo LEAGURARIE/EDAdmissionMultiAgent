@@ -1,0 +1,43 @@
+case_id: P-019
+patient:
+  age: 72
+  sex: male
+triage_level: 2
+chief_complaint: palpitations
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 128
+  heart_rate: 84
+  consciousness: alert
+  temperature: 36.7
+
+labs:
+  wbc: 7.2
+  hemoglobin: 13.9
+  sodium: 140
+  potassium: 4.2
+  creatinine: 1.0
+  glucose: 108
+  troponin: 9
+
+background_conditions: "HTN, s/p ניתוח מעקפים לב, נשא VRE משנת 2024"
+medications: [amlodipine 5mg, aspirin 100mg, atorvastatin 20mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "דפיקות לב, דופק 160 בטריאז', הובא באמבולנס."
+
+physician_note: |
+  בן 72 HTN, s/p CABG 2019, ידוע כנשא VRE מ-2024 (תרבית רקטלית חיובית באשפוז קודם, לא טופל).
+  הובא באמבולנס עם דפיקות לב מהבוקר, באמבולנס AF מהיר 160, צוות האמבולנס "חשש מאוטם".
+  שולל כאבי חזה, שולל קוצר נשימה, שולל עילפון, שולל חולשה בגפיים. ב.ג. במ"כ טוב, ללא מצוקה.
+  ECG - AF, ללא שינויי ST. טרופונין 9 וחוזר 10 - שלילי. Echo ליד המיטה - תפקוד תקין.
+  קיבל metoprolol iv ואחר כך פומי, דופק ירד ל-80-85 ונשאר יציב 4 שעות בניטור, ל"ד תקין
+  AF חדש עם איזון דופק טוב, ACS נשלל. לאשפוז בקרדיולוגיה להתחלת נוגדי קרישה ו-Echo מלא

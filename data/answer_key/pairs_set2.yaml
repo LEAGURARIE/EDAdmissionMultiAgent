@@ -1,0 +1,50 @@
+# Second pairs file — 30 pairs in templates T13-T22, records reused from the first file (T13-T16: one note type
+# each · T17-T19: ping-pong patterns · T20-T22: the shift rule), and the added records P-061-P-074 in existing templates (Severity judgment
+# situations, MRSA). One evaluation with pairs.yaml: every pair tests reading and coordination.
+# target_ward is the record's true target ward (as in pairs.yaml). Evaluation code only.
+
+pairs:
+  - {case_id: P-007, template: T13, target_ward: cardiology}
+  - {case_id: P-026, template: T13, target_ward: internal_medicine_a}
+  - {case_id: P-012, template: T13, target_ward: internal_medicine_b}
+  - {case_id: P-024, template: T14, target_ward: internal_medicine_b}
+  - {case_id: P-021, template: T14, target_ward: general_surgery}
+  - {case_id: P-028, template: T14, target_ward: internal_medicine_b}
+  - {case_id: P-031, template: T15, target_ward: cardiology}
+  - {case_id: P-059, template: T15, target_ward: general_surgery}
+  - {case_id: P-033, template: T15, target_ward: cardiology}
+  - {case_id: P-006, template: T16, target_ward: internal_medicine_a}
+  - {case_id: P-039, template: T16, target_ward: internal_medicine_a}
+  - {case_id: P-044, template: T16, target_ward: internal_medicine_b}
+  - {case_id: P-002, template: T17, target_ward: cardiology}
+  - {case_id: P-032, template: T17, target_ward: general_surgery}
+  - {case_id: P-040, template: T17, target_ward: cardiology}
+  - {case_id: P-001, template: T18, target_ward: internal_medicine_a}
+  - {case_id: P-014, template: T18, target_ward: internal_medicine_a}
+  - {case_id: P-010, template: T18, target_ward: internal_medicine_a}
+  - {case_id: P-008, template: T19, target_ward: internal_medicine_b}
+  - {case_id: P-029, template: T19, target_ward: general_surgery}
+  - {case_id: P-037, template: T19, target_ward: internal_medicine_b}
+  - {case_id: P-061, template: T11, target_ward: intensive_care}
+  - {case_id: P-062, template: T1, target_ward: intensive_care}
+  - {case_id: P-063, template: T2, target_ward: internal_medicine_a}
+  - {case_id: P-064, template: T13, target_ward: internal_medicine_b}
+  - {case_id: P-065, template: T8, target_ward: internal_medicine_a}
+  - {case_id: P-066, template: T6, target_ward: internal_medicine_b}
+  - {case_id: P-067, template: T15, target_ward: internal_medicine_b}
+  - {case_id: P-068, template: T16, target_ward: general_surgery}
+  - {case_id: P-069, template: T19, target_ward: internal_medicine_b}
+  - {case_id: P-070, template: T14, target_ward: internal_medicine_a}
+  - {case_id: P-071, template: T5, target_ward: internal_medicine_a}
+  - {case_id: P-072, template: T12, target_ward: internal_medicine_a}
+  - {case_id: P-073, template: T10, target_ward: cardiology}
+  - {case_id: P-074, template: T3, target_ward: internal_medicine_b}
+  - {case_id: P-009, template: T20, target_ward: general_surgery}
+  - {case_id: P-035, template: T20, target_ward: cardiology}
+  - {case_id: P-010, template: T20, target_ward: internal_medicine_a}
+  - {case_id: P-023, template: T21, target_ward: cardiology}
+  - {case_id: P-044, template: T21, target_ward: internal_medicine_b}
+  - {case_id: P-025, template: T21, target_ward: general_surgery}
+  - {case_id: P-036, template: T22, target_ward: cardiology}
+  - {case_id: P-039, template: T22, target_ward: internal_medicine_a}
+  - {case_id: P-034, template: T22, target_ward: general_surgery}

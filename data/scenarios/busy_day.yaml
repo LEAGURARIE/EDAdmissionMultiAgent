@@ -1,0 +1,46 @@
+# Scripted day 1 — a busy weekday: many admissions, a shortage of observation beds, intensive care full by evening.
+# Synthetic data only. Admission events carry only the time and the patient id; what the patient needs comes from
+# the medical record, never from the scenario. Ward notes are private: only that ward's Department Agent reads them.
+
+name: busy_day
+description: Busy weekday — 15 admissions, a shortage of observation beds, intensive care full by evening
+day: Monday
+start_time: "08:00"
+
+# Every bed starts occupied, except these. Beds: 1-10 regular, 11-12 observation, 13 isolation room;
+# intensive care 1-6, 7 isolation room.
+free_at_start:
+  internal_medicine_a: [1]
+  internal_medicine_b: [2, 13]
+  cardiology: [11]
+  general_surgery: [3, 4]
+  intensive_care: [1]
+
+events:
+  - {time: "08:00", type: ward_note, ward: internal_medicine_a, text: "אחרי ביקור הבוקר, בסביבות 11, ישתחררו שני מטופלים ממיטות רגילות."}
+  - {time: "08:40", type: admission_decision, patient: P-021}
+  - {time: "09:10", type: admission_decision, patient: P-007}
+  - {time: "09:30", type: discharge, ward: general_surgery, bed: 5, expected_time: "09:00"}
+  - {time: "09:50", type: admission_decision, patient: P-024}
+  - {time: "10:20", type: admission_decision, patient: P-043}
+  - {time: "10:45", type: admission_decision, patient: P-012}
+  - {time: "11:00", type: discharge, ward: internal_medicine_a, bed: 2, expected_time: "11:00"}
+  - {time: "11:00", type: discharge, ward: internal_medicine_a, bed: 3, expected_time: "11:00"}
+  - {time: "11:00", type: ward_note_end, ward: internal_medicine_a, text: "אחרי ביקור הבוקר, בסביבות 11, ישתחררו שני מטופלים ממיטות רגילות."}
+  - {time: "11:30", type: admission_decision, patient: P-031}
+  - {time: "12:10", type: admission_decision, patient: P-051}
+  - {time: "12:30", type: discharge, ward: internal_medicine_b, bed: 11, expected_time: "12:00"}
+  - {time: "13:00", type: admission_decision, patient: P-026}
+  - {time: "13:15", type: discharge, ward: cardiology, bed: 2, expected_time: "13:00"}
+  - {time: "13:20", type: admission_decision, patient: P-028}
+  - {time: "14:00", type: ward_note, ward: cardiology, text: "אין אחות למיטת ההשגחה עד הלילה, לא מקבלים מטופל השגחה.", effects: [{effect: unavailable, bed_type: observation}]}
+  - {time: "14:30", type: admission_decision, patient: P-016}
+  - {time: "15:00", type: discharge, ward: internal_medicine_a, bed: 11, expected_time: "14:30"}
+  - {time: "15:10", type: admission_decision, patient: P-063}
+  - {time: "15:15", type: admission_decision, patient: P-037}
+  - {time: "16:30", type: discharge, ward: general_surgery, bed: 6, expected_time: "16:00"}
+  - {time: "16:40", type: admission_decision, patient: P-073}
+  - {time: "18:00", type: discharge, ward: internal_medicine_b, bed: 3, expected_time: "17:00"}
+  - {time: "18:20", type: admission_decision, patient: P-008}
+  - {time: "19:30", type: admission_decision, patient: P-005}
+  - {time: "20:00", type: ward_note_end, ward: cardiology, text: "אין אחות למיטת ההשגחה עד הלילה, לא מקבלים מטופל השגחה."}

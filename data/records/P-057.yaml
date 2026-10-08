@@ -1,0 +1,45 @@
+case_id: P-057
+patient:
+  age: 74
+  sex: female
+triage_level: 2
+chief_complaint: palpitations
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 95
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: null
+  heart_rate: 92
+  consciousness: alert
+  temperature: 38.4
+
+labs:
+  wbc: 7.8
+  hemoglobin: 12.6
+  sodium: 136
+  potassium: 3.9
+  creatinine: 1.1
+  glucose: 144
+  crp: 46
+  troponin: 86
+
+background_conditions: "HTN, DM2, s/p PCI 2019"
+medications: [aspirin 100mg, atorvastatin 40mg, metformin 850mg, ramipril 5mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "דפיקות לב, חום ושיעול. בני משפחה חולים בשפעת."
+
+physician_note: |
+  בת 74 HTN DM2 s/p PCI. 3 ימים חום, שיעול, כאבי שרירים, הנכדים חולים בשפעת. מהבוקר דפיקות לב.
+  PCR שפעת A חיובי. ECG בקבלה סינוס 92, ירידות ST קלות V5-V6. טרופונין 86, חוזר אחרי 3 שעות 240.
+  לחץ הדם לא נמדד בטריאז' - המכשיר תקול.
+  עדכון - בניטור הופיע AF מהיר 130-140. metoprolol iv עם ירידה ל-110.
+  קרדיולוג תורן - NSTEMI מסוג 2 על רקע שפעת ו-AF מהיר, לאיזון קצב וניטור, צנתור בהמשך לפי מהלך
+
+  שפעת A עם AF מהיר חדש ועליית טרופונין. לאשפוז

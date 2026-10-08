@@ -1,0 +1,35 @@
+case_id: P-024
+template: T5
+patient_type: A
+challenge: 4
+situation: null
+traps:
+- 4
+wording: admit_only
+target_ward: internal_medicine_b
+needs:
+  severe: false
+  observation: false
+  isolation: false
+  intensive_care: false
+news2: 2
+expected:
+  action: place
+  ward_id: internal_medicine_b
+  acceptable_wards:
+  - internal_medicine_b
+  bed_type: regular
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: 1
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: regular bed free in the target ward
+ward_notes:
+- 'internal_medicine_b: מטופל ממיטה 7 שוחרר לפני חצי שעה, המיטה נוקתה ופנויה, עוד
+  לא עודכן במחשב. המיטה שבניקוי תהיה מוכנה כמתוכנן.'
+- 'internal_medicine_a: אין אחות פנויה למיטת ההשגחה עד הערב.'
+reports_alone_would_give: wait
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

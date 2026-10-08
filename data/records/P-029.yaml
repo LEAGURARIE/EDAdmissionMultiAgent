@@ -1,0 +1,46 @@
+case_id: P-029
+patient:
+  age: 63
+  sex: male
+triage_level: 3
+chief_complaint: abdominal_pain
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 97
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 138
+  heart_rate: 82
+  consciousness: alert
+  temperature: 37.1
+
+labs:
+  wbc: 10.4
+  hemoglobin: 13.8
+  platelets: 240
+  sodium: 139
+  potassium: 4.2
+  creatinine: 0.9
+  glucose: 118
+  crp: 22
+
+background_conditions: "s/p דום לב 2020 עם החייאה, ICD, s/p ניתוח Whipple 2019 עם אשפוז בטנ\"מ, HTN"
+medications: [bisoprolol 5mg, amiodarone 200mg, creon]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: general_surgery
+
+triage_note: "כאב בבטן עליונה אחרי ארוחה."
+
+physician_note: |
+  בן 63, היסטוריה מורכבת - דום לב ב-2020 עם החייאה ממושכת, הושתל ICD, ללא אירועים מאז ובדיקת ICD לפני
+  חודש תקינה. ב-2019 ניתוח Whipple על גידול שפיר בלבלב עם סיבוך של דליפה ואשפוז ממושך בטנ"מ.
+  כעת כאב בבטן עליונה אחרי ארוחה כבדה, בחילה, ללא הקאות, ללא חום. ב.ג. במ"כ טוב, רגישות קלה באפיגסטריום
+  ללא גירוי צפקי. אנזימי כבד תקינים, ליפאז 412 (פי 2.5 מהנורמה). CT - דלקת קלה סביב שארית הלבלב,
+  ללא נמק, ללא אוסף. ECG - קצב סינוס, ICD ללא פעילות. ציון חומרה ללבלב נמוך
+  שוחחתי עם כירורג תורן - פנקראטיטיס קלה, טיפול שמרני
+
+  פנקראטיטיס חריפה קלה. יש לאשפז בכירורגיה כללית, דובר עם התורן

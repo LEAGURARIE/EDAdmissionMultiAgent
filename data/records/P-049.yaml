@@ -1,0 +1,43 @@
+case_id: P-049
+patient:
+  age: 67
+  sex: male
+triage_level: 3
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 118
+  heart_rate: 84
+  consciousness: alert
+  temperature: 36.6
+
+labs:
+  wbc: 7.4
+  hemoglobin: 12.9
+  sodium: 135
+  potassium: 4.3
+  creatinine: 1.4
+  glucose: 118
+  troponin: 24
+
+background_conditions: "s/p אוטם קדמי נרחב 2021 עם הלם קרדיוגני, ECMO ואשפוז בטנ\"מ, CHF EF 30%, ICD"
+medications: [sacubitril/valsartan, bisoprolol 5mg, spironolactone 25mg, furosemide 40mg, dapagliflozin 10mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: cardiology
+
+triage_note: "נפיחות ברגליים וקוצר נשימה במאמץ. ידוע אי ספיקת לב קשה."
+
+physician_note: |
+  בן 67, היסטוריה קשה - 2021 אוטם קדמי נרחב עם הלם קרדיוגני, ECMO ו-3 שבועות בטנ"מ. מאז CHF EF 30%, ICD
+  ללא שוקים. שבוע עלייה של 3 ק"ג, נפיחות ברגליים, קוצר נשימה בעלייה במדרגות, ישן על 2 כריות במקום אחת.
+  לא נטל furosemide 4 ימים כי נגמר. ב.ג. במנוחה ללא מצוקה, סט' 96% באוויר, בצקות 2+, חרחורים עדינים בבסיסים
+  ECG ללא שינוי מקודם. trop 24 - כמו בבסיס. בדיקת ICD - ללא אירועים. furosemide iv עם תפוקה טובה
+
+  החמרה קלה של אי ספיקת לב על רקע הפסקת משתנים, יציב ללא צורך בחמצן. יש לאשפז בקרדיולוגיה, דובר עם התורן

@@ -1,0 +1,34 @@
+case_id: P-065
+template: T8
+patient_type: B
+challenge: 6
+situation: limit_on_treatment
+traps: []
+wording: specialty
+target_ward: internal_medicine_a
+needs:
+  severe: true
+  observation: true
+  isolation: false
+  intensive_care: false
+news2: 11
+expected:
+  action: place
+  ward_id: internal_medicine_a
+  acceptable_wards:
+  - internal_medicine_a
+  bed_type: observation
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: 1
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags:
+  - severity_judgment_note
+rationale: observation bed free in the target ward
+ward_notes:
+- 'internal_medicine_a: שבת. הכונן שחרר בבוקר שני מטופלים, ממיטה רגילה וממיטת השגחה.
+  המיטות נקיות ופנויות, המזכירה תעדכן רק ביום ראשון.'
+reports_alone_would_give: temporary_place internal_medicine_b, observation
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

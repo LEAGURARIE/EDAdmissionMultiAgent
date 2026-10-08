@@ -1,0 +1,48 @@
+case_id: P-005
+patient:
+  age: 71
+  sex: male
+triage_level: 1
+chief_complaint: altered_consciousness
+
+vitals:
+  respiratory_rate: 28
+  oxygen_saturation: 90
+  supplemental_oxygen: true
+  spo2_scale_2: false
+  systolic_bp: 84
+  heart_rate: 126
+  consciousness: voice
+  temperature: 39.4
+
+labs:
+  wbc: 22.4
+  hemoglobin: 11.8
+  platelets: 96
+  sodium: 131
+  potassium: 5.1
+  creatinine: 2.6
+  glucose: 188
+  crp: 312
+  lactate: 5.4
+  ph: 7.26
+  pco2: 32
+
+background_conditions: "DM2, HTN, CKD st. 3, AF על OAC"
+medications: [apixaban 5mg, metformin 1g, ramipril 5mg]
+allergies: [NKDA]
+functional_status: partly_dependent
+
+physician_request:
+  ward: intensive_care
+
+triage_note: "מבולבל, חם, ל\"ד נמוך."
+
+physician_note: |
+  בן 71 PMHx: DM2, HTN, CKD st 3, AF על OAC. הובא ע"י בני משפחה, מבולבל מאתמול + חום + ירידה בתפקוד,
+  לפי המשפחה c/o צריבה ותכיפות בימים האחרונים. מגיב לקול בלבד, מבולבל, עור קר ומנומר. BP 84/50 למרות
+  2L נוזלים, טכיקרדי, טכיפנאי, CVA tenderness R. ריאות - כניסה ירודה בבסיסים
+  U/A פיוריה משמעותית. לקטט 5.4 pH 7.26 Cr 2.6 (בסיס 1.4). CT בטן: הידרונפרוזיס R + אבן בשופכן
+  meropenem, התחלת נוראדרנלין בוריד פריפרי. אורולוג: ניקוז דחוף
+
+  Urosepsis עם septic shock על רקע אבן חוסמת, תלוי בתמיכת ל"ד. שוחחתי עם תורן טנ"מ - לאשפוז בטיפול נמרץ

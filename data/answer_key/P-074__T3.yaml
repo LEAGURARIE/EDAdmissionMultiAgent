@@ -1,0 +1,33 @@
+case_id: P-074
+template: T3
+patient_type: A
+challenge: 7
+situation: null
+traps: []
+wording: binding_request
+target_ward: internal_medicine_b
+needs:
+  severe: false
+  observation: false
+  isolation: false
+  intensive_care: false
+news2: 1
+expected:
+  action: temporary_place
+  ward_id: internal_medicine_a
+  acceptable_wards:
+  - internal_medicine_a
+  bed_type: regular
+  awaiting_transfer_to: internal_medicine_b
+  wait_for: null
+  ladder_level: 2
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: no regular bed in the target ward — nearest on the ladder, level 2
+ward_notes:
+- 'internal_medicine_b: חדר הבידוד בניקוי יסודי אחרי מטופל עם TB, לא יהיה מוכן לפני
+  הלילה. המיטה הרגילה הפנויה, המנוע שלה התקלקל, לא בשימוש.'
+reports_alone_would_give: place internal_medicine_b, regular
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

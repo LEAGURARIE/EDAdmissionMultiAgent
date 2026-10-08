@@ -1,0 +1,37 @@
+case_id: P-033
+template: T7
+patient_type: A
+challenge: 3
+situation: null
+traps:
+- 7
+- 5
+wording: admit_only
+target_ward: cardiology
+needs:
+  severe: false
+  observation: false
+  isolation: false
+  intensive_care: false
+news2: 0
+expected:
+  action: temporary_place
+  ward_id: internal_medicine_a
+  acceptable_wards:
+  - internal_medicine_a
+  - internal_medicine_b
+  bed_type: regular
+  awaiting_transfer_to: cardiology
+  wait_for: null
+  ladder_level: 2
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: no regular bed in the target ward — nearest on the ladder, level 2
+ward_notes:
+- 'cardiology: השחרורים של היום לא יקרו, המטופלים ממתינים לצנתור חוזר מחר.'
+- 'general_surgery: השחרור בוטל, המשפחה לא יכולה לקחת אותו היום. מיטת השגחה 12 התפנתה
+  לפני רבע שעה, עוד לא עודכן.'
+reports_alone_would_give: wait
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

@@ -1,0 +1,33 @@
+case_id: P-036
+template: T22
+patient_type: A
+challenge: 1
+situation: null
+traps: []
+wording: binding_request
+target_ward: cardiology
+needs:
+  severe: false
+  observation: false
+  isolation: false
+  intensive_care: false
+news2: 0
+expected:
+  action: temporary_place
+  ward_id: internal_medicine_a
+  acceptable_wards:
+  - internal_medicine_a
+  - internal_medicine_b
+  bed_type: regular
+  awaiting_transfer_to: cardiology
+  wait_for: null
+  ladder_level: 2
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: no regular bed in the target ward — nearest on the ladder, level 2
+ward_notes:
+- 'cardiology: השחרור של היום תלוי ברופא שעוד לא חתם על המכתב, כנראה ישתחרר רק מחר.'
+reports_alone_would_give: wait
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

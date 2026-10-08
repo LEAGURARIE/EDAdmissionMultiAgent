@@ -1,0 +1,46 @@
+case_id: P-033
+patient:
+  age: 81
+  sex: male
+triage_level: 3
+chief_complaint: general_weakness
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 112
+  heart_rate: 76
+  consciousness: alert
+  temperature: 36.5
+
+labs:
+  wbc: 6.9
+  hemoglobin: 12.4
+  sodium: 139
+  potassium: 4.5
+  creatinine: 1.3
+  glucose: 108
+  troponin: 18
+
+background_conditions: "HTN, BPH, s/p TURP, אובדן שמיעה"
+medications: [amlodipine 5mg, tamsulosin 0.4mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "חולשה וקוצר נשימה במאמץ."
+
+physician_note: |
+  בן 81 HTN BPH s/p TURP, כבד שמיעה - מלווה ע"י הבן שמתרגם. c/o חולשה ועייפות כחודשיים, "כבר לא הולך
+  לבית הכנסת ברגל", הבן חשב שזה גיל. לפני חודש היה אצל רופא המשפחה, בדיקות דם תקינות, הומלץ ויטמין D.
+  לפני שבועיים התחיל לישון אחה"צ, אוכל פחות, ירד 2 ק"ג. ללא חום, ללא שיעול, ללא תלונות שתן, ללא כאבי בטן.
+  אשתו נפטרה לפני שנה - הבן חושש מדיכאון. בתשאול ממוקד: קוצר נשימה ולחץ בחזה
+  בעלייה במדרגות, הולך ומחמיר בחודש האחרון. ב.ג. אוושה סיסטולית 4/6 בבסיס עם הקרנה לצוואר,
+  S2 חלש. ECG - LVH. TTE ליד המיטה: AS קשה, AVA ~0.7 סמ"ר, גרדיאנט ממוצע 48, EF שמור. trop 18 ללא
+  דינמיקה. ללא אורתוסטזיס. במנוחה ללא תלונות
+
+  AS קשה סימפטומטית, לבירור לקראת TAVI. לאשפוז

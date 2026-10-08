@@ -1,0 +1,44 @@
+case_id: P-060
+patient:
+  age: 41
+  sex: male
+triage_level: 2
+chief_complaint: altered_consciousness
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 98
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 136
+  heart_rate: 92
+  consciousness: alert
+  temperature: 37.1
+
+labs:
+  wbc: 10.2
+  hemoglobin: 15.1
+  sodium: 138
+  potassium: 3.8
+  creatinine: 0.9
+  glucose: 96
+  lactate: 2.4
+
+background_conditions: "ללא רקע ידוע"
+medications: []
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: internal_medicine_a
+
+triage_note: "פרכוס ראשון בעבודה, כעת ער."
+
+physician_note: |
+  בן 41 ללא רקע. פרכוס כללי ראשון בחייו בעבודה, לפי עמיתים כ-2 דקות, אחריו בלבול כחצי שעה. כעת ערני
+  ומתמצא, דיבור ללא שינוי ממצב קודם לפי אשתו, ללא חסר מוקדי. נשיכת לשון. ללא חום, ללא חבלה.
+  ישן מעט בשבוע האחרון בגלל לחץ בעבודה. CT ראש - ללא ממצא חריף, לא ניתן לשלול נגע קטן - ממליצים MRI.
+  נוירולוג: "ממליץ לשקול אשפוז במחלקה נוירולוגית למעקב ו-EEG". אשתו מבקשת שישוחרר הביתה ויעשה בירור
+  במרפאה. levetiracetam לא הוחל בשלב זה
+
+  פרכוס ראשון, לבירור והשגחה. יש לאשפז בפנימית א', דובר עם התורן

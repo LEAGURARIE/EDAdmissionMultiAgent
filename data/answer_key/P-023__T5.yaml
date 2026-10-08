@@ -1,0 +1,36 @@
+case_id: P-023
+template: T5
+patient_type: A
+challenge: 3
+situation: null
+traps:
+- 5
+wording: admit_only
+target_ward: cardiology
+needs:
+  severe: false
+  observation: false
+  isolation: false
+  intensive_care: false
+news2: 1
+expected:
+  action: place
+  ward_id: cardiology
+  acceptable_wards:
+  - cardiology
+  bed_type: regular
+  awaiting_transfer_to: null
+  wait_for: null
+  ladder_level: 1
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: regular bed free in the target ward
+ward_notes:
+- 'cardiology: מטופל ממיטה 7 שוחרר לפני חצי שעה, המיטה נוקתה ופנויה, עוד לא עודכן
+  במחשב. המיטה שבניקוי תהיה מוכנה כמתוכנן.'
+- 'internal_medicine_a: אין אחות פנויה למיטת ההשגחה עד הערב.'
+- 'internal_medicine_b: אין אחות פנויה למיטת ההשגחה עד הערב.'
+reports_alone_would_give: wait
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

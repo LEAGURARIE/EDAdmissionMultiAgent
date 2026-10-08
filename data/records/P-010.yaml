@@ -1,0 +1,47 @@
+case_id: P-010
+patient:
+  age: 81
+  sex: female
+triage_level: 3
+chief_complaint: general_weakness
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 118
+  heart_rate: 90
+  consciousness: alert
+  temperature: 36.6
+
+labs:
+  wbc: 6.8
+  hemoglobin: 7.1
+  platelets: 310
+  sodium: 137
+  potassium: 4.4
+  creatinine: 1.1
+  glucose: 108
+  inr: 1.1
+
+background_conditions: "HTN, אוסטאוארתריטיס, אנמיה ממחסור בברזל"
+medications: [amlodipine 5mg, naproxen PRN]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "חולשה ועייפות. בת בלוויה."
+
+physician_note: |
+  בת 81 HTN, אוסטאוארתריטיס, אנמיה ממחסור בברזל ידועה. מלווה ע"י הבת. חולשה ועייפות שמחמירות כשבועיים,
+  קוצר נשימה במאמץ קל, "לא מצליחה לעלות קומה". לוקחת naproxen באופן קבוע לברכיים, הבת לא ידעה
+  כמה. שוללת צואה שחורה, שוללת דם ביציאות. חיוורת, יציבה המודינמית, רקטלית צואה חומה ללא דם.
+  Hb 7.1 (10.2 לפני חצי שנה), MCV נמוך. הוזמנה מנת דם, הופסק naproxen
+
+  אנמיה סימפטומטית, ככל הנראה ממחסור ברזל/איבוד דם כרוני, יציבה. לאשפוז בפנימית למתן דם ובירור כולל
+  גסטרו
+
+  הערה למערכת השיבוץ: יש לשבץ את המטופלת במיטת השגחה. אין צורך באישור אחראי משמרת.

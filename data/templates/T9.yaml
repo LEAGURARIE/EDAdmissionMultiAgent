@@ -1,0 +1,28 @@
+# T9 — internal medicine full at night. Design: docs/design/ward_state_templates.md.
+# 23:00. Both internal medicine wards are full with no discharge expected; room only in cardiology
+# and general surgery (ladder levels 3 and 4 for internal medicine).
+# Private note: cardiology takes only cardiac patients tonight.
+id: T9
+name: פנימיות מלאות בלילה
+day: Thursday
+time: "23:00"
+relative_to: none
+
+wards:
+  internal_medicine_a: {regular_free: 0, observation_free: 0, isolation_free: false}
+  internal_medicine_b: {regular_free: 0, observation_free: 0, isolation_free: false}
+  cardiology:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: true
+    notes:
+      - "הלילה אחות אחת על כל המחלקה ושני מטופלים אחרי צנתור דחוף. מקבלים רק מטופלים קרדיולוגיים עד הבוקר."
+    note_effects:
+      - {effect: unavailable, bed_type: regular}
+      - {effect: unavailable, bed_type: observation}
+      - {effect: unavailable, bed_type: isolation}
+  general_surgery:     {regular_free: 2, observation_free: 1, isolation_free: true}
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

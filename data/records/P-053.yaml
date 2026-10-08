@@ -1,0 +1,45 @@
+case_id: P-053
+patient:
+  age: 81
+  sex: female
+triage_level: 2
+chief_complaint: general_weakness
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 148
+  heart_rate: 88
+  consciousness: confusion
+  temperature: 36.4
+
+labs:
+  wbc: 8.8
+  hemoglobin: 12.4
+  sodium: 112
+  potassium: 3.6
+  creatinine: 0.8
+  glucose: 118
+
+background_conditions: "HTN, דיכאון, אוסטאופורוזיס"
+medications: [hydrochlorothiazide 25mg, sertraline 50mg, calcium]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: intensive_care
+
+triage_note: "חולשה ובלבול. הבת אומרת שהיא שותה הרבה מים."
+
+physician_note: |
+  בת 81 HTN דיכאון. הבת מספרת שבחודש האחרון אמא "שותה המון מים כי קראה שזה בריא", כ-4 ליטר ביום, ומאז
+  שהתחילה sertraline לפני 6 שבועות פחות תיאבון. השבוע הרגישה חולשה, בחילה, לא יצאה לחוג התעמלות שהיא
+  מאוד אוהבת, ונכדה ביקר וחשב שהיא "קצת מפוזרת". גרה לבד, עצמאית לגמרי, נוהגת. לפני חצי שנה בדיקות דם
+  תקינות אצל רופאת המשפחה, Na 136. הבוקר נמצאה ע"י הבת מבולבלת, לא זיהתה אותה לרגע. בדרך למיון
+  באמבולנס - פרכוס כללי של כדקה, חלף. במיון מבולבלת, ללא חסר מוקדי. Na 112, אוסמולליות פלזמה נמוכה,
+  נתרן בשתן נמוך. CT ראש - ללא ממצא חריף. הופסקו HCTZ ו-sertraline, הגבלת נוזלים. אחרי הפרכוס ניתן
+  בולוס סליין היפרטוני 3% 100ml. נדרש ניטור נתרן כל שעתיים ועירוי היפרטוני מבוקר
+
+  היפונתרמיה קשה סימפטומטית עם פרכוס. יש לאשפז בטיפול נמרץ, דובר עם התורן

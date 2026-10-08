@@ -1,0 +1,44 @@
+case_id: P-042
+patient:
+  age: 83
+  sex: female
+triage_level: 3
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 18
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 124
+  heart_rate: 88
+  consciousness: alert
+  temperature: null
+
+labs:
+  wbc: 14.6
+  hemoglobin: 11.8
+  sodium: 134
+  potassium: 4.2
+  creatinine: 1.2
+  glucose: 126
+  crp: 156
+  lactate: 1.6
+
+background_conditions: "HTN, אוסטאופורוזיס, דמנציה קלה"
+medications: [amlodipine 5mg, donepezil 5mg]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "שיעול וחולשה. מהבית, עם מטפלת."
+
+physician_note: |
+  בת 83 HTN, דמנציה קלה, גרה עם מטפלת. שיעול 4 ימים, ירידה בתפקוד, אוכלת פחות. המטפלת לא מדדה חום בבית.
+  ב.ג. במ"כ סביר, חרחורים בבסיס ימין. CXR - תסנין RLL. ceftriaxone + azithromycin
+  הערכה חוזרת לפני ההעברה, 4 שעות אחרי הקבלה: נשימות 26, סט' 96% באוויר, ל"ד 118/70, דופק 88, מתנשמת
+  יותר בדיבור. לא נמדד חום חוזר. ממשיכה נוזלים
+
+  דלקת ריאות RLL בקשישה. לאשפוז

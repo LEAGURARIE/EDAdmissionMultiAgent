@@ -1,0 +1,37 @@
+case_id: P-023
+template: T21
+patient_type: A
+challenge: 3
+situation: null
+traps:
+- 5
+wording: admit_only
+target_ward: cardiology
+needs:
+  severe: false
+  observation: false
+  isolation: false
+  intensive_care: false
+news2: 1
+expected:
+  action: wait
+  ward_id: null
+  acceptable_wards: null
+  bed_type: null
+  awaiting_transfer_to: null
+  wait_for:
+    ward_id: cardiology
+    bed_number: null
+    because: ward_note
+  ladder_level: null
+  needs_typed_reason: false
+  physician_approval_for_icu: false
+  required_flags: []
+rationale: not severe — waits up to an hour for a bed the target ward said will free
+  soon
+ward_notes:
+- 'cardiology: המשפחה כבר כאן, המטופל ממיטה רגילה יוצא בעוד חצי שעה.'
+reports_alone_would_give: temporary_place internal_medicine_a or internal_medicine_b,
+  regular
+approved_by: Lea Gur-Arie, 2026-10-07
+frozen: true

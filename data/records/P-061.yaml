@@ -1,0 +1,47 @@
+case_id: P-061
+patient:
+  age: 77
+  sex: male
+triage_level: 2
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 20
+  oxygen_saturation: 96
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 112
+  heart_rate: 98
+  consciousness: alert
+  temperature: 38.4
+
+labs:
+  wbc: 18.2
+  hemoglobin: 12.1
+  platelets: 140
+  sodium: 133
+  potassium: 4.6
+  creatinine: 2.1
+  glucose: 168
+  crp: 210
+  lactate: 3.8
+
+background_conditions: "BPH עם קטטר קבוע, DM2, CKD"
+medications: [tamsulosin 0.4mg, metformin 850mg]
+allergies: []
+functional_status: partly_dependent
+
+physician_request:
+  ward: null
+
+triage_note: "חום ורעד, קטטר קבוע."
+
+physician_note: |
+  בן 77 BPH עם קטטר קבוע מזה חודשיים, DM2, CKD. חום ורעד מאתמול בערב, לפי האישה היה מבולבל קצת בלילה
+  וזה עבר. בקבלה ל"ד 78/40 דופק 118 חום 39.1, ערני. הוחלף קטטר - שתן עכור, נשלחה תרבית שתן + תרביות דם x2.
+  meropenem iv. קיבל 3 ליטר נוזלים - ל"ד 84/46 בלבד, דופק 110
+  עדכון, שעתיים אחרי הקבלה: בגלל ל"ד נמוך למרות הנוזלים הוחל noradrenaline בוריד פריפרי 0.12 mcg/kg/min,
+  ל"ד עלה ל-112/64, דופק 98. לקטט 3.8, Cr 2.1 (בסיס 1.4 לפני חצי שנה). metformin הופסק
+  ייעוץ טנ"מ התבקש, התורן בחדר ניתוח, יחזור אחרי
+
+  urosepsis על רקע קטטר, septic shock על noradrenaline, AKI. לאשפוז

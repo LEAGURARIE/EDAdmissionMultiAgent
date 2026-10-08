@@ -1,0 +1,34 @@
+# T19 — a condition that changes with a more exact request (second set: ping-pong). Design:
+# docs/design/ward_state_templates.md.
+# The target ward reports no free regular bed and one free observation bed. Its private note: a regular bed freed
+# after the round, not yet updated — fine for a stable patient; no staff for an unstable patient tonight.
+# Level 2 has a free observation bed.
+id: T19
+name: תנאי שמשתנה
+day: Saturday
+time: "02:00"
+relative_to: target_ward
+
+default:
+  regular_free: 1
+  observation_free: 0
+  isolation_free: false
+
+ladder:
+  level_1:
+    regular_free: 0
+    observation_free: 1
+    isolation_free: false
+    notes:
+      - "מיטה רגילה התפנתה אחרי הביקור ועוד לא עודכנה, מטופל יציב אפשר לקבל אליה. הלילה אח אחד על כל החדרים הרחוקים, אין לנו צוות לחולה לא יציב."
+    note_effects:
+      - {effect: hidden_free, bed_type: regular}
+      - {effect: unavailable, bed_type: observation}
+  level_2:
+    regular_free: 1
+    observation_free: 1
+    isolation_free: false
+
+intensive_care:
+  intensive_care_free: 1
+  isolation_free: true

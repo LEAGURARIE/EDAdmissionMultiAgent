@@ -1,0 +1,43 @@
+case_id: P-006
+patient:
+  age: 55
+  sex: male
+triage_level: 3
+chief_complaint: fever
+
+vitals:
+  respiratory_rate: 16
+  oxygen_saturation: 98
+  supplemental_oxygen: false
+  spo2_scale_2: false
+  systolic_bp: 138
+  heart_rate: 92
+  consciousness: alert
+  temperature: 38.3
+
+labs:
+  wbc: 14.2
+  hemoglobin: 14.5
+  sodium: 138
+  potassium: 4.3
+  creatinine: 0.9
+  glucose: 198
+  crp: 96
+
+background_conditions: "DM2, השמנה"
+medications: [metformin 1g, sitagliptin 100mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "רגל ימין אדומה ונפוחה, חום."
+
+physician_note: |
+  בן 55 DM2 השמנה. אודם נפיחות וכאב בשוק ימין 3 ימים, חום מאתמול. קיבל קפלקסין מרופא המשפחה
+  יומיים ללא שיפור, האודם התפשט - לדבריו "עלה כמעט עד הברך". ב.ג. במ"כ טוב, אודם חם ורגיש כ15 ס"מ
+  בשוק ימין, גבולות סומנו בטוש, ללא שלפוחיות ללא נמק ללא תנודתיות, דפקים נמושים, ללא סימני מדור.
+  דופלר - ללא DVT. סוכר 198. cefazolin iv
+
+  צלוליטיס שוק ימין שלא הגיבה לטיפול פומי. לאשפוז בפנימית לאנטיביוטיקה iv ואיזון סוכר
