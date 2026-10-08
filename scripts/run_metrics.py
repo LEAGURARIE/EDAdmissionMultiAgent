@@ -26,7 +26,7 @@ from pathlib import Path
 from ed_admission import config
 from ed_admission.baselines import simulated_coordinator
 from ed_admission.environment import load_scenario
-from ed_admission.evaluation import deciders, metrics, run_cases, run_paired
+from ed_admission.evaluation import deciders, metrics, report, run_cases, run_paired
 from ed_admission.database import run_log
 from ed_admission.observability import tracing
 
@@ -103,34 +103,14 @@ def run_evaluation(decider):
     return pairs, paired, tracing.take(), rows
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--decider", default="first_free_bed",
-                        help=f"one of {sorted(deciders.DECIDERS)}, or module:function")
-    parser.add_argument("--label", default="", help="what changed in this run, for the run history")
-    args = parser.parse_args()
-    decider = deciders.resolve(args.decider)
-
-    pairs, paired, traces, rows = run_evaluation(decider)
-    today_pairs, today_paired, _, _ = run_evaluation(simulated_coordinator)
-    print(f"decider: {args.decider}   ·   today: the simulated coordinator (today's procedure)")
+def print_details(pairs, paired, today_pairs, today_paired, days, today_days, saved, everything, trace_metrics):
+    print("\n" + "=" * 100 + "\nDetails")
     print_comparison("Pairs", metrics.summarize(pairs), metrics.summarize(today_pairs))
     print_comparison("Paired cases", metrics.summarize(paired), metrics.summarize(today_paired))
-    print_comparison("All decisions", metrics.summarize(pairs + paired), metrics.summarize(today_pairs + today_paired))
+    print_comparison("All decisions", everything, metrics.summarize(today_pairs + today_paired))
     for by in ("challenge", "trap", "template"):
         print_breakdown(by, pairs + paired, today_pairs + today_paired)
 
-    days, today_days, saved, day_engines = {}, {}, {}, {}
-    for name in DAYS:
-        engines = {}
-        for label, policy in (("system", decider), ("today", simulated_coordinator)):
-            engines[label] = load_scenario(PROJECT / "data" / "scenarios" / f"{name}.yaml")
-            engines[label].policy = policy
-            engines[label].run_to_end()
-        days[name], today_days[name] = metrics.score_day(engines["system"]), metrics.score_day(engines["today"])
-        saved[name] = metrics.minutes_saved(engines["today"], engines["system"])
-        day_engines[name] = engines["system"]
-    tracing.take()                                                  # the days' traces are not part of the trace metrics
     print("\nScripted days — decider · today")
     print(f"  {'':<26}" + "".join(f"{name:>22}" for name in DAYS))
     for key, label in DAY_ROWS:
@@ -149,8 +129,6 @@ def main() -> None:
               f"/{day['patients']} · placed only by this decider {len(day['placed_by_system_only'])}"
               f" · placed only today {len(day['placed_today_only'])}")
 
-    everything = metrics.summarize(pairs + paired)
-    trace_metrics = metrics.trace_summary(traces)
     print("\nTraces, time and cost per case:")
     print(f"  time per case            mean {everything['mean_seconds']:.2f} s · max {everything['max_seconds']:.2f} s")
     if trace_metrics is None:
@@ -166,6 +144,41 @@ def main() -> None:
               f"this run ${t['cost_total_usd']:.2f}   ({t['agent_calls']} agent calls, "
               f"{t['tokens_in']} tokens in, {t['tokens_out']} out)")
 
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--decider", default="first_free_bed",
+                        help=f"one of {sorted(deciders.DECIDERS)}, or module:function")
+    parser.add_argument("--label", default="", help="what changed in this run, for the run history")
+    parser.add_argument("--details", action="store_true", help="everything: by rule, challenge, trap, template, "
+                        "each day, minutes saved, cost")
+    args = parser.parse_args()
+    decider = deciders.resolve(args.decider)
+
+    pairs, paired, traces, rows = run_evaluation(decider)
+    today_pairs, today_paired, _, _ = run_evaluation(simulated_coordinator)
+    days, today_days, saved, day_engines = {}, {}, {}, {}
+    for name in DAYS:
+        engines = {}
+        for label, policy in (("system", decider), ("today", simulated_coordinator)):
+            engines[label] = load_scenario(PROJECT / "data" / "scenarios" / f"{name}.yaml")
+            engines[label].policy = policy
+            engines[label].run_to_end()
+        days[name], today_days[name] = metrics.score_day(engines["system"]), metrics.score_day(engines["today"])
+        saved[name] = metrics.minutes_saved(engines["today"], engines["system"])
+        day_engines[name] = engines["system"]
+    tracing.take()                                                  # the days' traces are not part of the trace metrics
+    everything = metrics.summarize(pairs + paired)
+    trace_metrics = metrics.trace_summary(traces)
+
+    name = deciders.label(args.decider)
+    columns = {name: report.column(pairs + paired, days, trace_metrics),
+               "today": report.column(today_pairs + today_paired, today_days)}
+    print(f"{name}  vs  today (the simulated coordinator)\n")
+    print(report.render(columns, judged=name))
+    if args.details:
+        print_details(pairs, paired, today_pairs, today_paired, days, today_days, saved, everything, trace_metrics)
+
     output = config.outputs_dir() / f"metrics_{deciders.label(args.decider)}.json"
     output.write_text(json.dumps({
         "pairs": metrics.summarize(pairs), "paired": metrics.summarize(paired), "all": everything,
@@ -177,7 +190,6 @@ def main() -> None:
         "by_patient_type": metrics.breakdown(pairs + paired, "patient_type"),
         "days": days, "minutes_saved": saved, "traces": trace_metrics, "rows": metrics.as_rows(pairs + paired),
     }, ensure_ascii=False, indent=2, default=str), encoding="utf8")
-    print(f"\nsaved to {output}")
 
     # The run history: one row in runs.csv, one row per patient in admissions.csv, the traces by run id.
     run = run_log.new_run("system", args.decider, args.label)
@@ -202,7 +214,9 @@ def main() -> None:
                                                                 "cost_mean_usd", "cost_total_usd")})
     numbers["mean_seconds"] = round(everything["mean_seconds"], 3)
     path = run_log.log_run(run, numbers)
-    print(f"run history: {path} · {path.parent / run_log.ADMISSIONS}  (run {run['run_id']}, version {run['version']})")
+    print(f"\n  Saved to your history: {path.parent}  (runs.csv · admissions.csv)  — run {run['run_id']}")
+    if not args.details:
+        print("  For the full details: --details")
 
 
 if __name__ == "__main__":

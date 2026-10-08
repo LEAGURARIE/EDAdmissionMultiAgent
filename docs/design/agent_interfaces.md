@@ -100,10 +100,12 @@ by challenge and trap (or template / decider), and every wrong row; the rows go 
 
 Compare with `--decider example_pipeline`: the difference is what the agent adds to the final placement.
 
-What `run_metrics.py` prints: every metric for the decider and for today (the simulated coordinator) side by side,
-with the difference and the charter's target · match and violations by challenge, trap and template, the decider
-and today · the three scripted days side by side · minutes saved for each patient · time per case, and from the
-traces: complete traces, groundedness, cost per case and tokens. Everything is saved to `outputs/metrics_<decider>.json`.
+What the scripts print — the goal in one table, against the targets: **safe** (violations, needs met, a bed the
+ward cannot give), **suitable** (match), **fast** (minutes to a bed), and **tracked** (complete traces,
+groundedness) once the decider keeps traces. `run_metrics.py`: the decider next to today (the simulated
+coordinator); `run_agent_metrics.py`: your agent next to its code example; `run_baselines.py`: the three
+baselines. Add `--details` for everything else: by rule, challenge, trap and template, each day, minutes saved,
+cost and tokens, and every wrong case. Everything is saved to `outputs/metrics_<decider>.json`.
 
 **The run history** — every run of `run_metrics.py` and `run_agent_metrics.py` adds to two files, so improvement is
 seen run after run: `runs.csv` (one row per run — did it improve?) and `admissions.csv` (one row per patient — which

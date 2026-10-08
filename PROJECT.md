@@ -87,7 +87,7 @@ The system does not replace the shift manager — it helps them, mostly in busy 
 | An example wiring in code, that runs on the whole evaluation | `orchestration/example_pipeline.py` |
 | **Measuring each agent alone,** against the part of the expected answers that is its job, with a code example to beat for every agent | `evaluation/agent_metrics.py` · `scripts/run_agent_metrics.py` · `orchestration/example_agents.py` · `contracts/agent_outputs.py` |
 | Every run script takes a decider by name or as `module:function`, so each owner runs their own agent without changing the scripts | `evaluation/deciders.py` |
-| **The measurement output, side by side with today:** every metric for the decider and the simulated coordinator, with the difference; by challenge, trap and template; the days; complete traces, groundedness, time and cost per case from the traces the decider hands (`tracing.collect`) | `scripts/run_metrics.py` · `evaluation/metrics.py` · `observability/tracing.py` |
+| **The measurement output — the goal in one table:** safe, suitable, fast (and tracked, with traces) vs today and the targets; `--details` for everything else. The three baselines side by side; each agent vs its code example | `evaluation/report.py` · `scripts/run_metrics.py` · `scripts/run_baselines.py` · `scripts/run_agent_metrics.py` |
 | **Fixed entry points for connecting the agents:** `run` in every agent file, `run_back` for back to Supervision; the Coordinator's `run` is the whole system. Signatures guarded by a test | `src/ed_admission/agents/` · `tests/test_agent_entry_points.py` |
 
 ### Agents — roles defined, logic not yet
@@ -104,7 +104,7 @@ The system does not replace the shift manager — it helps them, mostly in busy 
 
 ### Tests
 
-901 tests pass:
+905 tests pass:
 
 ```
 .venv/Scripts/python -m pytest -q
@@ -165,7 +165,7 @@ The system does not replace the shift manager — it helps them, mostly in busy 
 
 ## State for the next session
 
-**Where we stopped, 2026-10-07:** the environment, the data, the answers, the metrics, the three baselines and the agent interfaces are **complete and tested.** 901 tests pass. **The team can start building the agents** following `docs/design/agent_interfaces.md`.
+**Where we stopped, 2026-10-07:** the environment, the data, the answers, the metrics, the three baselines and the agent interfaces are **complete and tested.** 905 tests pass. **The team can start building the agents** following `docs/design/agent_interfaces.md`.
 
 **Uploaded to GitHub on 2026-10-08:** the whole environment, data, evaluation, Colab notebook and documents — 5 commits. Next: test the notebook in Colab, invite the team.
 
