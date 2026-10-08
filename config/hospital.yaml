@@ -1,0 +1,42 @@
+# The simulated adult hospital: what exists, and how long things take.
+# Who may use which bed is a placement rule: config/clinical_rules/placement_rules.yaml.
+
+# How long things take, in simulated minutes. Read by the simulation engine.
+operations:
+  cleaning_minutes: 45      # discharge -> bed ready; always 45, at any hour and on any day
+  hold_minutes: 30          # a hold on a bed expires if no approval arrives in time
+  approval_minutes: 15      # the shift manager's approval of a placement — the same for the baselines and the agents
+  phone_call_minutes: 5     # the simulated coordinator's phone call to a ward (today's procedure)
+  # The system's own time is not set here: the engine measures how long each decision really took (scripted days).
+
+# Wards.
+# level: regular = regular ward (regular beds + observation beds); intensive_care = intensive care unit.
+# Observation beds also serve as intermediate care — there is no separate intermediate care unit.
+# Every ward, including intensive care, has one isolation room with observation capability.
+# Beds are numbered in order: regular beds first, then observation beds, then the isolation room.
+# No women's wards in the simulated hospital.
+wards:
+  internal_medicine_a:
+    name: Internal Medicine A
+    level: regular
+    beds: {regular: 10, observation: 2, isolation: 1}   # 1-10 regular, 11-12 observation, 13 isolation
+
+  internal_medicine_b:
+    name: Internal Medicine B
+    level: regular
+    beds: {regular: 10, observation: 2, isolation: 1}
+
+  cardiology:
+    name: Cardiology
+    level: regular
+    beds: {regular: 10, observation: 2, isolation: 1}
+
+  general_surgery:
+    name: General Surgery
+    level: regular
+    beds: {regular: 10, observation: 2, isolation: 1}
+
+  intensive_care:
+    name: Intensive Care
+    level: intensive_care
+    beds: {intensive_care: 6, isolation: 1}  # 1-6 intensive care, 7 isolation

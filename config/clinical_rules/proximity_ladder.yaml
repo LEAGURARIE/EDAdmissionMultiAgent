@@ -1,0 +1,14 @@
+# Clinical proximity ladders: for EACH target ward, the wards from closest (level 1 = the target ward itself)
+# to farthest. Wards on the same level are equally close; between them, the lower occupancy goes first.
+# The ladder used is the one of the target ward: the ward the physician requested, or — if none — the ward
+# the problem was classified to.
+# Every placement needs the shift manager's approval; level 3 or farther also a typed reason.
+# Intensive care has no ladder: full -> escalate. A patient who does not need intensive care never goes there.
+# Clinically approved by Lea on 2026-10-05 (decision A54). No external source.
+
+ladders:
+  internal_medicine_a: [[internal_medicine_a], [internal_medicine_b], [cardiology], [general_surgery]]
+  internal_medicine_b: [[internal_medicine_b], [internal_medicine_a], [cardiology], [general_surgery]]
+  cardiology:          [[cardiology], [internal_medicine_a, internal_medicine_b], [general_surgery]]
+  general_surgery:     [[general_surgery], [internal_medicine_a, internal_medicine_b], [cardiology]]
+  intensive_care:      [[intensive_care]]

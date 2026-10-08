@@ -1,0 +1,18 @@
+# Mapping the NEWS2 score to the level of care in the simulated hospital.
+# Read by src/ed_admission/tools/news2.py (level_of_care).
+# The mapping is a clinical decision by Lea, 2026-10-05 (decision A59).
+# NEWS2 itself — the points for each vital sign and the risk bands — comes from the Royal College of Physicians,
+# 2017, Charts 1 and 2, checked against the original charts on 2026-10-05 (docs/design/sources.md, S4).
+#
+#   score >= intensive_care_from                    -> intensive care: a recommendation, for a physician's approval
+#   score >= observation_from, or a single
+#   vital sign with single_parameter_points         -> observation
+#   otherwise                                       -> regular bed, unless an observation condition applies
+#
+# A physician's own request for intensive care is binding. Intensive care full -> escalate.
+# The Severity Agent may only raise the level above this mapping, with a quote — never lower it; where judgment
+# argues for less (a limit on treatment, confusion that is not new) it keeps the level and adds a note.
+
+intensive_care_from: 7
+observation_from: 5
+single_parameter_points: 3

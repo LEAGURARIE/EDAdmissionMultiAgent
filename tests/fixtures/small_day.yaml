@@ -1,0 +1,28 @@
+# Scripted scenario: a busy day with a shortage of observation beds.
+# Synthetic data only. Times are simulated clock times.
+
+name: busy_day
+description: Busy day with a shortage of observation beds
+start_time: "08:00"
+
+# Every bed starts occupied, except these.
+free_at_start:
+  internal_medicine_a: [4]
+  cardiology: [7]
+  general_surgery: [2, 9, 13]
+  intensive_care: [5]
+
+# Admission events carry only the time and the patient id. What the patient needs comes from
+# the medical record, never from the scenario.
+events:
+  - {time: "09:30", type: discharge, ward: general_surgery, bed: 3, expected_time: "09:00"}
+  - {time: "11:40", type: discharge, ward: internal_medicine_a, bed: 6, expected_time: "11:00"}
+  - {time: "12:10", type: admission_decision, patient: P-001}
+  - {time: "13:15", type: discharge, ward: cardiology, bed: 2, expected_time: "13:00"}
+  - {time: "14:30", type: discharge, ward: internal_medicine_b, bed: 11, expected_time: "14:00"}
+  - {time: "16:25", type: admission_decision, patient: P-002}
+  - {time: "16:40", type: admission_decision, patient: P-003}
+  - {time: "17:30", type: discharge, ward: internal_medicine_b, bed: 12, expected_time: "17:00"}
+  - {time: "17:50", type: admission_decision, patient: P-005}
+  - {time: "18:10", type: admission_decision, patient: P-004}
+  - {time: "19:00", type: discharge, ward: intensive_care, bed: 2, expected_time: "19:00"}

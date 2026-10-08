@@ -1,0 +1,22 @@
+# Conditions that require an observation bed in the ward — even when NEWS2 is low.
+# A patient needs observation if NEWS2 says so OR a condition from this list applies (either one is enough).
+# Supplemental oxygen is on purpose both here (condition 5) and in NEWS2 — double protection.
+# Clinically approved by Lea on 2026-10-05 (decision A57). No external source.
+
+conditions:
+  - {id: 1,  domain: cardiac,      condition: "chest pain under evaluation with ECG changes or rising troponin"}
+  - {id: 2,  domain: cardiac,      condition: "new arrhythmia that needs monitoring, e.g. fast atrial fibrillation"}
+  - {id: 3,  domain: cardiac,      condition: "syncope with a suspected cardiac cause"}
+  - {id: 4,  domain: cardiac,      condition: "acute heart failure needing oxygen"}
+  - {id: 5,  domain: respiratory,  condition: "needs supplemental oxygen to keep a normal saturation"}
+  - {id: 6,  domain: respiratory,  condition: "COPD exacerbation with respiratory acidosis"}
+  - {id: 7,  domain: metabolic,    condition: "diabetic ketoacidosis"}
+  - {id: 8,  domain: metabolic,    condition: "hyperkalemia, potassium 6.0 or higher"}
+  - {id: 9,  domain: metabolic,    condition: "recurrent hypoglycemia"}
+  - {id: 10, domain: infection,    condition: "suspected sepsis with raised lactate, without shock"}
+  - {id: 11, domain: bleeding,     condition: "gastrointestinal bleeding in a stable patient"}
+  - {id: 12, domain: bleeding,     condition: "bleeding in a patient on anticoagulants"}
+  - {id: 13, domain: neurological, condition: "after a seizure"}
+  - {id: 14, domain: neurological, condition: "reduced level of consciousness not requiring intensive care"}
+  - {id: 15, domain: score,        condition: "NEWS2 of 5 or 6"}
+  - {id: 16, domain: score,        condition: "3 points in any single NEWS2 vital sign"}

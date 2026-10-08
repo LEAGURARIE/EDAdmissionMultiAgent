@@ -1,0 +1,18 @@
+# Closed list of chief complaints (chosen by the triage nurse), and the ward or wards each one points to.
+# Read by the record contract (only these complaints are allowed) and by the rules-only baseline,
+# which reads structured fields only: chief complaint -> target ward.
+# Two wards listed -> the one with the lower occupancy (same rule as two wards on the same ladder level).
+# Clinically approved by Lea on 2026-10-05 (decision A60). No external source.
+
+complaints:
+  chest_pain:                [cardiology]
+  palpitations:              [cardiology]
+  syncope:                   [cardiology]
+  shortness_of_breath:       [internal_medicine_a, internal_medicine_b]
+  fever:                     [internal_medicine_a, internal_medicine_b]
+  general_weakness:          [internal_medicine_a, internal_medicine_b]
+  altered_consciousness:     [internal_medicine_a, internal_medicine_b]
+  vomiting_or_diarrhea:      [internal_medicine_a, internal_medicine_b]
+  gastrointestinal_bleeding: [internal_medicine_a, internal_medicine_b]
+  abdominal_pain:            [general_surgery]
+  trauma_or_fall:            [general_surgery]

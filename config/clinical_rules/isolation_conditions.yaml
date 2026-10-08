@@ -1,0 +1,22 @@
+# Conditions that require the isolation room. One isolation type: every patient who needs isolation goes to
+# the isolation room (one per ward, with observation capability) — whether to protect others from the patient
+# or to protect the patient from others.
+# Clinically approved by Lea on 2026-10-05 (decision A58). No external source.
+
+conditions:
+  - {id: 1, condition: "pulmonary tuberculosis, suspected or diagnosed — including 'rule out TB' / 'TB cannot be ruled out'"}
+  - {id: 2, condition: "influenza, suspected or diagnosed, with respiratory symptoms"}
+  - {id: 3, condition: "COVID-19 or another respiratory virus that requires isolation, e.g. RSV"}
+  - {id: 4, condition: "carriage of or infection with resistant bacteria: CRE/CPE, VRE"}
+  - {id: 5, condition: "Clostridioides difficile diarrhea"}
+  - {id: 6, condition: "chickenpox, or disseminated herpes zoster"}
+  - {id: 7, condition: "measles"}
+  - {id: 8, condition: "suspected meningococcal meningitis, in the first 24 hours of antibiotics"}
+  - {id: 9, condition: "severe immunosuppression, e.g. neutropenia — protective isolation"}
+
+# Do NOT require the isolation room:
+not_isolation:
+  - "MRSA carriage — contact precautions only"
+  - "tuberculosis in the past, treated and recovered"
+  - "a family member is sick, while the patient has no symptoms"
+  - "the physician wrote that there is no reason for isolation"

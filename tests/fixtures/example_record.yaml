@@ -1,0 +1,51 @@
+case_id: P-900
+patient:
+  age: 54
+  sex: male
+triage_level: 3
+chief_complaint: shortness_of_breath
+
+vitals:
+  respiratory_rate: 22
+  oxygen_saturation: 93
+  supplemental_oxygen: false
+  systolic_bp: 128
+  heart_rate: 104
+  consciousness: alert
+  temperature: 38.1
+
+labs:
+  wbc: 11.2
+  hemoglobin: 12.9
+  crp: 87
+  creatinine: 0.9
+  sodium: 136
+
+background_conditions: "HTN, מעשן 30 pack-years"
+medications: [amlodipine 5mg]
+allergies: []
+functional_status: independent
+
+physician_request:
+  ward: null
+
+triage_note: "שיעול ממושך, חום. עם מסכה בהמתנה."
+
+physician_note: |
+  מחלה נוכחית:
+  בן 54, מעשן 30 pack-years, פונה בשל שיעול פרודוקטיבי מזה כ-3 שבועות,
+  בשבוע האחרון עם כיח דמי מעט. מתאר ירידה של 6 ק"ג בחודשיים והזעות לילה.
+  חזר לפני חודשיים משהות של חצי שנה בהודו.
+
+  בדיקה גופנית:
+  במצב כללי סביר, מעט טכיפנאי. חרחורים באונה עליונה מימין. ללא בצקות.
+
+  בדיקות עזר:
+  CXR: תסנין באונה עליונה ימנית עם חשד ל-cavitation.
+  ECG: sinus tachycardia, ללא שינויים איסכמיים.
+
+  מהלך במיון:
+  קיבל נוזלים ו-acamol. נלקחו תרביות דם וכיח ל-AFB x3.
+
+  סיכום והמלצה:
+  CAP מול TB ריאתי. לאשפוז בפנימית, לשלול שחפת.

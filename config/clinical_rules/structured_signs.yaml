@@ -1,0 +1,21 @@
+# Structured signs — what a code baseline ("rules only", "simulated coordinator") can read from the structured fields
+# of a record, without the free text, to conclude that a patient needs an observation bed.
+# Each sign is one of the observation conditions (observation_conditions.yaml, by id). Approved by Lea, 2026-10-07;
+# every threshold checked against its source (docs/design/sources.md). NEWS2 levels: news2_levels.yaml.
+# A sign holds when every field it names meets its threshold.
+
+observation_signs:
+  - {condition: 1, chief_complaint: chest_pain, troponin_above: 14}          # ng/L, hs-TnT 99th percentile — S6
+  - {condition: 5, supplemental_oxygen: true}
+  - {condition: 7, glucose_at_least: 200, ph_below: 7.30}                     # DKA, without ketones (no field) — S7
+  - {condition: 8, potassium_at_least: 6.0}
+  - {condition: 9, glucose_below: 70}                                         # mg/dL, level 1 hypoglycemia — S8
+  - {condition: 10, lactate_above: 2, temperature_at_least: 38.1}             # mmol/L — S9; fever: NEWS2 band — S4
+  - {condition: 11, chief_complaint: gastrointestinal_bleeding}
+  - {condition: 14, consciousness_not_alert: true}
+
+# Not readable from structured fields — a code baseline misses them (the agents read the text):
+#   2 new arrhythmia · 3 syncope with a suspected cardiac cause · 6 COPD exacerbation with respiratory acidosis
+#   (no verified source for the thresholds — left out) · 12 bleeding on anticoagulants · 13 after a seizure.
+#   Every isolation condition: there is no structured field for isolation.
+not_readable: [2, 3, 6, 12, 13]
