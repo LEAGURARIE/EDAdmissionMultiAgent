@@ -1,0 +1,35 @@
+# Secrets
+.env
+*.token
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Local outputs
+outputs/
+logs/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local helper tools (not part of the project)
+.local_tools/
+
+# Not uploaded (decided by the user)
+CLAUDE.md
+
+# docs/reference: only the English Agents Guide goes to the repository (decided by the user)
+docs/reference/*
+!docs/reference/Agents_Guide.pdf

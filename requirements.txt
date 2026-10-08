@@ -1,0 +1,7 @@
+# The exact versions the project is tested with. Colab: pip install -r requirements.txt, then pip install -e . --no-deps
+# Keep in step with pyproject.toml (tests/test_colab_notebook.py checks it).
+anthropic==1.11.0
+pydantic==2.13.5
+PyYAML==6.0.3
+python-dotenv==1.2.4
+pytest==9.1.1
