@@ -13,6 +13,8 @@ patients, one bed) and the three scripted days. Then it prints:
   - the scripted days, and the minutes saved for each patient against today
   - the traces the decider handed (observability/tracing.py, collect): complete traces, groundedness, time and cost
     per case — none for the code baselines, which keep no traces
+And it adds the run to the run history (database/run_log.py): one row in runs.csv, one row per patient in
+admissions.csv, its traces in traces/<run id>.jsonl. --label says what changed, e.g. --label "severity prompt v2".
 The full rows are saved to outputs/metrics_<decider>.json (outputs/ is not uploaded to Git).
 Owner: integrator
 """
@@ -21,9 +23,11 @@ import json
 import sys
 from pathlib import Path
 
+from ed_admission import config
 from ed_admission.baselines import simulated_coordinator
 from ed_admission.environment import load_scenario
 from ed_admission.evaluation import deciders, metrics, run_cases, run_paired
+from ed_admission.database import run_log
 from ed_admission.observability import tracing
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -83,22 +87,32 @@ def print_breakdown(by: str, system: list, today: list) -> None:
 
 
 def run_evaluation(decider):
-    """The pairs and paired cases, scored — and the traces the decider handed while running them."""
+    """The pairs and paired cases, scored; the decision behind each score, for the admissions log; and the traces
+    the decider handed while running them."""
     tracing.take()                                                  # a clean collection
-    pairs = metrics.score_cases(run_cases(decider) + run_cases(decider, evaluation_set="second"))
-    paired = metrics.score_paired(run_paired(decider))
-    return pairs, paired, tracing.take()
+    sets = {name: run_cases(decider, evaluation_set=name) for name in ("first", "second")}
+    paired_results = run_paired(decider)
+    pairs, rows = [], []
+    for name, results in sets.items():
+        for result, scored in zip(results, metrics.score_cases(results)):
+            pairs.append(scored)
+            rows.append((f"pairs:{name}", result.decision, scored))
+    paired = metrics.score_paired(paired_results)
+    decided = {(r.case_id, d.patient_id): d for r in paired_results for d in (r.decisions or [])}
+    rows += [("paired", decided.get((s.paired_case, s.case_id)), s) for s in paired]
+    return pairs, paired, tracing.take(), rows
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--decider", default="first_free_bed",
                         help=f"one of {sorted(deciders.DECIDERS)}, or module:function")
+    parser.add_argument("--label", default="", help="what changed in this run, for the run history")
     args = parser.parse_args()
     decider = deciders.resolve(args.decider)
 
-    pairs, paired, traces = run_evaluation(decider)
-    today_pairs, today_paired, _ = run_evaluation(simulated_coordinator)
+    pairs, paired, traces, rows = run_evaluation(decider)
+    today_pairs, today_paired, _, _ = run_evaluation(simulated_coordinator)
     print(f"decider: {args.decider}   ·   today: the simulated coordinator (today's procedure)")
     print_comparison("Pairs", metrics.summarize(pairs), metrics.summarize(today_pairs))
     print_comparison("Paired cases", metrics.summarize(paired), metrics.summarize(today_paired))
@@ -106,7 +120,7 @@ def main() -> None:
     for by in ("challenge", "trap", "template"):
         print_breakdown(by, pairs + paired, today_pairs + today_paired)
 
-    days, today_days, saved = {}, {}, {}
+    days, today_days, saved, day_engines = {}, {}, {}, {}
     for name in DAYS:
         engines = {}
         for label, policy in (("system", decider), ("today", simulated_coordinator)):
@@ -115,6 +129,7 @@ def main() -> None:
             engines[label].run_to_end()
         days[name], today_days[name] = metrics.score_day(engines["system"]), metrics.score_day(engines["today"])
         saved[name] = metrics.minutes_saved(engines["today"], engines["system"])
+        day_engines[name] = engines["system"]
     tracing.take()                                                  # the days' traces are not part of the trace metrics
     print("\nScripted days — decider · today")
     print(f"  {'':<26}" + "".join(f"{name:>22}" for name in DAYS))
@@ -151,8 +166,7 @@ def main() -> None:
               f"this run ${t['cost_total_usd']:.2f}   ({t['agent_calls']} agent calls, "
               f"{t['tokens_in']} tokens in, {t['tokens_out']} out)")
 
-    output = PROJECT / "outputs" / f"metrics_{deciders.label(args.decider)}.json"
-    output.parent.mkdir(exist_ok=True)
+    output = config.outputs_dir() / f"metrics_{deciders.label(args.decider)}.json"
     output.write_text(json.dumps({
         "pairs": metrics.summarize(pairs), "paired": metrics.summarize(paired), "all": everything,
         "today": {"pairs": metrics.summarize(today_pairs), "paired": metrics.summarize(today_paired),
@@ -163,7 +177,32 @@ def main() -> None:
         "by_patient_type": metrics.breakdown(pairs + paired, "patient_type"),
         "days": days, "minutes_saved": saved, "traces": trace_metrics, "rows": metrics.as_rows(pairs + paired),
     }, ensure_ascii=False, indent=2, default=str), encoding="utf8")
-    print(f"\nsaved to {output.relative_to(PROJECT)}")
+    print(f"\nsaved to {output}")
+
+    # The run history: one row in runs.csv, one row per patient in admissions.csv, the traces by run id.
+    run = run_log.new_run("system", args.decider, args.label)
+    trace_file = ""
+    if traces:
+        for trace in traces:
+            trace.save(config.outputs_dir() / "traces", name=run["run_id"])
+        trace_file = f"traces/{run['run_id']}.jsonl"
+    admissions = [run_log.scored_row(source, decision, scored, trace_file) for source, decision, scored in rows]
+    for name, engine in day_engines.items():
+        admissions += run_log.day_rows(name, engine)
+    run_log.log_admissions(run, admissions)
+    today = metrics.summarize(today_pairs + today_paired)
+    numbers = {key: round(everything[key], 3) for key, *_ in ROWS}
+    numbers.update({f"today {key}": round(today[key], 3) for key in ("match_rate", "violations", "need_met_rate")})
+    for name in DAYS:
+        mean_saved, to_bed = saved[name]["mean_saved"], days[name]["mean_minutes_to_bed"]
+        numbers[f"{name} minutes saved"] = None if mean_saved is None else round(mean_saved, 1)
+        numbers[f"{name} minutes to bed"] = None if to_bed is None else round(to_bed, 1)
+    if trace_metrics:
+        numbers.update({k: round(trace_metrics[k], 4) for k in ("complete_trace_rate", "groundedness",
+                                                                "cost_mean_usd", "cost_total_usd")})
+    numbers["mean_seconds"] = round(everything["mean_seconds"], 3)
+    path = run_log.log_run(run, numbers)
+    print(f"run history: {path} · {path.parent / run_log.ADMISSIONS}  (run {run['run_id']}, version {run['version']})")
 
 
 if __name__ == "__main__":

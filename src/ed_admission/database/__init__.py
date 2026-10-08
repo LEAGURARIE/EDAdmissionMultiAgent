@@ -1,6 +1,5 @@
-"""Database — none for now (decided 2026-10-07): the admissions log is one CSV that accumulates every run
-(outputs/admissions.csv, see DECISIONS.md). A database only if the CSV is no longer enough.
+"""Database — none for now: the run history is two CSV files that accumulate every run (run_log.py:
+runs.csv and admissions.csv, see DECISIONS.md). A database only if the CSV is no longer enough.
 
 Owner: Lea
-Status: placeholder.
 """

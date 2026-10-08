@@ -3,11 +3,15 @@
 config/hospital.yaml          what exists: wards and beds, and how long cleaning, holds and approvals take
 config/clinical_rules/*.yaml  what is right to do: ladders, complaint -> ward, NEWS2 levels, placement rules
 
+Where results go: outputs_dir() — outputs/ in the project, or the folder in the ED_OUTPUTS environment variable
+(in Colab, a Google Drive folder, so the history outlives the session).
+
 Every value lives in exactly one file; code reads it from here and never writes it a second time.
 Each file is read once and kept (cache).
 
 Owner: integrator
 """
+import os
 from functools import cache
 from pathlib import Path
 
@@ -16,6 +20,13 @@ import yaml
 PROJECT = Path(__file__).resolve().parents[2]
 HOSPITAL_FILE = PROJECT / "config" / "hospital.yaml"
 RULES = PROJECT / "config" / "clinical_rules"
+
+
+def outputs_dir() -> Path:
+    """Where every run writes its results: ED_OUTPUTS if set, else outputs/ in the project (not uploaded to Git)."""
+    folder = Path(os.environ.get("ED_OUTPUTS") or PROJECT / "outputs")
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder
 
 
 def _read(path: Path) -> dict:

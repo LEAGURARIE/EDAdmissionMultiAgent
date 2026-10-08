@@ -16,7 +16,8 @@ from ed_admission.tools.rank_placements import Option, rank_placements
 
 
 def to_decision(patient_id: str, option: Option, target: str, reading, handling_minutes: int = 0) -> Decision:
-    common = {"flags": reading.flags, "reason": option.reason, "handling_minutes": handling_minutes}
+    common = {"flags": reading.flags, "reason": option.reason, "handling_minutes": handling_minutes,
+              "target_ward": target}
     if option.action == "place":
         return Decision(patient_id=patient_id, action="place", ward_id=option.ward_id, bed_number=option.bed_number,
                         physician_approval_for_icu=reading.physician_approval_for_icu, **common)

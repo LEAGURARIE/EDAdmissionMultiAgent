@@ -182,7 +182,7 @@ class SimulationEngine:
             patient_id=patient.patient_id, decided_at=patient.decided_at, placed_at=self.clock,
             ward_id=event.ward_id, bed_number=event.bed_number, bed_type=bed.bed_type.value,
             awaiting_transfer_to=decision.awaiting_transfer_to, reason=decision.reason,
-            deciding_minutes=self._deciding_minutes.pop(patient.patient_id, 0)))
+            deciding_minutes=self._deciding_minutes.pop(patient.patient_id, 0), target_ward=decision.target_ward))
 
     # ------------------------------------------------------------------ decision loop (scripted day)
 
@@ -227,7 +227,7 @@ class SimulationEngine:
                 self.escalations.append(Escalation(
                     patient_id=patient.patient_id, decided_at=patient.decided_at,
                     escalated_at=self.clock + measured + decision.handling_minutes,
-                    reason=decision.reason, flags=[f.value for f in decision.flags]))
+                    reason=decision.reason, flags=[f.value for f in decision.flags], target_ward=decision.target_ward))
                 self._write(f"ESCALATED   {patient.patient_id} -> shift manager, leaves the queue: {decision.reason}")
             # Action.WAIT: nothing to apply — the patient stays in the queue and is asked about again at the next trigger.
 

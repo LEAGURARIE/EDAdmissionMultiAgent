@@ -11,7 +11,7 @@ def my_decider(engine, event, waiting) -> list[Decision]: ...
 
 | | |
 |---|---|
-| Contract | `src/ed_admission/environment/decision.py` — `Decision`: place · temporary_place · wait · escalate, flags, `physician_approval_for_icu`, `handling_minutes` |
+| Contract | `src/ed_admission/environment/decision.py` — `Decision`: place · temporary_place · wait · escalate, `target_ward` (every action — where the patient was meant to go), flags, `physician_approval_for_icu`, `handling_minutes` |
 | Case mode | one patient (`engine.decide_case`) or two (`engine.decide_cases`, paired cases); nothing is applied |
 | Scripted day | the engine calls the decider at every trigger and **measures how long it took** (rounded up to whole minutes, under a second is instant); a placement holds the bed, and that time plus 15 minutes later the shift manager approves |
 | Run it | `scripts/run_cases.py --decider NAME [--set first|second|paired]` · `scripts/run_metrics.py --decider NAME` — NAME is a baseline, `example_pipeline`, or your own `module:function` (section 6) |
@@ -104,6 +104,12 @@ What `run_metrics.py` prints: every metric for the decider and for today (the si
 with the difference and the charter's target · match and violations by challenge, trap and template, the decider
 and today · the three scripted days side by side · minutes saved for each patient · time per case, and from the
 traces: complete traces, groundedness, cost per case and tokens. Everything is saved to `outputs/metrics_<decider>.json`.
+
+**The run history** — every run of `run_metrics.py` and `run_agent_metrics.py` adds to two files, so improvement is
+seen run after run: `runs.csv` (one row per run — did it improve?) and `admissions.csv` (one row per patient — which
+patient was fixed, which was broken). Add `--label "what changed"`. The version is computed from the code, prompts,
+configuration and data: a rerun at the same version replaces its rows, a change adds new ones. Locally in
+`outputs/`; in Colab in your Google Drive (the notebook sets `ED_OUTPUTS`). `src/ed_admission/database/run_log.py`.
 
 **C. Connecting everything.** Every agent file has one fixed entry point, `run` — the signature in the table above,
 the one it is measured through — so the agents connect without any change. The Coordinator Agent's `run` is the

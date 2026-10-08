@@ -32,7 +32,8 @@ from ed_admission.environment.hospital import WaitingPatient
 
 def run(engine, event: Event, waiting: list[WaitingPatient]) -> list[Decision]:
     """The whole system as one decider: calls the other agents' `run` (and Supervision's `run_back`), ranks with
-    rank_placements, negotiates, and returns one decision per patient. Hands every case's trace to the
+    rank_placements, negotiates, and returns one decision per patient — naming the patient's target ward in every
+    decision (Decision.target_ward). Hands every case's trace to the
     measurement with observability.tracing.collect(trace). Measured with
     scripts/run_metrics.py --decider ed_admission.agents.coordinator_agent:run"""
     raise NotImplementedError("Coordinator Agent: not built yet")

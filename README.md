@@ -58,6 +58,9 @@ python -m venv .venv
 
 The Anthropic key goes in a local `.env` file (copy `.env.example`); it is never uploaded.
 
+Every measured run is added to the run history in `outputs/` — `runs.csv` (one row per run) and `admissions.csv`
+(one row per patient) — so improvement can be followed run after run. Results are never uploaded.
+
 ## How the team works
 
 - Each team member has their own files.

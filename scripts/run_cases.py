@@ -16,6 +16,7 @@ import json
 import sys
 from pathlib import Path
 
+from ed_admission import config
 from ed_admission.evaluation import deciders
 from ed_admission.evaluation import run_cases, run_paired
 
@@ -50,13 +51,12 @@ def main() -> None:
               f"{'  ERROR ' + result.error if result.error else ''}")
     print(f"\n{len(results)} cases, {sum(1 for r in results if r.error)} errors — decider: {args.decider}")
 
-    output = PROJECT / "outputs" / f"cases_{deciders.label(args.decider)}.json"
-    output.parent.mkdir(exist_ok=True)
+    output = config.outputs_dir() / f"cases_{deciders.label(args.decider)}.json"
     output.write_text(json.dumps([
         {"case_id": r.case_id, "template": r.template, "seconds": r.seconds, "error": r.error,
          "decision": r.decision.model_dump(mode="json") if r.decision else None} for r in results
     ], ensure_ascii=False, indent=2), encoding="utf8")
-    print(f"saved to {output.relative_to(PROJECT)}")
+    print(f"saved to {output}")
 
 
 if __name__ == "__main__":

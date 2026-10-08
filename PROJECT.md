@@ -104,7 +104,7 @@ The system does not replace the shift manager — it helps them, mostly in busy 
 
 ### Tests
 
-893 tests pass:
+901 tests pass:
 
 ```
 .venv/Scripts/python -m pytest -q
@@ -151,7 +151,7 @@ The system does not replace the shift manager — it helps them, mostly in busy 
 | 6 | **Technical tools:** how the agents run, the proposal Tool Runner · interface, the proposal Streamlit | Open |
 | 7 | **Memory:** to discuss. The proposal raised: off during evaluation, so every case starts clean | Open |
 | 8 | **The Anthropic key** in `.env` | **Filled by the user** |
-| 9 | **Admissions log: one CSV file that accumulates from all runs,** `outputs/admissions.csv`. A row per patient per run: request time, admission time, target ward, actual ward, the reason and a link to the trace, the shift manager's approval, escalation. **Build after the system works.** Needs a target-ward field in every decision | — |
+| 9 | **Run history: `runs.csv` and `admissions.csv`,** accumulating every run, with `target_ward` in every decision | **Built 2026-10-08** — `database/run_log.py`; in Colab kept in Google Drive |
 
 ### Open, no date
 
@@ -165,8 +165,8 @@ The system does not replace the shift manager — it helps them, mostly in busy 
 
 ## State for the next session
 
-**Where we stopped, 2026-10-07:** the environment, the data, the answers, the metrics, the three baselines and the agent interfaces are **complete and tested.** 893 tests pass. **The team can start building the agents** following `docs/design/agent_interfaces.md`.
+**Where we stopped, 2026-10-07:** the environment, the data, the answers, the metrics, the three baselines and the agent interfaces are **complete and tested.** 901 tests pass. **The team can start building the agents** following `docs/design/agent_interfaces.md`.
 
-**Git review in progress:** the documents were translated to English and approved. Still to approve: 22 templates, 4 scenario files, `notebooks/README.md`, the 191 record and answer files, and the per-agent measurement built today (6 new files: `contracts/agent_outputs.py`, `evaluation/agent_metrics.py`, `evaluation/deciders.py`, `orchestration/example_agents.py`, `scripts/run_agent_metrics.py`, `tests/test_agent_metrics.py`, `tests/test_agent_entry_points.py`; the six agent files with their entry points; the Colab notebook, `requirements.txt`, `notebooks/README.md`, `README.md`, `scripts/healthcheck.py`, `tests/test_colab_notebook.py`; the side-by-side measurement output (`scripts/run_metrics.py`, `evaluation/metrics.py`, `observability/tracing.py`, `orchestration/example_pipeline.py`, `tests/test_metrics.py`, `tests/test_agent_interfaces.py`); changed: the three run scripts, `docs/design/agent_interfaces.md`, `DECISIONS.md`, `PROJECT.md`, `Agents_Guide.pdf`). Then the final file list and the commit message; nothing uploaded yet.
+**Uploaded to GitHub on 2026-10-08:** the whole environment, data, evaluation, Colab notebook and documents — 5 commits. Next: test the notebook in Colab, invite the team.
 
 **Next:** Checkpoint 1, on 18.10: README, Colab notebook, `requirements.txt`, the 5-line update, and the charter update. Then upload to the repository, after every file is approved.

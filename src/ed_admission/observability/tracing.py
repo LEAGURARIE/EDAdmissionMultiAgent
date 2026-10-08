@@ -10,7 +10,8 @@ Handing the traces to the measurement: a decider calls collect(trace) once a cas
 clears the collection before a run and takes it after (take), so every decider hands its traces the same way.
 A decider that collects none (the code baselines) has no trace metrics.
 
-Traces are saved as JSON lines in outputs/traces/ (not uploaded to Git).
+Traces are saved as JSON lines in outputs/traces/ (not uploaded to Git); scripts/run_metrics.py saves each run's
+traces as traces/<run id>.jsonl, and the admissions log points to them.
 
 Owner: integrator
 """
@@ -81,10 +82,11 @@ class Trace:
     def cost_usd(self) -> float:
         return sum(s.cost_usd for s in self.steps)
 
-    def save(self, folder=None) -> None:
-        folder = folder or config.PROJECT / "outputs" / "traces"
+    def save(self, folder=None, name: str | None = None) -> None:
+        """Append to <folder>/<name>.jsonl — by default outputs/traces/<decider>.jsonl."""
+        folder = folder or config.outputs_dir() / "traces"
         folder.mkdir(parents=True, exist_ok=True)
-        with (folder / f"{self.decider}.jsonl").open("a", encoding="utf8") as file:
+        with (folder / f"{name or self.decider}.jsonl").open("a", encoding="utf8") as file:
             file.write(json.dumps(asdict(self), ensure_ascii=False, default=str) + "\n")
 
 

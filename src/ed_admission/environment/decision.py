@@ -14,6 +14,9 @@ A decision is one of four actions:
 
 Every placement goes to the shift manager for approval, so approval is not written in the decision.
 The ladder level is never written by the decider — it is computed from the ladder, so it cannot be wrong.
+Every decision names the patient's target ward as the decider understood it (`target_ward`), whatever the action —
+so the admissions log shows where each patient was meant to go. Only a decider that never reads the patient
+("first free bed") leaves it empty.
 
 Owner: integrator
 """
@@ -59,6 +62,7 @@ class Decision(BaseModel):
 
     patient_id: str
     action: Action
+    target_ward: str | None = None                   # the patient's target ward (ladder level 1), every action
     ward_id: str | None = None                       # place / temporary_place
     bed_number: int | None = None                    # place / temporary_place
     awaiting_transfer_to: str | None = None          # temporary_place: the target ward
@@ -85,6 +89,13 @@ class Decision(BaseModel):
             raise ValueError(f"{self.ward_id} is not on the ladder of {self.awaiting_transfer_to}")
         if self.action == Action.TEMPORARY_PLACE and self.ladder_level == 1:
             raise ValueError("a bed in the target ward itself is a place, not a temporary_place")
+        if self.target_ward is not None:
+            if self.target_ward not in config.ladders():
+                raise ValueError(f"{self.target_ward} is not a ward")
+            if self.action == Action.PLACE and self.ward_id != self.target_ward:
+                raise ValueError("a place is a bed in the target ward; elsewhere it is a temporary_place")
+            if self.action == Action.TEMPORARY_PLACE and self.awaiting_transfer_to != self.target_ward:
+                raise ValueError("a temporary placement awaits transfer to the target ward")
         return self
 
     @property
@@ -136,6 +147,7 @@ class Placement:
     awaiting_transfer_to: str | None = None
     reason: str = ""
     deciding_minutes: int = 0        # how long the decider took: measured time, rounded up, + its handling_minutes
+    target_ward: str | None = None   # as the decider understood it
 
     @property
     def wait_minutes(self) -> int:
@@ -151,6 +163,7 @@ class Escalation:
     escalated_at: int                # simulated minute of the escalation — after the decider's time
     reason: str = ""
     flags: list[str] = field(default_factory=list)
+    target_ward: str | None = None   # as the decider understood it
 
     @property
     def wait_minutes(self) -> int:
