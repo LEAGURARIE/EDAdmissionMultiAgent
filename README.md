@@ -11,6 +11,7 @@ and both answers, and decides where the patient goes. Ranking and the hard safet
 
 - The charter: `CHARTER.md`
 - The decisions in force: `DECISIONS.md`
+- Every data file and every field in it: `data/data_dictionary.md`
 - The agents, their tools, and how they are run and measured: `docs/design/agent_interfaces.md`
 
 ## The baseline — the Code Coordinator

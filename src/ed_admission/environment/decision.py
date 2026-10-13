@@ -69,8 +69,8 @@ class Decision(BaseModel):
     physician_approval_for_icu: bool = False         # NEWS2 7+ without a physician's request
     flags: list[Flag] = []
     reason: str = ""
-    handling_minutes: int = 0                        # simulated time a code decider stands for (the simulated
-                                                     # coordinator's phone calls); the engine adds the real, measured
+    handling_minutes: int = 0                        # simulated time a code decider stands for (the Code
+                                                     # Coordinator's phone calls); the engine adds the real, measured
                                                      # time of the decision on top — see SimulationEngine._run_policy
 
     @model_validator(mode="after")
