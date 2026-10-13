@@ -3,5 +3,5 @@
 Built: toolbox.py (each agent's tools and permissions) · news2.py · rank_placements.py · negotiation.py ·
 patient_record.py · department_status.py · bed_holds.py · escalation.py. Guide: docs/design/agent_interfaces.md.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """

@@ -7,7 +7,7 @@ Two bindings, both enforced in tool code (tools/toolbox.py):
   Department Agent     — bound in advance to its own ward; takes no ward name. Gets its report and its notes
                          (department_view).
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from ed_admission.tools.negotiation import DepartmentView
 

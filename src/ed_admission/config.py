@@ -9,7 +9,7 @@ Where results go: outputs_dir() — outputs/ in the project, or the folder in th
 Every value lives in exactly one file; code reads it from here and never writes it a second time.
 Each file is read once and kept (cache).
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import os
 from functools import cache

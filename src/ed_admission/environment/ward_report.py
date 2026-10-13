@@ -8,7 +8,7 @@ a weekday morning shift — the shift rule).
 It never holds: patient identifiers · for whom or until when a bed is held · the actual discharge time · a bed the
 ward freed but has not updated in the system yet (it is shown occupied — only the ward's private note tells).
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from ed_admission.environment.events import MINUTES_PER_DAY, to_clock
 from ed_admission.environment.hospital import BedStatus, BedType, Ward

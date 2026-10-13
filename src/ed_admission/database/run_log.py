@@ -13,7 +13,7 @@ The version is computed, never typed: a short fingerprint of the code, prompts, 
 prompt and the version changes. A rerun of the same decider (or agent) at the same version replaces its earlier
 rows; a new version adds rows. A run's traces are saved as traces/<run id>.jsonl; admissions.csv points to them.
 
-Owner: Lea (integrator)
+Owner: Lea Gur-Arie
 """
 import csv
 import hashlib

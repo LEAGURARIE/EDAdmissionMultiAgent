@@ -10,7 +10,7 @@ ward — so the same dilemma appears whatever ward the patient is meant for. A f
 Templates are environment data: the decision maker never reads them, only the ward reports.
 Design: docs/design/ward_state_templates.md.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from pathlib import Path
 

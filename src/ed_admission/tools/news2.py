@@ -8,7 +8,7 @@ A missing vital sign is never assumed normal (trap 10): the result is marked inc
 The points that are known are still a lower bound, so the level of care can sometimes be decided anyway —
 e.g. 7 points from five vital signs already means intensive care, whatever the sixth one is.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from dataclasses import dataclass, field
 

@@ -2,7 +2,7 @@
 
 Simulated time is counted in minutes from midnight of the first day (480 = 08:00; 1920 = 08:00 the next day).
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from enum import Enum
 

@@ -1,5 +1,5 @@
 """User interface — tool not decided yet (proposal: Streamlit).
 
-Owner: to be decided
+Owner: Lea Gur-Arie
 Status: placeholder — no logic yet.
 """

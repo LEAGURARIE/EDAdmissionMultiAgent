@@ -6,7 +6,7 @@ the free text uses relative times such as "two hours ago").
 Unknown fields are rejected, so an answer-like field can never slip into a record.
 Vital signs may be empty on purpose (traps 10 and 12) — but a value that is present must be plausible.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from enum import Enum
 from pathlib import Path

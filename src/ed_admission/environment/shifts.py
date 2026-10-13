@@ -1,7 +1,7 @@
 """The shift and the weekend at a given moment — part of every ward report, so the decider can weigh them.
 Times come from config/clinical_rules/placement_rules.yaml (shifts, weekend), never written here.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from ed_admission import config
 from ed_admission.environment.events import MINUTES_PER_DAY, to_minutes

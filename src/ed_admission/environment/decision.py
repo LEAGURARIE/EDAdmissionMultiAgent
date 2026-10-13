@@ -15,10 +15,9 @@ A decision is one of four actions:
 Every placement goes to the shift manager for approval, so approval is not written in the decision.
 The ladder level is never written by the decider — it is computed from the ladder, so it cannot be wrong.
 Every decision names the patient's target ward as the decider understood it (`target_ward`), whatever the action —
-so the admissions log shows where each patient was meant to go. Only a decider that never reads the patient
-("first free bed") leaves it empty.
+so the admissions log shows where each patient was meant to go.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from dataclasses import dataclass, field
 from enum import Enum

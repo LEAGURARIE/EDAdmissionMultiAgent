@@ -1,7 +1,7 @@
 """hold_bed / release_hold — a temporary hold on a bed that expires automatically after 30 minutes
 (config/hospital.yaml, operations.hold_minutes). Two cases can never hold the same bed: the engine refuses.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 
 

@@ -12,11 +12,11 @@ Works on the ward reports only — what every decider may see. Given the patient
 5. Ladder level 3 or farther needs a typed reason with the shift manager's approval (Decision.needs_typed_reason).
 6. No safe option → escalate.
 What a ward says in the negotiation (a bed that frees soon, a bed not really available) is not in the report: the
-Coordinator Agent weighs it over this ranking, and the "simulated coordinator" learns it by phone.
+Coordinator Agent weighs it over this ranking, and the Code Coordinator baseline learns it by phone.
 
 Returns every option in order — the first is the recommendation — and a reason for every ward left out.
 
-Owner: Lea (integrator)
+Owner: Lea Gur-Arie
 """
 from dataclasses import dataclass, field
 
@@ -59,6 +59,17 @@ def occupancy(report: dict) -> float:
     counts = [v for k, v in report.items() if isinstance(v, dict) and "total" in v]
     busy = sum(c["occupied"] + c["held"] + c["cleaning"] for c in counts)
     return busy / sum(c["total"] for c in counts)
+
+
+INTERNAL_MEDICINE = ("internal_medicine_a", "internal_medicine_b")
+
+
+def resolve_target_ward(target_ward: str, reports: dict[str, dict]) -> str:
+    """"internal_medicine" (the record names neither A nor B) -> the one with the lower occupancy, A on a tie.
+    Any other ward is returned as it is."""
+    if target_ward != "internal_medicine":
+        return target_ward
+    return min(INTERNAL_MEDICINE, key=lambda ward: occupancy(reports[ward]))
 
 
 def _free(report: dict, bed_type: str, taken: set) -> list[int]:

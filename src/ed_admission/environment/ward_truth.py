@@ -9,10 +9,10 @@ A ward's report shows what the system knows; its notes say what only the ward kn
   cleaning_long          the beds in cleaning will not be ready within the hour
   only_own_patients      the ward takes only patients whose target ward it is
 
-Used by the expected answers, and by the phone call of the "simulated coordinator" baseline — a ward that is asked
+Used by the expected answers, and by the phone call of the Code Coordinator baseline — a ward that is asked
 answers from its true state. A decider never reads the effects; the agents get the notes' text only.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import copy
 

@@ -6,6 +6,6 @@ shift manager always approves, 15 minutes after the hold:
   an isolation room as a last resort       the shift manager
   no safe option                           escalation to the shift manager
 
-Owner: Lea
+Owner: Lea Gur-Arie
 Status: placeholder — no screen yet.
 """

@@ -7,7 +7,7 @@ Agent gets needs only). The answer is one of four, with a reason the Coordinator
               `condition` says it in words, `available_in_minutes` when the ward can tell
   decline     no bed — `reason` says why (no bed and nothing expected, or an internal limit such as staffing)
 
-Owner: Lea (integrator)
+Owner: Lea Gur-Arie
 """
 from enum import Enum
 

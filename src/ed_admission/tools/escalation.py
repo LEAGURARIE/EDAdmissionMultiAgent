@@ -2,7 +2,7 @@
 
 Returns the escalate decision; in a scripted day the engine takes the patient out of the queue and records it.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from ed_admission.environment.decision import Decision, Flag
 

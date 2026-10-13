@@ -1,34 +1,48 @@
 """The toolbox each agent gets — permissions are enforced here, in code, never by a prompt.
 
-    toolbox = Toolbox("severity", engine)              toolbox.compute_news2("P-001")   ✓
+    toolbox = Toolbox("patient", engine)                toolbox.compute_news2("P-001")   ✓
     toolbox = Toolbox("department", engine, ward_id="cardiology")
     toolbox.read_patient_record("P-001")                -> PermissionDenied: the Department Agent never sees a record
 
-PERMISSIONS lists which role may call which tool. The single agent of the comparison (30.10) gets every tool the
-system has — the Coordinator's and the patient-side agents' — and asks the wards through the same negotiation, so
-the comparison tests the architecture, not access to information. The Department Agent is bound to one ward in advance: it sees only
-that ward's report and notes, and gets the patient's needs from the Coordinator's request — never an identifier.
-Every call is recorded in the trace when one is given (observability/tracing.py).
+Two agents and a Coordinator (2026-10-10) — each sees what the others do not:
 
-Owner: Lea (integrator)
+  patient       the record only: read_patient_record, compute_news2, clinical_lists
+  department    its own ward only: department_view (its report and private notes); bound to one ward in advance, and
+                it gets the patient's needs from the Coordinator's request — never an identifier
+  coordinator   every ward's report, and the two agents' answers — never the record itself:
+                assess_patient (runs the Patient Agent), all_department_status, rank_placements, ask_ward, hold_bed,
+                release_hold, escalate_to_human, and decide (the hard rules, checked in code — tools/decide.py)
+
+PERMISSIONS lists which role may call which tool. The single agent of the comparison gets every tool the system has
+and asks the wards through the same negotiation, so the comparison tests the architecture, not access to information.
+Every call is recorded in the trace when one is given (observability/tracing.py). Given the placement case
+(orchestration/placement_case.py), the Coordinator's tools also move it through its steps — assess_patient, the
+reports, the ranking, a ward asked, the rules checked, decided — so a step out of order is refused in code.
+
+Owner: Lea Gur-Arie
 """
 import time
 
 from ed_admission import config
+from ed_admission.contracts.agent_outputs import PatientAssessment
 from ed_admission.contracts.negotiation import WardAnswer, WardRequest
 from ed_admission.contracts.patient_record import Vitals
 from ed_admission.environment.decision import Decision, Flag
+from ed_admission.observability.tracing import Claim
 from ed_admission.tools import bed_holds, department_status, escalation, patient_record
+from ed_admission.tools import decide as decide_tool
 from ed_admission.tools.negotiation import DepartmentView, Negotiation
 from ed_admission.tools.news2 import compute_news2, level_of_care
 from ed_admission.tools.rank_placements import PatientNeeds, Ranking, rank_placements
 
-ROLES = ("coordinator", "clinical_problem", "severity", "supervision", "department", "safety_critic", "single_agent")
+ROLES = ("coordinator", "patient", "department", "single_agent")
 PERMISSIONS = {
-    "read_patient_record": {"coordinator", "clinical_problem", "severity", "supervision", "safety_critic", "single_agent"},
-    "compute_news2": {"coordinator", "severity", "supervision", "safety_critic", "single_agent"},
-    "clinical_lists": {"clinical_problem", "supervision", "safety_critic", "single_agent"},
-    "all_department_status": {"coordinator", "safety_critic", "single_agent"},
+    "read_patient_record": {"patient", "single_agent"},
+    "compute_news2": {"patient", "single_agent"},
+    "clinical_lists": {"patient", "single_agent"},
+    "assess_patient": {"coordinator"},
+    "decide": {"coordinator", "single_agent"},
+    "all_department_status": {"coordinator", "single_agent"},
     "department_view": {"department"},
     "rank_placements": {"coordinator", "single_agent"},
     "ask_ward": {"coordinator", "single_agent"},
@@ -44,17 +58,29 @@ class PermissionDenied(Exception):
 
 class Toolbox:
     def __init__(self, role: str, engine, ward_id: str | None = None, negotiation: Negotiation | None = None,
-                 trace=None):
+                 trace=None, patient_agent=None, case=None):
+        """`patient_agent`: for the Coordinator — the Patient Agent's `run(toolbox, patient_id)`, which
+        assess_patient calls. `case`: the placement case; its negotiation and trace are used, and the tools move it
+        through its steps."""
+        if case is not None:
+            negotiation, trace = negotiation or case.negotiation, trace or case.trace
         if role not in ROLES:
             raise ValueError(f"unknown role {role!r}")
         if (role == "department") != (ward_id is not None):
             raise ValueError("a Department Agent's toolbox is bound to one ward, and only it is")
         self.role, self._engine, self._ward_id, self._negotiation, self._trace = role, engine, ward_id, negotiation, trace
+        self._patient_agent = patient_agent
+        self._case = case
+        self._assessments: dict[str, PatientAssessment] = {}       # what the Patient Agent found, by patient
 
     def _check(self, tool: str, arguments: dict) -> float:
         if self.role not in PERMISSIONS[tool]:
             raise PermissionDenied(f"{self.role} may not use {tool}")
         return time.perf_counter()
+
+    def _reach(self, step: str, output=None) -> None:
+        if self._case is not None:
+            self._case.reach(step, output)
 
     def _record(self, tool: str, arguments: dict, result, started: float) -> None:
         if self._trace is not None:
@@ -85,11 +111,37 @@ class Toolbox:
         self._record("clinical_lists", {}, "lists", started)
         return result
 
+    def assess_patient(self, patient_id: str) -> PatientAssessment:
+        """Run the Patient Agent on this patient — with its own toolbox, so only it reads the record — and return
+        what it found. Every finding's quote is checked against the record (`grounded`), and the assessment is kept:
+        `decide` checks the decision against it, so the Coordinator cannot change what the Patient Agent found."""
+        started = self._check("assess_patient", {"patient_id": patient_id})
+        if self._patient_agent is None:
+            raise ValueError("assess_patient needs the Patient Agent")
+        assessment = self._patient_agent(Toolbox("patient", self._engine, trace=self._trace), patient_id)
+        for finding in assessment.findings:
+            finding.grounded = patient_record.quote_in_record(patient_id, finding.quote)
+        self._assessments[patient_id] = assessment
+        if self._trace is not None:
+            self._trace.agent_call("patient", patient_id, assessment.model_dump(mode="json"),
+                                   model=getattr(assessment, "model", "-"),
+                                   prompt_version=getattr(assessment, "prompt_version", "-"),
+                                   tokens_in=getattr(assessment, "tokens_in", 0),
+                                   tokens_out=getattr(assessment, "tokens_out", 0),
+                                   cost_usd=getattr(assessment, "cost_usd", 0.0),
+                                   seconds=time.perf_counter() - started,
+                                   claims=[Claim(f.claim, f.quote) for f in assessment.findings])
+        self._record("assess_patient", {"patient_id": patient_id}, "assessment", started)
+        self._reach("patient_assessed", {"target_ward": assessment.target_ward, "bed_type": assessment.bed_type,
+                                         "never_waits": assessment.never_waits})
+        return assessment
+
     # ---------------------------------------------------------------- the wards
     def all_department_status(self) -> dict[str, dict]:
         started = self._check("all_department_status", {})
         result = department_status.all_department_status(self._engine)
         self._record("all_department_status", {}, "reports", started)
+        self._reach("availability_collected", "reports")
         return result
 
     def department_view(self) -> DepartmentView:
@@ -102,12 +154,15 @@ class Toolbox:
         started = self._check("rank_placements", {})
         result = rank_placements(department_status.all_department_status(self._engine), needs, taken)
         self._record("rank_placements", {"needs": needs.__dict__}, [o.__dict__ for o in result.options], started)
+        self._reach("availability_collected", "reports")           # the ranking reads every ward's report
+        self._reach("ranked", [o.__dict__ for o in result.options])
         return result
 
     def ask_ward(self, ward_id: str, request: WardRequest) -> WardAnswer:
         started = self._check("ask_ward", {"ward_id": ward_id})
         if self._negotiation is None:
             raise ValueError("ask_ward needs the case's Negotiation")
+        self._reach("negotiating", {"ward": ward_id})
         result = self._negotiation.ask(ward_id, request)
         self._record("ask_ward", {"ward_id": ward_id, "request": request.model_dump()}, result.model_dump(mode="json"),
                      started)
@@ -124,8 +179,37 @@ class Toolbox:
         bed_holds.release_hold(self._engine, ward_id, bed_number)
         self._record("release_hold", {"ward_id": ward_id, "bed": bed_number}, "released", started)
 
+    def decide(self, decision: Decision) -> Decision:
+        """Hand in the decision. The hard rules are checked in code against what the Patient Agent found
+        (tools/decide.py): a decision that breaks one is refused with the reasons (RuleViolation)."""
+        started = self._check("decide", {})
+        assessment = self._assessments.get(decision.patient_id)
+        if assessment is None:
+            raise ValueError(f"assess {decision.patient_id} first: there is nothing to check the decision against")
+        try:
+            result = decide_tool.decide(decision, assessment)
+        except decide_tool.RuleViolation as violation:
+            self._record("decide", decision.model_dump(mode="json"), {"refused": violation.reasons}, started)
+            if self._case is not None:
+                self._case.refuse(violation.reasons)
+            raise
+        self._record("decide", decision.model_dump(mode="json"), "accepted", started)
+        if self._case is not None:
+            if result.action.value != "escalate":
+                self._case.move("rules_checked", "accepted")
+            self._case.move("decided", result)
+        return result
+
     def escalate_to_human(self, patient_id: str, reason: str, flags: list[Flag] | None = None) -> Decision:
         started = self._check("escalate_to_human", {})
-        result = escalation.escalate_to_human(patient_id, reason, flags)
+        assessment = self._assessments.get(patient_id)
+        raised = list(dict.fromkeys((flags or []) + (assessment.flags if assessment else [])))   # no flag is dropped
+        result = escalation.escalate_to_human(patient_id, reason, raised)
+        if assessment is not None and assessment.target_ward != "internal_medicine":
+            result.target_ward = assessment.target_ward
         self._record("escalate_to_human", {"patient_id": patient_id, "reason": reason}, "escalated", started)
+        if self._case is not None:
+            if self._case.step in ("ranked", "negotiating", "rules_checked"):
+                self._case.move("rules_checked", "an escalation always passes")
+            self._case.move("decided", result)
         return result

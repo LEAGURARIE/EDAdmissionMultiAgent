@@ -13,7 +13,7 @@ A decider that collects none (the code baselines) has no trace metrics.
 Traces are saved as JSON lines in outputs/traces/ (not uploaded to Git); scripts/run_metrics.py saves each run's
 traces as traces/<run id>.jsonl, and the admissions log points to them.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import json
 import time
@@ -22,7 +22,7 @@ from dataclasses import asdict, dataclass, field
 from ed_admission import config
 
 # The steps every case must have, in the order of the placement case (orchestration/placement_case.py).
-REQUIRED_STEPS = ("patient_assessed", "availability_collected", "ranked", "critic_reviewed", "decided")
+REQUIRED_STEPS = ("patient_assessed", "availability_collected", "ranked", "rules_checked", "decided")
 
 
 @dataclass

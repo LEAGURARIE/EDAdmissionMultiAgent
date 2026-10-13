@@ -8,9 +8,9 @@ One Negotiation per placement case. It
   - records every request and answer for the trace.
 
 A responder is any callable (DepartmentView, WardRequest) -> WardAnswer: the Department Agent, or, for tests and
-for the "simulated coordinator", `truthful_ward`, which answers from the ward's true state.
+for the Code Coordinator baseline, `truthful_ward`, which answers from the ward's true state.
 
-Owner: Lea (integrator)
+Owner: Lea Gur-Arie
 """
 from dataclasses import dataclass, field
 from typing import Callable

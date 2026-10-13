@@ -1,7 +1,7 @@
 """Builds the hospital (config/hospital.yaml) and loads a scripted day (data/scenarios/*.yaml) into a
 ready-to-run simulation engine.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from pathlib import Path
 

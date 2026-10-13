@@ -11,7 +11,7 @@ must be one of ALLOWED_TRANSITIONS. The agents' tools (tools/) call the actions 
 
 The file is in sections: scheduling · event handlers · decision loop · case mode · actions · helpers.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import heapq
 import math

@@ -3,7 +3,7 @@
 These are plain data models (Pydantic). They hold the state; they do not change it.
 Only the simulation engine changes state — see simulation_engine.py.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from enum import Enum
 

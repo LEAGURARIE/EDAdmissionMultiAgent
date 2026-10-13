@@ -31,7 +31,7 @@ Tools: Toolbox("department", ward_id=...) — its own report and notes only; ans
 with a WardAnswer (contracts/negotiation.py).
 Interfaces: docs/design/agent_interfaces.md
 
-Owner: Amir (Data)
+Owner: Lea Gur-Arie
 Status: placeholder — the entry point is fixed (its signature is tested), no logic yet.
 """
 from ed_admission.contracts.negotiation import WardAnswer, WardRequest
