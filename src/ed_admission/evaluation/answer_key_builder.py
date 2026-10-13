@@ -13,7 +13,7 @@ TRUE needs of the patient — what a clinician knows after reading the whole rec
 the template after its private ward notes are applied (what the Department Agents know). The output is a draft: Lea
 reviews it, and only then are the answers frozen. Re-running after freezing is not allowed (see `freeze`).
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from dataclasses import dataclass
 from pathlib import Path

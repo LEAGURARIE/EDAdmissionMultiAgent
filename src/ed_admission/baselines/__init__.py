@@ -1,7 +1,6 @@
-"""Baselines — placement without agents, to compare the agents against.
+"""The baseline — placement without agents, to compare the system against: the Code Coordinator, today's procedure
+written as code (code_coordinator.py). reading.py: how it reads a record — the structured fields only.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
-from ed_admission.baselines.first_free_bed import first_free_bed
-from ed_admission.baselines.rules_only import rules_only
-from ed_admission.baselines.simulated_coordinator import simulated_coordinator
+from ed_admission.baselines.code_coordinator import code_coordinator

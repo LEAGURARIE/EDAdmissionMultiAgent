@@ -2,7 +2,7 @@
 
 Run:  .venv\\Scripts\\python scripts\\healthcheck.py
 Prints one line per check. Exit code 0 only if every check passes.
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import os
 import sys

@@ -1,5 +1,5 @@
-"""Baseline 3: "simulated coordinator" — today's procedure, the shift manager without the system. Every metric of the
-system is compared with it: safe, suitable and fast.
+"""The baseline: the "Code Coordinator" — today's procedure, written as code. No agents, no language model. Every
+metric of the system is compared with it: safe, suitable and fast. It is also the system working without its agents.
 
 Like a busy shift manager, it:
   1. reads the record's structured fields — not the free text (reading.py);
@@ -11,11 +11,10 @@ Like a busy shift manager, it:
 A non-severe patient may wait for a bed in cleaning or a discharge the ward confirms within the hour; after an
 hour with no bed on the ladder, escalate. Waiting patients: severe first, then the earlier admission decision.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from ed_admission import config
 from ed_admission.baselines.reading import read_record
-from ed_admission.baselines.rules_only import to_decision, waited_too_long
 from ed_admission.environment.decision import Decision
 from ed_admission.environment.events import Event
 from ed_admission.environment.hospital import WaitingPatient
@@ -25,6 +24,27 @@ from ed_admission.environment.ward_truth import true_state
 from ed_admission.tools.rank_placements import Option, rank_placements
 
 CALL_MINUTES = config.operations()["phone_call_minutes"]
+
+
+def to_decision(patient_id: str, option: Option, target: str, reading, handling_minutes: int = 0) -> Decision:
+    """A ranked option, as the decision the engine expects."""
+    common = {"flags": reading.flags, "reason": option.reason, "handling_minutes": handling_minutes,
+              "target_ward": target}
+    if option.action == "place":
+        return Decision(patient_id=patient_id, action="place", ward_id=option.ward_id, bed_number=option.bed_number,
+                        physician_approval_for_icu=reading.physician_approval_for_icu, **common)
+    if option.action == "temporary_place":
+        return Decision(patient_id=patient_id, action="temporary_place", ward_id=option.ward_id,
+                        bed_number=option.bed_number, awaiting_transfer_to=target, **common)
+    if option.action == "wait":
+        return Decision(patient_id=patient_id, action="wait", **common,
+                        wait_for={"ward_id": option.ward_id, "bed_number": option.bed_number,
+                                  "because": option.wait_because})
+    return Decision(patient_id=patient_id, action="escalate", **common)
+
+
+def waited_too_long(engine, patient: WaitingPatient) -> bool:
+    return engine.clock - patient.decided_at >= config.placement_rules()["waiting"]["non_severe_max_minutes"]
 
 
 def _answers(engine, wards: list[str], target: str) -> dict[str, dict]:
@@ -45,7 +65,7 @@ def _answers(engine, wards: list[str], target: str) -> dict[str, dict]:
     return answers
 
 
-def simulated_coordinator(engine, event: Event, waiting: list[WaitingPatient]) -> list[Decision]:
+def code_coordinator(engine, event: Event, waiting: list[WaitingPatient]) -> list[Decision]:
     reports = {ward: engine.department_status(ward) for ward in engine.hospital.wards}
     readings = {p.patient_id: read_record(p.patient_id, reports) for p in waiting}
     order = sorted(waiting, key=lambda p: (not readings[p.patient_id].needs.severe, p.decided_at))

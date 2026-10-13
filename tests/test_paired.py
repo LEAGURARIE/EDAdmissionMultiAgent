@@ -2,7 +2,7 @@
 The answers follow the approved rule, every case needs the wards' private notes, and the runner runs them."""
 import yaml
 
-from ed_admission.baselines import first_free_bed
+from simple_deciders import first_free_bed
 from ed_admission.evaluation import answer_key_builder as builder
 from ed_admission.evaluation import load_paired, run_paired
 

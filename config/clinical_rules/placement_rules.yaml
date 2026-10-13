@@ -1,5 +1,5 @@
 # Placement rules — how a bed is chosen once the patient's needs are known.
-# Used by rank_placements and by the baselines (both still to be built). Decisions in force: DECISIONS.md.
+# Used by rank_placements and by the baseline. Decisions in force: DECISIONS.md.
 # Clinically approved by Lea (decisions A28, A37, A51, A54, A59, A62). No external source.
 
 # Who counts as severe: a patient who needs one of these levels of care.

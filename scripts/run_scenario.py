@@ -6,9 +6,9 @@ Run (from the project folder):
     .venv\\Scripts\\python scripts\\run_scenario.py data\\scenarios\\busy_day.yaml
     .venv\\Scripts\\python scripts\\run_scenario.py --policy none           (nobody decides: the queue only grows)
 
-Policies: first_free_bed (default) · rules_only · simulated_coordinator · example_pipeline · none ·
+Policies: code_coordinator (default — the baseline) · example_pipeline · none ·
 module:function (your own decider).
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import argparse
 import sys
@@ -63,7 +63,7 @@ def main() -> None:
     parser.add_argument("scenario", nargs="?", default=str(PROJECT / "data" / "scenarios" / "busy_day.yaml"))
     parser.add_argument("--display", action="store_true", help="real-time display mode")
     parser.add_argument("--seconds-per-step", type=float, default=1.0)
-    parser.add_argument("--policy", default="first_free_bed",
+    parser.add_argument("--policy", default="code_coordinator",
                         help=f"who decides placements: one of {sorted(deciders.DECIDERS)}, none, or module:function")
     args = parser.parse_args()
 

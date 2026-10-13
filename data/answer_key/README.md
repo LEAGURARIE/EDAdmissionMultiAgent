@@ -9,6 +9,6 @@ One file per pair — a record placed in a ward-state template, named `<case_id>
 Each file also lists the text traps planted in the record (`traps`) — they are written here only, never in the record.
 **Only the metrics code may read this folder.** The environment, tools, baselines and agents never do;
 `tests/test_answer_key_isolation.py` fails if any other code refers to it.
-The team may read it, to measure; nothing of it may reach an agent — not in code, not in a prompt
+It is read to measure; nothing of it may reach an agent — not in code, not in a prompt
 (`docs/design/agent_interfaces.md`, section 7).
 Format: `docs/design/case_file_example.md`. Templates: `docs/design/ward_state_templates.md`.

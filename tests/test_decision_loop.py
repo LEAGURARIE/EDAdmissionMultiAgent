@@ -1,8 +1,8 @@
 """Tests for the decision loop: the engine asks a policy at every trigger and applies its decision.
-No agents — the policies here are the "first free bed" baseline and small stubs."""
+No agents — the policies here are a first-free-bed decider (tests/simple_deciders.py) and small stubs."""
 from pathlib import Path
 
-from ed_admission.baselines import first_free_bed
+from simple_deciders import first_free_bed
 from ed_admission.environment import (
     BedStatus,
     BedType,

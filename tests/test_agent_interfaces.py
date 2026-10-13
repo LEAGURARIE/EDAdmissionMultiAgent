@@ -47,7 +47,7 @@ def test_the_coordinator_sees_every_report_but_no_note():
 
 def test_only_the_coordinator_acts():
     engine = engine_of("T1")
-    for role in ("clinical_problem", "severity", "supervision", "safety_critic"):
+    for role in ("patient",):
         with pytest.raises(PermissionDenied):
             Toolbox(role, engine).escalate_to_human("P-001", "no bed")
         with pytest.raises(PermissionDenied):
@@ -63,7 +63,7 @@ def test_a_department_toolbox_must_be_bound_to_one_ward():
 
 def test_severity_gets_news2_and_the_calls_go_to_the_trace():
     trace = Trace("P-063", "test")
-    result = Toolbox("severity", engine_of("T2"), trace=trace).compute_news2("P-063")
+    result = Toolbox("patient", engine_of("T2"), trace=trace).compute_news2("P-063")
     assert result["total"] == 4 and result["level_of_care"] == "regular"
     assert [s.name for s in trace.steps] == ["compute_news2"]
 
@@ -120,17 +120,36 @@ def test_the_steps_must_come_in_order():
     assert not case.trace.complete                                                # ... and the trace says so
 
 
-def test_at_most_two_safety_critic_rounds():
+def test_after_three_refused_decisions_only_an_escalation_is_left():
     case = PlacementCase("P-001", Trace("P-001", "test"))
-    for step in ("patient_assessed", "availability_collected", "ranked", "critic_reviewed", "critic_reviewed"):
+    for step in ("patient_assessed", "availability_collected", "ranked"):
         case.move(step)
+    for _ in range(3):
+        assert not case.must_escalate
+        case.refuse(["the patient needs observation; the bed is a regular bed"])
+    assert case.must_escalate
+
+
+def test_the_coordinators_tools_move_the_case_and_refuse_a_step_out_of_order():
+    from ed_admission.orchestration import example_agents
+    from ed_admission.tools.rank_placements import PatientNeeds
+    engine = engine_of("T1")
+    case = PlacementCase("P-001", Trace("P-001", "test"), Negotiation(engine, {}))
+    coordinator = Toolbox("coordinator", engine, case=case, patient_agent=example_agents.patient)
     with pytest.raises(StepOutOfOrder):
-        case.move("critic_reviewed")
+        coordinator.rank_placements(PatientNeeds("internal_medicine_a", "regular", severe=False))   # not assessed yet
+    coordinator.assess_patient("P-001")
+    coordinator.all_department_status()
+    coordinator.all_department_status()                                   # read again: nothing changes
+    coordinator.rank_placements(PatientNeeds("internal_medicine_a", "regular", severe=False))
+    assert case.history == ["triggered", "patient_assessed", "availability_collected", "ranked"]
+    coordinator.escalate_to_human("P-001", "no safe option")
+    assert case.step == "decided" and case.trace.complete
 
 
 def test_groundedness_checks_the_quote_against_the_record():
     trace = Trace("P-043", "test")
-    trace.agent_call("supervision", "P-043", "isolation", model="m", prompt_version="1",
+    trace.agent_call("patient", "P-043", "isolation", model="m", prompt_version="1",
                      claims=[Claim("C. difficile suspected", "לשלול C. diff"), Claim("made up", "לא כתוב ברשומה")])
     assert metrics.groundedness([trace]) == 0.5
 
@@ -157,7 +176,7 @@ def test_the_example_pipeline_runs_a_scripted_day():
 
 def test_a_day_counts_a_bed_the_ward_cannot_give():
     """Weekend: cardiology's free observation bed is promised (its note) — a decider that never asks takes it."""
-    from ed_admission.baselines import first_free_bed
+    from simple_deciders import first_free_bed
     engine = load_scenario(PROJECT / "data" / "scenarios" / "weekend.yaml")
     engine.policy = first_free_bed
     engine.run_to_end()
@@ -165,11 +184,12 @@ def test_a_day_counts_a_bed_the_ward_cannot_give():
 
 
 def test_the_single_agent_gets_the_same_tools_as_the_system():
-    """The comparison of 30.10: every tool of the system's agents, and the wards through the same negotiation —
-    never a ward's notes directly."""
+    """The comparison with a single agent: every tool of the system's agents, and the wards through the same
+    negotiation — never a ward's notes directly. One tool it does not need: assess_patient runs the Patient Agent,
+    and the single agent reads the record itself."""
     from ed_admission.tools.toolbox import PERMISSIONS
     system = {tool for tool, roles in PERMISSIONS.items() if roles - {"single_agent", "department"}}
     single = {tool for tool, roles in PERMISSIONS.items() if "single_agent" in roles}
-    assert single == system
+    assert single == system - {"assess_patient"}
     with pytest.raises(PermissionDenied):
         Toolbox("single_agent", engine_of("T13")).department_view()

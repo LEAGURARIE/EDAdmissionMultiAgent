@@ -1,41 +1,43 @@
-"""Measuring one agent alone — so each owner knows where their agent stands before the whole system works.
+"""Measuring one agent alone — so it is clear where each agent stands before the whole system works.
 
 Every agent is compared with the part of the frozen expected answers that is its job. The agent never sees them:
 it gets a toolbox with its own role, or, for the Department Agent, only its ward's view and the request.
 
-  clinical_problem   per record   target ward · flags prompt_injection
-  severity           per record   severe · intensive care · flags missing_vital_sign, severity_judgment_note
-  supervision        per record   observation · isolation
-  department         per request  a bed now or not, as the ward really is (its notes included) · an accepted bed
-                                  is really free. Requests: every ward on each pair's ladder, for the bed type the
-                                  patient needs. `note_decides`: the requests where the report alone gives the
-                                  wrong answer — what the Department Agent is there for.
-  safety_critic      per decision the decisions of the three baselines on every pair; a decision with a hard-rule
-                                  violation or a missing flag must be blocked, the others approved
+  patient       per record   everything the Patient Agent decides, each as its own check:
+                             target ward — internal medicine that the record does not name as A or B:
+                             "internal_medicine" is right (and A or B too), the Coordinator chooses by occupancy
+                             binding request · severe · intensive care · observation · isolation
+                             flags prompt_injection, missing_vital_sign, severity_judgment_note
+  department    per request  a bed now or not, as the ward really is (its notes included) · an accepted bed is
+                             really free. Requests: every ward on each pair's ladder, for the bed type the patient
+                             needs. `the note decides`: the requests where the report alone gives the wrong answer
+                             — what the Department Agent is there for.
 
+The Coordinator is measured on the whole decision (scripts/run_metrics.py).
 Records: the 74 records of both pair files. Each check is one row; summarize() counts them by check, and by challenge,
 trap or template. An agent that raises an error gets the row wrong, with the error kept.
 
-Only the evaluation package reads the expected answers. Owner: integrator
+Only the evaluation package reads the expected answers. Owner: Lea Gur-Arie
 """
 from collections import defaultdict
 from dataclasses import dataclass, field
 
+import re
+
 import yaml
 
 from ed_admission import config
-from ed_admission.baselines import first_free_bed, rules_only, simulated_coordinator
 from ed_admission.contracts.negotiation import Answer, WardRequest
 from ed_admission.environment import load_template
 from ed_admission.environment.hospital import BedStatus, BedType
 from ed_admission.environment.ward_truth import true_state
 from ed_admission.evaluation import answer_key_builder as builder
-from ed_admission.evaluation import metrics
-from ed_admission.evaluation.case_runner import TEMPLATES, load_pairs, run_cases
+from ed_admission.evaluation.case_runner import TEMPLATES, load_pairs
 from ed_admission.tools.negotiation import DepartmentView
+from ed_admission.tools.patient_record import read_patient_record
 from ed_admission.tools.toolbox import Toolbox
 
-AGENTS = ("clinical_problem", "severity", "supervision", "department", "safety_critic")
+AGENTS = ("patient", "department")
 
 
 @dataclass
@@ -49,7 +51,7 @@ class Check:
     ok: bool
     challenge: int | None = None
     traps: list[int] = field(default_factory=list)
-    group: str = ""              # template (department) or decider (safety critic)
+    group: str = ""              # the template (department)
     error: str = ""
 
 
@@ -68,9 +70,33 @@ def records() -> dict[str, dict]:
     for answer in _answers():
         row = truth.setdefault(answer["case_id"], {
             "target_ward": answer["target_ward"], "needs": answer["needs"], "challenge": answer["challenge"],
-            "traps": answer["traps"], "template": answer["template"], "flags": set()})
+            "traps": answer["traps"], "template": answer["template"], "wording": answer["wording"],
+            "flags": set()})
         row["flags"] |= set(answer["expected"]["required_flags"])
+    for patient_id, row in truth.items():
+        row["names_internal_medicine"] = names_internal_medicine(patient_id)
     return truth
+
+
+INTERNAL = ("internal_medicine_a", "internal_medicine_b")
+# "Internal medicine" in Hebrew followed by the letter A or B as a word of its own (alone, or with a geresh) — not the
+# first letter of the next word, as in "admit to internal medicine in isolation".
+NAMED_INTERNAL = re.compile("פנימית\\s*[אב](?:['׳]|(?![֐-׿]))")
+
+
+def names_internal_medicine(patient_id: str) -> bool:
+    """Does the record itself say Internal Medicine A or B — a physician's request, or the Hebrew for it in the text?"""
+    record = read_patient_record(patient_id)
+    text = " ".join([record["physician_note"], record.get("triage_note") or ""])
+    return record["physician_request"]["ward"] in INTERNAL or NAMED_INTERNAL.search(text) is not None
+
+
+def _target_ward(truth: dict) -> tuple[str, set[str]]:
+    """The expected target ward as shown, and every answer counted right."""
+    target = truth["target_ward"]
+    if target in INTERNAL and not truth["names_internal_medicine"]:
+        return "internal_medicine", {"internal_medicine", *INTERNAL}
+    return target, {target}
 
 
 def _engine(template: str, target_ward: str):
@@ -84,16 +110,17 @@ def _call(function, *arguments):
         return None, f"{type(failure).__name__}: {failure}"
 
 
-# ---------------------------------------------------------------------- the patient-side agents
+# ---------------------------------------------------------------------- the Patient Agent
 
-PATIENT_CHECKS = {
-    "clinical_problem": lambda t: {"target_ward": t["target_ward"],
-                                   "flag prompt_injection": "prompt_injection" in t["flags"]},
-    "severity": lambda t: {"severe": t["needs"]["severe"], "intensive_care": t["needs"]["intensive_care"],
-                           "flag missing_vital_sign": "missing_vital_sign" in t["flags"],
-                           "flag severity_judgment_note": "severity_judgment_note" in t["flags"]},
-    "supervision": lambda t: {"observation": t["needs"]["observation"], "isolation": t["needs"]["isolation"]},
-}
+def patient_checks(truth: dict) -> dict:
+    """Every check of the Patient Agent for one record: the expected value, or (shown value, every right answer)."""
+    needs, flags = truth["needs"], truth["flags"]
+    return {"target_ward": _target_ward(truth), "binding_request": truth["wording"] == "binding_request",
+            "severe": needs["severe"], "intensive_care": needs["intensive_care"],
+            "observation": needs["observation"], "isolation": needs["isolation"],
+            "flag prompt_injection": "prompt_injection" in flags,
+            "flag missing_vital_sign": "missing_vital_sign" in flags,
+            "flag severity_judgment_note": "severity_judgment_note" in flags}
 
 
 def _got(output, check: str):
@@ -104,15 +131,18 @@ def _got(output, check: str):
     return getattr(output, check)
 
 
-def measure_patient_agent(agent: str, function) -> list[Check]:
-    """`function(toolbox, patient_id)` -> ClinicalProblemOutput / SeverityOutput / SupervisionOutput."""
+def measure_patient(function, cases: list[str] | None = None) -> list[Check]:
+    """`function(toolbox, patient_id)` -> PatientAssessment. `cases`: only these records."""
     checks = []
     for patient_id, truth in sorted(records().items()):
-        toolbox = Toolbox(agent, _engine(truth["template"], truth["target_ward"]))
+        if cases is not None and patient_id not in cases:
+            continue
+        toolbox = Toolbox("patient", _engine(truth["template"], truth["target_ward"]))
         output, error = _call(function, toolbox, patient_id)
-        for check, expected in PATIENT_CHECKS[agent](truth).items():
+        for check, expected in patient_checks(truth).items():
             got = _got(output, check)
-            checks.append(Check(agent, check, patient_id, expected, got, got == expected,
+            expected, right = expected if isinstance(expected, tuple) else (expected, {expected})
+            checks.append(Check("patient", check, patient_id, expected, got, got in right,
                                 truth["challenge"], truth["traps"], error=error))
     return checks
 
@@ -147,10 +177,11 @@ def requests() -> list[dict]:
     return out
 
 
-def measure_department(responder) -> list[Check]:
-    """`responder(view, request)` -> WardAnswer — the same signature the negotiation uses."""
+def measure_department(responder, limit: int | None = None) -> list[Check]:
+    """`responder(view, request)` -> WardAnswer — the same signature the negotiation uses. `limit`: only the first
+    requests — the ones the note decides first, so a short try still tests what the agent is there for."""
     checks = []
-    for r in requests():
+    for r in _ordered(requests(), limit):
         engine = _engine(r["template"], r["target_ward"])
         real = _free(true_state(engine, patient_target=r["target_ward"]), r["ward_id"], r["bed_type"])
         shown = _free(engine, r["ward_id"], r["bed_type"])
@@ -173,53 +204,27 @@ def measure_department(responder) -> list[Check]:
     return checks
 
 
-# ---------------------------------------------------------------------- the Safety Critic Agent
-
-BASELINES = {"first_free_bed": first_free_bed, "rules_only": rules_only, "simulated_coordinator": simulated_coordinator}
-
-
-def decisions_to_review() -> list[tuple[str, dict, object, bool]]:
-    """(decider, answer, decision, unsafe) for every baseline decision on every pair; the same decision on the same
-    pair counted once. Unsafe: a hard-rule violation or a missing flag."""
-    seen, out = set(), []
-    for name, decider in BASELINES.items():
-        for result in run_cases(decider) + run_cases(decider, evaluation_set="second"):
-            if result.decision is None:
-                continue
-            pair = {"case_id": result.case_id, "template": result.template}
-            answer = yaml.safe_load(builder.answer_path(pair).read_text(encoding="utf8"))
-            key = (result.case_id, result.template, result.decision.model_dump_json(exclude={"reason"}))
-            if key in seen:
-                continue
-            seen.add(key)
-            scored = metrics.score(answer, result.decision)
-            out.append((name, answer, result.decision, bool(scored.violations or scored.missing_flags)))
-    return out
-
-
-def measure_safety_critic(function) -> list[Check]:
-    """`function(toolbox, patient_id, decision)` -> SafetyVerdict."""
-    checks = []
-    for decider, answer, decision, unsafe in decisions_to_review():
-        toolbox = Toolbox("safety_critic", _engine(answer["template"], answer["target_ward"]))
-        verdict, error = _call(function, toolbox, answer["case_id"], decision)
-        blocked = verdict is not None and not verdict.approve
-        check = "blocks an unsafe decision" if unsafe else "approves a safe decision"
-        checks.append(Check("safety_critic", check, f"{answer['case_id']} {answer['template']} ({decider})",
-                            "block" if unsafe else "approve", "block" if blocked else "approve",
-                            blocked == unsafe, answer["challenge"], answer["traps"], group=decider, error=error))
-    return checks
-
-
 # ---------------------------------------------------------------------- one entry, and the counts
 
-def measure(agent: str, function) -> list[Check]:
+def _ordered(all_requests: list[dict], limit: int | None) -> list[dict]:
+    if limit is None:
+        return all_requests
+
+    def note_decides(r: dict) -> bool:
+        engine = _engine(r["template"], r["target_ward"])
+        real = _free(true_state(engine, patient_target=r["target_ward"]), r["ward_id"], r["bed_type"])
+        return bool(real) != bool(_free(engine, r["ward_id"], r["bed_type"]))
+    return sorted(all_requests, key=lambda r: not note_decides(r))[:limit]
+
+
+def measure(agent: str, function, cases: list[str] | None = None, limit: int | None = None) -> list[Check]:
+    """`cases`: only these records (patient). `limit`: only this many records or requests — a first try on a few."""
+    if agent == "patient":
+        if cases is None and limit is not None:
+            cases = sorted(records())[:limit]
+        return measure_patient(function, cases)
     if agent == "department":
-        return measure_department(function)
-    if agent == "safety_critic":
-        return measure_safety_critic(function)
-    if agent in PATIENT_CHECKS:
-        return measure_patient_agent(agent, function)
+        return measure_department(function, limit)
     raise ValueError(f"unknown agent {agent!r}: one of {AGENTS}")
 
 
@@ -234,7 +239,7 @@ def summarize(checks: list[Check]) -> dict[str, dict]:
 
 
 def breakdown(checks: list[Check], by: str) -> dict[str, dict]:
-    """The rate by challenge, trap or group (template / decider), over all checks."""
+    """The rate by challenge, trap or group (the template), over all checks."""
     keys = {"challenge": lambda c: [c.challenge], "trap": lambda c: c.traps, "group": lambda c: [c.group]}[by]
     groups = defaultdict(list)
     for c in checks:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from ed_admission.baselines import first_free_bed
+from simple_deciders import first_free_bed
 from ed_admission.environment import load_template
 from ed_admission.evaluation import load_pairs, run_cases
 

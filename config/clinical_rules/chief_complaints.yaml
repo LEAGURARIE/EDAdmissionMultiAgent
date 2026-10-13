@@ -1,5 +1,5 @@
 # Closed list of chief complaints (chosen by the triage nurse), and the ward or wards each one points to.
-# Read by the record contract (only these complaints are allowed) and by the rules-only baseline,
+# Read by the record contract (only these complaints are allowed) and by the Code Coordinator baseline,
 # which reads structured fields only: chief complaint -> target ward.
 # Two wards listed -> the one with the lower occupancy (same rule as two wards on the same ladder level).
 # Clinically approved by Lea on 2026-10-05 (decision A60). No external source.

@@ -1,10 +1,11 @@
-"""rank_placements and the two code baselines: "rules only" (reads the structured fields, never phones) and
-"simulated coordinator" (today's procedure — also phones the wards and gets their true answer)."""
+"""rank_placements, the baseline — the Code Coordinator (today's procedure: reads the structured fields, phones the
+wards and gets their true answer) — and a test-only decider that never phones (tests/simple_deciders.py)."""
 from pathlib import Path
 
 import yaml
 
-from ed_admission.baselines import rules_only, simulated_coordinator
+from ed_admission.baselines import code_coordinator
+from simple_deciders import never_asks
 from ed_admission.baselines.reading import read_record
 from ed_admission.environment import load_scenario, load_template
 from ed_admission.evaluation import answer_key_builder as builder
@@ -52,7 +53,7 @@ def test_a_taken_bed_is_not_offered_again():
 
 
 def test_both_baselines_run_on_the_whole_evaluation():
-    for decider in (rules_only, simulated_coordinator):
+    for decider in (never_asks, code_coordinator):
         results = run_cases(decider) + run_cases(decider, evaluation_set="second")
         assert len(results) == 104 and not any(r.error for r in results)
         assert not any(r.error for r in run_paired(decider))
@@ -62,9 +63,9 @@ def test_both_baselines_run_on_the_whole_evaluation():
             engine.run_to_end()
 
 
-def test_the_simulated_coordinator_is_right_whenever_it_read_the_patient_right():
+def test_the_code_coordinator_is_right_whenever_it_read_the_patient_right():
     """Its phone calls give it the wards' true answer: every miss comes from reading the structured fields only."""
-    results = run_cases(simulated_coordinator) + run_cases(simulated_coordinator, evaluation_set="second")
+    results = run_cases(code_coordinator) + run_cases(code_coordinator, evaluation_set="second")
     for result, scored in zip(results, metrics.score_cases(results)):
         answer = yaml.safe_load(builder.answer_path({"case_id": result.case_id, "template": result.template})
                                 .read_text(encoding="utf8"))
@@ -77,6 +78,6 @@ def test_the_simulated_coordinator_is_right_whenever_it_read_the_patient_right()
 
 def test_phone_calls_take_time_in_a_scripted_day():
     engine = load_scenario(PROJECT / "data" / "scenarios" / "busy_day.yaml")
-    engine.policy = simulated_coordinator
+    engine.policy = code_coordinator
     engine.run_to_end()
     assert engine.placements and all(p.wait_minutes >= 5 + 15 for p in engine.placements)   # a call + approval

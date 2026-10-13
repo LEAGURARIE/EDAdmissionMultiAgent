@@ -11,7 +11,7 @@ Each case starts from nothing: no state and no memory carry over from the previo
 The true target ward comes from the answer key, so only this evaluation code may read it.
 The runner does not judge the decisions — comparing them with the expected answers is the metrics' job.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import time
 from dataclasses import dataclass

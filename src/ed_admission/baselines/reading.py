@@ -7,7 +7,7 @@
   isolation       never — no structured field says it; reading it needs the text
 A missing vital sign is flagged, never assumed normal.
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 from dataclasses import dataclass, field
 

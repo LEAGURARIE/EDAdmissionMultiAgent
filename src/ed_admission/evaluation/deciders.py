@@ -1,18 +1,17 @@
 """The deciders the run scripts know by name — and any other one, given as an import path.
 
-    --decider rules_only                                   a name from DECIDERS
-    --decider ed_admission.agents.my_pipeline:decide       module:function — a team member's own decider,
+    --decider code_coordinator                             a name from DECIDERS
+    --decider ed_admission.agents.coordinator_agent:run    module:function — any other decider,
                                                            with no change to the scripts
 
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import importlib
 
-from ed_admission.baselines import first_free_bed, rules_only, simulated_coordinator
+from ed_admission.baselines import code_coordinator
 from ed_admission.orchestration.example_pipeline import example_pipeline
 
-DECIDERS = {"first_free_bed": first_free_bed, "rules_only": rules_only,
-            "simulated_coordinator": simulated_coordinator, "example_pipeline": example_pipeline}
+DECIDERS = {"code_coordinator": code_coordinator, "example_pipeline": example_pipeline}
 
 
 def resolve(name: str):

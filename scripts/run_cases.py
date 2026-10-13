@@ -1,7 +1,7 @@
 r"""Run a decider on the evaluation pairs (every written record in its template) and print one line per case.
 
 Run (from the project folder):
-    .venv\Scripts\python scripts\run_cases.py                       (decider: first_free_bed)
+    .venv\Scripts\python scripts\run_cases.py                       (decider: code_coordinator, the baseline)
     .venv\Scripts\python scripts\run_cases.py --cases P-001 P-007   (only these cases)
     .venv\Scripts\python scripts\run_cases.py --set second          (the second pairs file; or: paired)
     .venv\Scripts\python scripts\run_cases.py --decider example_pipeline
@@ -9,7 +9,7 @@ Run (from the project folder):
 
 The results are also saved to outputs/cases_<decider>.json (outputs/ is not uploaded to Git).
 No comparison with the expected answers here — that is scripts/run_metrics.py.
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import argparse
 import json
@@ -33,7 +33,7 @@ def describe(decision) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--decider", default="first_free_bed",
+    parser.add_argument("--decider", default="code_coordinator",
                         help=f"one of {sorted(deciders.DECIDERS)}, or module:function")
     parser.add_argument("--cases", nargs="*", help="case ids, e.g. P-001 P-007; default: every written record")
     parser.add_argument("--set", choices=["first", "second", "paired"], default="first")

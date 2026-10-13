@@ -1,20 +1,20 @@
 r"""Measure one agent alone, against the part of the expected answers that is its job.
 
 Run (from the project folder):
-    .venv\Scripts\python scripts\run_agent_metrics.py --agent severity
+    .venv\Scripts\python scripts\run_agent_metrics.py --agent patient
         (no --function: the code example of that agent, orchestration/example_agents.py — the number to beat)
-    .venv\Scripts\python scripts\run_agent_metrics.py --agent severity --function ed_admission.agents.severity_agent:run
+    .venv\Scripts\python scripts\run_agent_metrics.py --agent patient --function ed_admission.agents.patient_agent:run
 
 The signatures (docs/design/agent_interfaces.md, "How to run and measure"):
-    clinical_problem, severity, supervision   function(toolbox, patient_id) -> an output of contracts/agent_outputs.py
-    department                                function(view, request) -> WardAnswer
-    safety_critic                             function(toolbox, patient_id, decision) -> SafetyVerdict
+    patient      function(toolbox, patient_id) -> PatientAssessment (contracts/agent_outputs.py)
+    department   function(view, request) -> WardAnswer
+The Coordinator is the whole decision: scripts/run_metrics.py.
 
 Prints the rate of every check, next to the agent's code example (✓ better, = the same, ✗ worse). With --details:
-the rate by challenge and trap (or by template / decider), and every wrong row.
+the rate by challenge and trap (or by template), and every wrong row.
 The rows are saved to outputs/agent_<agent>_<function>.json (outputs/ is not uploaded to Git), and the run's rates
 to the run history, runs.csv (database/run_log.py). --label says what changed, e.g. --label "prompt v2".
-Owner: integrator
+Owner: Lea Gur-Arie
 """
 import argparse
 import importlib
@@ -45,15 +45,18 @@ def main() -> None:
     parser.add_argument("--label", default="", help="what changed in this run, for the run history")
     parser.add_argument("--details", action="store_true", help="by challenge and trap, and every wrong row")
     parser.add_argument("--show-wrong", type=int, default=30, help="with --details: how many wrong rows to print")
+    parser.add_argument("--cases", nargs="*", help="patient only: just these records, e.g. P-007 P-043")
+    parser.add_argument("--limit", type=int, help="only this many records or requests — a first try on a few")
     args = parser.parse_args()
+    part = {"cases": args.cases, "limit": args.limit}
 
-    checks = agent_metrics.measure(args.agent, load(args.function, args.agent))
+    checks = agent_metrics.measure(args.agent, load(args.function, args.agent), **part)
     mine = agent_metrics.summarize(checks)
     name = args.function.rsplit(":", 1)[-1] if args.function else "example"
     # Next to the agent: its code example — the number to beat.
     example = None
     if args.function:
-        example = agent_metrics.summarize(agent_metrics.measure(args.agent, load(None, args.agent)))
+        example = agent_metrics.summarize(agent_metrics.measure(args.agent, load(None, args.agent), **part))
 
     print(f"{args.agent} — {args.function or 'the code example'}\n")
     first = "your agent" if example else "code example"
@@ -77,9 +80,9 @@ def main() -> None:
         print("  code example: a code version that reads only the structured fields — the number to beat")
 
     if args.details:
-        by = {"department": ("group",), "safety_critic": ("challenge", "group")}.get(args.agent, ("challenge", "trap"))
+        by = ("group",) if args.agent == "department" else ("challenge", "trap")
         for key in by:
-            print(f"\nBy {key if key != 'group' else ('template' if args.agent == 'department' else 'decider')}:")
+            print(f"\nBy {'template' if key == 'group' else key}:")
             for group, row in agent_metrics.breakdown(checks, key).items():
                 print(f"  {str(group):<22} {row['rate']:>5.0%}   ({row['items']} checks)")
         print(f"\nWrong: {len(wrong)}")
@@ -90,6 +93,9 @@ def main() -> None:
     output = config.outputs_dir() / f"agent_{args.agent}_{name}.json"
     output.write_text(json.dumps([asdict(c) for c in checks], ensure_ascii=False, indent=2, default=str),
                       encoding="utf8")
+    if args.cases or args.limit:
+        print("  a part of the evaluation only — not added to the run history")
+        return
     run = run_log.new_run("agent", args.function or "example", args.label, agent=args.agent)
     numbers = {check: round(row["rate"], 3) for check, row in mine.items()}
     numbers["errors"] = sum(row["errors"] for row in mine.values())

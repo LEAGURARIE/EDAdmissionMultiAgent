@@ -20,7 +20,7 @@ def test_the_notebook_runs_only_scripts_and_files_that_exist():
         assert (PROJECT / script).exists(), script
     for path in re.findall(r"data/scenarios/\w+\.yaml", code):
         assert (PROJECT / path).exists(), path
-    for agent in ("clinical_problem", "severity", "supervision", "department", "safety_critic", "coordinator"):
+    for agent in ("patient", "department", "coordinator"):
         assert (PROJECT / "src" / "ed_admission" / "agents" / f"{agent}_agent.py").exists()
         assert (PROJECT / "src" / "ed_admission" / "prompts" / f"{agent}_agent.md").exists()
 

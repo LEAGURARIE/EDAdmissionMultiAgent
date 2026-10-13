@@ -1,26 +1,26 @@
-"""The short report: the system's goal in one table — safe, suitable, fast — next to today's procedure (the
-simulated coordinator) and the targets. Once a decider keeps traces, a fourth group: tracked.
+"""The short report: the system's goal in one table — safe, suitable, fast — next to the baseline (the Code
+Coordinator: today's procedure, written as code) and the targets. Once a decider keeps traces, a fourth group: tracked.
 
   Safe      hard-rule violations (0) · observation / isolation needs met or escalated (100%) · a bed the ward
             cannot give (0)
   Suitable  match with the expected answer (85%)
-  Fast      minutes from the admission decision to a bed, the three scripted days together (less than today)
+  Fast      minutes from the admission decision to a bed, the three scripted days together (less than the baseline)
   Tracked   complete traces (100%) · groundedness (95%) — only for a decider that keeps traces
 
-Used by scripts/run_metrics.py (a decider and today) and scripts/run_baselines.py (the three baselines).
+Used by scripts/run_metrics.py (a decider and the baseline) and scripts/run_baseline.py (the baseline alone).
 Everything else — by rule, challenge, trap, template, each day, minutes saved, cost — is in --details.
 
-Owner: Lea (integrator)
+Owner: Lea Gur-Arie
 """
 from ed_admission.evaluation import metrics
 
 # group, key, label, kind, target in words
 ROWS = [
-    ("Safe", "violations", "violations", "count", "0"),
+    ("Safe", "unsafe_rate", "hard rule broken", "rate", "0%"),
     ("", "need_met_rate", "needs met", "rate", "100%"),
-    ("", "bed_not_available", "bed the ward can't give", "count", "0"),
+    ("", "bed_not_available_rate", "bed the ward can't give", "rate", "0%"),
     ("Suitable", "match_rate", "match", "rate", "85%"),
-    ("Fast", "minutes_to_bed", "minutes to a bed", "minutes", "less than today"),
+    ("Fast", "minutes_to_bed", "minutes to a bed", "minutes", "less than the baseline"),
 ]
 TRACKED = [
     ("Tracked", "complete_trace_rate", "complete traces", "rate", "100%"),
@@ -48,17 +48,17 @@ def _show(value, kind: str) -> str:
     return f"{value:.0%}" if kind == "rate" else f"{value:.0f}"
 
 
-def _met(key: str, value, today) -> bool | None:
+def _met(key: str, value, baseline) -> bool | None:
     if value is None:
         return None
     if key == "minutes_to_bed":
-        return today is not None and value < today
-    if key in ("violations", "bed_not_available"):
+        return baseline is not None and value < baseline
+    if key in ("unsafe_rate", "bed_not_available_rate"):
         return value == 0
     return value >= {"need_met_rate": 1.0, "match_rate": 0.85, "complete_trace_rate": 1.0, "groundedness": 0.95}[key]
 
 
-def render(columns: dict[str, dict], judged: str | None = None, today: str = "today") -> str:
+def render(columns: dict[str, dict], judged: str | None = None, baseline: str = "code coordinator") -> str:
     """The table. `columns`: name -> column(); `judged`: the column marked ✓ / ✗ against the targets."""
     names = list(columns)
     width = max(10, *(len(n) + 2 for n in names))
@@ -68,7 +68,7 @@ def render(columns: dict[str, dict], judged: str | None = None, today: str = "to
         cells = "".join(f"{_show(columns[n].get(key), kind):>{width}}" for n in names)
         mark = ""
         if judged is not None:
-            met = _met(key, columns[judged].get(key), columns.get(today, {}).get(key))
+            met = _met(key, columns[judged].get(key), columns.get(baseline, {}).get(key))
             mark = "" if met is None else ("  ✓" if met else "  ✗")
         lines.append(f"  {group:<10}{label:<25}{cells}   {target}{mark}")
     for name in names:

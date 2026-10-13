@@ -1,6 +1,5 @@
-"""Every agent file keeps the entry point the Coordinator Agent calls and the measurement uses: a function `run` with
-a fixed signature (and, for the Supervision Agent, `run_back`). A changed signature fails here, in the owner's
-tests, before the code reaches the integrator. The code examples keep the same signatures."""
+"""Every agent file keeps the entry point the system calls and the measurement uses: a function `run` with a fixed
+signature. A changed signature fails here. The code examples keep the same signatures."""
 import importlib
 import inspect
 
@@ -8,19 +7,13 @@ import pytest
 
 from ed_admission.orchestration import example_agents
 
-# agent module -> function -> (parameter names, return type name)
+# agent module -> (parameter names, return type name)
 ENTRY_POINTS = {
-    "clinical_problem_agent": {"run": (["toolbox", "patient_id"], "ClinicalProblemOutput")},
-    "severity_agent": {"run": (["toolbox", "patient_id"], "SeverityOutput")},
-    "supervision_agent": {"run": (["toolbox", "patient_id"], "SupervisionOutput"),
-                          "run_back": (["toolbox", "patient_id", "offers"], "BackToSupervisionAnswer")},
-    "department_agent": {"run": (["view", "request"], "WardAnswer")},
-    "safety_critic_agent": {"run": (["toolbox", "patient_id", "decision"], "SafetyVerdict")},
-    "coordinator_agent": {"run": (["engine", "event", "waiting"], "list[Decision]")},
+    "patient_agent": (["toolbox", "patient_id"], "PatientAssessment"),
+    "department_agent": (["view", "request"], "WardAnswer"),
+    "coordinator_agent": (["engine", "event", "waiting"], "list[Decision]"),
 }
-EXAMPLES = {("clinical_problem_agent", "run"): "clinical_problem", ("severity_agent", "run"): "severity",
-            ("supervision_agent", "run"): "supervision", ("supervision_agent", "run_back"): "supervision_back",
-            ("department_agent", "run"): "department", ("safety_critic_agent", "run"): "safety_critic"}
+EXAMPLES = {"patient_agent": "patient", "department_agent": "department"}
 
 
 def _return_name(function) -> str:
@@ -30,18 +23,24 @@ def _return_name(function) -> str:
     return annotation.__name__
 
 
-@pytest.mark.parametrize("module, function", [(m, f) for m, fs in ENTRY_POINTS.items() for f in fs])
-def test_every_agent_keeps_its_entry_point(module, function):
+@pytest.mark.parametrize("module", list(ENTRY_POINTS))
+def test_every_agent_keeps_its_entry_point(module):
     agent = importlib.import_module(f"ed_admission.agents.{module}")
-    assert hasattr(agent, function), f"{module} must define {function}"
-    parameters, returns = ENTRY_POINTS[module][function]
-    assert list(inspect.signature(getattr(agent, function)).parameters) == parameters
-    assert _return_name(getattr(agent, function)) == returns
+    parameters, returns = ENTRY_POINTS[module]
+    assert list(inspect.signature(agent.run).parameters) == parameters
+    assert _return_name(agent.run) == returns
 
 
-@pytest.mark.parametrize("module, function", list(EXAMPLES))
-def test_the_code_examples_have_the_same_signatures(module, function):
-    example = getattr(example_agents, EXAMPLES[(module, function)])
-    parameters, returns = ENTRY_POINTS[module][function]
+@pytest.mark.parametrize("module", list(EXAMPLES))
+def test_the_code_examples_have_the_same_signatures(module):
+    example = getattr(example_agents, EXAMPLES[module])
+    parameters, returns = ENTRY_POINTS[module]
     assert list(inspect.signature(example).parameters) == parameters
     assert _return_name(example) == returns
+
+
+def test_there_are_two_agents_and_a_coordinator_and_nothing_else():
+    from ed_admission import config
+    files = {p.stem for p in (config.PROJECT / "src" / "ed_admission" / "agents").glob("*_agent.py")}
+    prompts = {p.stem for p in (config.PROJECT / "src" / "ed_admission" / "prompts").glob("*_agent.md")}
+    assert files == prompts == set(ENTRY_POINTS)

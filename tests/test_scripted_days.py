@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from ed_admission.baselines import first_free_bed
+from simple_deciders import first_free_bed
 from ed_admission.contracts.patient_record import load_record
 from ed_admission.environment import BedStatus, load_scenario
 from ed_admission.environment.events import to_minutes

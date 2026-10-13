@@ -16,7 +16,7 @@ For each decision (one patient, one pair):
 Then counted: overall, and by template, trap, challenge and patient type — and against the charter's targets.
 The scripted days have no expected answers: they are measured by violations, time to a bed and escalations.
 
-Only this package reads the expected answers. Owner: integrator
+Only this package reads the expected answers. Owner: Lea Gur-Arie
 """
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
@@ -27,6 +27,7 @@ from ed_admission.environment import Decision, load_hospital
 from ed_admission.environment.hospital import BedStatus
 from ed_admission.evaluation import answer_key_builder as builder
 from ed_admission.evaluation.case_runner import CaseResult, PairedResult
+from ed_admission.tools.patient_record import quote_in_record
 
 HARD_RULES = {
     "observation_need_in_a_regular_bed": "an observation patient placed in a regular bed",
@@ -197,10 +198,12 @@ def summarize(scored: list[Scored]) -> dict:
         "match_rate": sum(s.match for s in scored) / total if total else 0.0,
         "report_match_rate": sum(s.report_match for s in scored) / total if total else 0.0,
         "violations": sum(violations.values()),
+        "unsafe_rate": sum(1 for s in scored if s.violations) / total if total else 0.0,   # decisions, a hard rule broken
         "violations_by_rule": dict(violations),
         "need_met_rate": sum(bool(s.need_met) for s in with_need) / len(with_need) if with_need else 1.0,
         "off_service": sum(s.off_service for s in scored),
         "bed_not_available": sum(s.bed_not_available for s in placed),
+        "bed_not_available_rate": sum(s.bed_not_available for s in placed) / len(placed) if placed else 0.0,
         "missing_flags": sum(len(s.missing_flags) for s in scored),
         "escalations": sum(1 for s in scored if s.decided == "escalate"),
         "mean_seconds": sum(s.seconds for s in scored) / total if total else 0.0,
@@ -225,11 +228,6 @@ def breakdown(scored: list[Scored], by: str) -> dict:
                   "report_match_rate": sum(i.report_match for i in items) / len(items),
                   "violations": sum(len(i.violations) for i in items)}
             for key, items in sorted(groups.items(), key=lambda kv: str(kv[0]))}
-
-
-def off_service_vs_baseline(scored: list[Scored], baseline: list[Scored]) -> bool:
-    """Charter: off-service placements at most half of the first-free-bed baseline's."""
-    return sum(s.off_service for s in scored) <= sum(s.off_service for s in baseline) / 2
 
 
 # ---------------------------------------------------------------------- scripted days
@@ -296,16 +294,16 @@ def patient_times(engine) -> dict[str, dict]:
     return times
 
 
-def minutes_saved(today_engine, system_engine) -> dict:
+def minutes_saved(baseline_engine, system_engine) -> dict:
     """The same day, the same patients: how many minutes from the admission decision to a bed the system saved
-    each patient, against today's procedure (the simulated coordinator). A positive number is time saved.
+    each patient, against the baseline (the Code Coordinator — today's procedure). A positive number is time saved.
     Only a patient placed in both counts in the average; the others are listed with what happened to them."""
-    today, system = patient_times(today_engine), patient_times(system_engine)
+    baseline, system = patient_times(baseline_engine), patient_times(system_engine)
     rows = []
-    for pid in sorted(today.keys() | system.keys()):
-        t, s = today.get(pid, {}), system.get(pid, {})
+    for pid in sorted(baseline.keys() | system.keys()):
+        t, s = baseline.get(pid, {}), system.get(pid, {})
         both = t.get("outcome") == s.get("outcome") == "placed"
-        rows.append({"patient_id": pid, "today": t, "system": s,
+        rows.append({"patient_id": pid, "baseline": t, "system": s,
                      "saved": t["minutes"] - s["minutes"] if both else None})
     saved = sorted(r["saved"] for r in rows if r["saved"] is not None)
     middle = len(saved) // 2
@@ -316,39 +314,22 @@ def minutes_saved(today_engine, system_engine) -> dict:
         "median_saved": (saved[middle] if len(saved) % 2 else (saved[middle - 1] + saved[middle]) / 2) if saved else None,
         "total_saved": sum(saved),
         "placed_by_system_only": [r["patient_id"] for r in rows
-                                  if r["system"].get("outcome") == "placed" and r["today"].get("outcome") != "placed"],
-        "placed_today_only": [r["patient_id"] for r in rows
-                              if r["today"].get("outcome") == "placed" and r["system"].get("outcome") != "placed"],
+                                  if r["system"].get("outcome") == "placed" and r["baseline"].get("outcome") != "placed"],
+        "placed_by_baseline_only": [r["patient_id"] for r in rows
+                              if r["baseline"].get("outcome") == "placed" and r["system"].get("outcome") != "placed"],
         "rows": rows,
     }
 
 
 # ---------------------------------------------------------------------- traces: complete, grounded
 
-def _normalize(text: str) -> str:
-    return " ".join(text.split())
-
-
-def record_text(patient_id: str) -> str:
-    """Everything written in the record, as one text — where a quote must be found."""
-    from ed_admission.tools.patient_record import read_patient_record
-    record = read_patient_record(patient_id)
-    return _normalize(" ".join(str(v) for v in (record["physician_note"], record.get("triage_note") or "",
-                                                record["background_conditions"], record["chief_complaint"],
-                                                record["medications"], record["allergies"])))
-
-
 def groundedness(traces: list) -> float:
-    """Charter: the share of claims backed by a quote that really appears in the patient's record (≥ 95%)."""
+    """Charter: the share of claims backed by a quote that really appears in the patient's record (≥ 95%).
+    The same check the assess_patient tool runs while the system works (tools/patient_record.py)."""
     claims = [(trace.case_id, claim) for trace in traces for claim in trace.claims]
     if not claims:
         return 0.0
-    texts = {}
-    backed = 0
-    for case_id, claim in claims:
-        texts.setdefault(case_id, record_text(case_id))
-        backed += bool(claim.quote.strip()) and _normalize(claim.quote) in texts[case_id]
-    return backed / len(claims)
+    return sum(quote_in_record(case_id, claim.quote) for case_id, claim in claims) / len(claims)
 
 
 def complete_trace_rate(traces: list) -> float:

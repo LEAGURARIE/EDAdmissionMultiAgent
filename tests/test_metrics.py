@@ -2,7 +2,7 @@
 perfectly; known mistakes are counted as the right violation."""
 import yaml
 
-from ed_admission.baselines import first_free_bed
+from simple_deciders import first_free_bed
 from ed_admission.environment import Decision
 from ed_admission.environment.decision import Flag
 from ed_admission.environment.hospital import BedStatus, BedType
@@ -108,25 +108,26 @@ def run_day(name, policy):
 
 
 def test_minutes_saved_against_the_same_decider_is_zero():
-    from ed_admission.baselines import simulated_coordinator
-    result = metrics.minutes_saved(run_day("busy_day", simulated_coordinator), run_day("busy_day", simulated_coordinator))
+    from ed_admission.baselines import code_coordinator
+    result = metrics.minutes_saved(run_day("busy_day", code_coordinator), run_day("busy_day", code_coordinator))
     assert result["patients"] == 15 and result["total_saved"] == 0
     assert all(r["saved"] in (0, None) for r in result["rows"])
 
 
 def test_minutes_saved_covers_every_patient_of_the_day():
-    from ed_admission.baselines import rules_only, simulated_coordinator
-    result = metrics.minutes_saved(run_day("weekend", simulated_coordinator), run_day("weekend", rules_only))
+    from ed_admission.baselines import code_coordinator
+    from simple_deciders import never_asks
+    result = metrics.minutes_saved(run_day("weekend", code_coordinator), run_day("weekend", never_asks))
     assert result["patients"] == 12
     for row in result["rows"]:
         if row["saved"] is not None:
-            assert row["saved"] == row["today"]["minutes"] - row["system"]["minutes"]
+            assert row["saved"] == row["baseline"]["minutes"] - row["system"]["minutes"]
 
 
 def test_a_slow_decider_pays_in_minutes():
     """The engine measures the decider: 70 real seconds count as 2 simulated minutes before the approval."""
     import time as real_time
-    from ed_admission.baselines import first_free_bed
+    from simple_deciders import first_free_bed
     from ed_admission.environment import simulation_engine
     clock = iter([0.0, 70.0] + [70.0] * 1000)
     original = simulation_engine.time.perf_counter
@@ -146,7 +147,7 @@ def test_traces_are_collected_once_and_summarized_with_cost():
     from ed_admission.observability.tracing import Claim, Trace
     tracing.take()
     trace = Trace("P-043", "test")
-    trace.agent_call("supervision", "P-043", "isolation", model="m", prompt_version="1", tokens_in=100,
+    trace.agent_call("patient", "P-043", "isolation", model="m", prompt_version="1", tokens_in=100,
                      tokens_out=20, cost_usd=0.01, claims=[Claim("C. difficile suspected", "לשלול C. diff")])
     tracing.collect(trace)
     taken = tracing.take()

@@ -6,7 +6,7 @@ operations:
   cleaning_minutes: 45      # discharge -> bed ready; always 45, at any hour and on any day
   hold_minutes: 30          # a hold on a bed expires if no approval arrives in time
   approval_minutes: 15      # the shift manager's approval of a placement — the same for the baselines and the agents
-  phone_call_minutes: 5     # the simulated coordinator's phone call to a ward (today's procedure)
+  phone_call_minutes: 5     # the Code Coordinator's phone call to a ward (today's procedure)
   # The system's own time is not set here: the engine measures how long each decision really took (scripted days).
 
 # Wards.

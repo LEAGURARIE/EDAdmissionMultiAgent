@@ -1,4 +1,4 @@
-# Structured signs — what a code baseline ("rules only", "simulated coordinator") can read from the structured fields
+# Structured signs — what the Code Coordinator baseline can read from the structured fields
 # of a record, without the free text, to conclude that a patient needs an observation bed.
 # Each sign is one of the observation conditions (observation_conditions.yaml, by id). Approved by Lea, 2026-10-07;
 # every threshold checked against its source (docs/design/sources.md). NEWS2 levels: news2_levels.yaml.
