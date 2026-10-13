@@ -8,11 +8,13 @@ The system is **two agents and a Coordinator**. Each sees what the others do not
 | **Department Agent**, one per ward | its own ward only: the report and the private notes | what the ward can really give: a bed now, a bed with a condition, or a decline |
 | **Coordinator** | every ward's report and the two agents' answers — never the record | where the patient goes |
 
+**No handoff between the agents:** only the Coordinator calls an agent, and every answer returns to it (`tests/test_two_agents_toolbox.py`).
+
 The Coordinator is an agent with tools: it decides the next step, and the code keeps the limits — the ranking, the
 hard rules, the limits on requests. Everything below is built and tested (`tests/test_agent_interfaces.py`,
 `tests/test_two_agents_toolbox.py`).
 
-**Status, 2026-10-10:** the interfaces and the Coordinator's flow in code (`example_pipeline.py`) are built. The three
+**Status, 2026-10-13:** the interfaces and the Coordinator's flow in code (`example_pipeline.py`) are built. The three
 agents are entry points only: they are built after each one's code and system prompt is reviewed, and no agent has
 been run against a model.
 
@@ -125,8 +127,8 @@ toolbox (or, for the Department Agent, its ward's view and the request) and neve
 .venv/Scripts/python scripts/run_baseline.py                                           (the baseline: the Code Coordinator)
 ```
 
-What the scripts print — the goal in one table, against the targets: **safe** (violations, needs met, a bed the
-ward cannot give), **suitable** (match), **fast** (minutes to a bed), and **tracked** (complete traces,
+What the scripts print — the goal in one table, in percentages, against the targets: **safe** (decisions with a hard rule
+broken, needs met, a bed the ward cannot give), **suitable** (match), **fast** (minutes to a bed), and **tracked** (complete traces,
 groundedness) once the decider keeps traces. `run_metrics.py`: the decider next to the baseline (the Code
 Coordinator); `run_agent_metrics.py`: the agent next to its code example; `run_baseline.py`: the baseline
 alone. Add `--details` for everything else: by rule, challenge, trap and template, each day, minutes saved,

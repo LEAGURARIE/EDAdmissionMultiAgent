@@ -1,6 +1,6 @@
 # Sources — problem statement evidence
 
-Peer-reviewed or official sources only. S1–S3: the **Problem & user** field of `CHARTER.md` and the README. S4–S5: the NEWS2 calculation and its limits. S6–S9: the structured signs of the code baselines.
+Peer-reviewed or official sources only. S1–S3: the **Problem & user** field of `CHARTER.md` and the README. S4–S5: the NEWS2 calculation and its limits. S6–S9: the structured signs the baseline reads.
 Every figure below was checked against the published article (full text or journal abstract) on 2026-10-04.
 
 | # | Figure | Source | Checked against |

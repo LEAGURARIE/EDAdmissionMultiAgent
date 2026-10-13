@@ -37,7 +37,7 @@ def test_every_note_is_private():
 def test_notes_change_the_answers():
     by_template = lambda t: [a for (_, tmpl), a in ANSWERS.items() if tmpl == t and a["challenge"] != 6]
     for a in by_template("T13"):                 # no nurse for observation here or on level 2: the isolation room,
-        assert a["needs"]["observation"]         # as a last resort (back to the Supervision Agent)
+        assert a["needs"]["observation"]         # as a last resort (a rule in rank_placements)
         assert (a["expected"]["ward_id"], a["expected"]["bed_type"]) == (a["target_ward"], "isolation")
     for a in by_template("T14"):                 # the discharge will not happen today: nobody waits for it
         assert a["expected"]["action"] != "wait"

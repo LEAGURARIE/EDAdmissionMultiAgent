@@ -61,3 +61,13 @@ A personal project: Lea Gur-Arie holds every hat — product, agents, model, dat
 - **[S1]** Singer AJ, et al. *Academic Emergency Medicine*, 2011. PubMed [22168198](https://pubmed.ncbi.nlm.nih.gov/22168198/)
 - **[S2]** Song H, Tucker AL, et al. *Management Science*, 2020;66(9):3825–3842. [doi:10.1287/mnsc.2019.3395](https://doi.org/10.1287/mnsc.2019.3395)
 - **[S3]** Greenberg et al. *Israel Journal of Health Policy Research*, 2018. [PMC6247762](https://pmc.ncbi.nlm.nih.gov/articles/PMC6247762/)
+
+---
+
+## Checkpoint 1 — 18.10.2026
+
+1. **What works end to end:** the simulated hospital, 74 synthetic records, 118 placement decisions with frozen expected answers, 3 scripted days, and the baseline — the Code Coordinator: today's procedure, written as code, with no agents. One command (`scripts/run_baseline.py`) or [one Colab notebook](https://colab.research.google.com/github/LEAGURARIE/EDAdmissionMultiAgent/blob/main/notebooks/ED_Admission_Colab.ipynb). 922 tests pass.
+2. **The metric against the target** (the baseline): a hard rule broken in 38% of decisions (target 0%) · needs met 32% (100%) · a bed the ward cannot give 0% (0%) · match 38% (85%) · 26 minutes to a bed (the system must be faster).
+3. **Decided since the charter, and why:** two agents and a Coordinator instead of six agents — reading the record was split between agents that needed the same text, and the safety checks are fixed rules, so they moved to code · one baseline, today's procedure, instead of "first free bed", which no hospital uses · a personal project.
+4. **What is stuck:** nothing. The agents are not built yet: each agent's code and system prompt is reviewed first; an Anthropic API key is needed to run them.
+5. **Next three steps:** build the Patient Agent and measure it on the 74 records · build the Department Agent and measure it on the ward requests · build the Coordinator, compare with a single agent, and record the 1-minute demo for 30.10.

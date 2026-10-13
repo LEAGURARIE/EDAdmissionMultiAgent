@@ -1,6 +1,6 @@
 # Ward-state templates and the evaluation plan
 
-**Status:** 2026-10-07 — 22 templates built as files in `data/templates/`, tested in `tests/test_templates.py`. The exact
+**Status:** 2026-10-13 — 22 templates built as files in `data/templates/`, tested in `tests/test_templates.py`. The exact
 numbers are in the files. T1–T12 are the first set; T13–T22 (ward notes, ping-pong, the shift rule) are described at the
 end, with the records added before freezing and the paired cases.
 

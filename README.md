@@ -86,13 +86,13 @@ Open [`notebooks/ED_Admission_Colab.ipynb`](https://colab.research.google.com/gi
 (Colab asks to connect to GitHub, since the repository is private). Once, before the first run:
 
 1. **A GitHub token** — GitHub: *Settings → Developer settings → Personal access tokens → Fine-grained tokens*;
-   repository access: only this repository; permissions: *Contents: Read and write*.
+   repository access: only this repository; permissions: *Contents: Read-only*.
 2. **Colab secrets** — the key icon on the left: `GITHUB_TOKEN` and, to run the agents, `ANTHROPIC_API_KEY`;
    turn on *Notebook access*. Never paste a token or key into a cell.
 
 Then run the cells in order: steps 1–5 connect and run the system end to end — the baseline table included;
-steps 6–8 open an agent's files, measure it, and save them to a branch. Colab forgets everything when the session
-ends — save with step 8 before you close.
+steps 6–7 measure one agent alone and show the run history. Colab forgets everything when the session ends; the
+run history is kept in Google Drive.
 
 ## Working locally
 
@@ -108,8 +108,8 @@ The Anthropic key goes in a local `.env` file (copy `.env.example`); it is never
 Every measured run is added to the run history in `outputs/` — `runs.csv` (one row per run) and `admissions.csv`
 (one row per patient) — so improvement can be followed run after run. Results are never uploaded.
 
-## Working rules
+## How the project is kept
 
 - Each agent has its own code file and its own prompt file.
 - Code is not written inside a notebook. The Colab notebook installs the project from the repository and imports from it.
-- Secrets never go into the code or the notebook. Keep them in Colab Secrets or in a local `.env` file.
+- Secrets never go into the code or the notebook. They are kept in Colab Secrets or in a local `.env` file.

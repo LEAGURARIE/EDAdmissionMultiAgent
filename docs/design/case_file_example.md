@@ -1,6 +1,6 @@
 # Case file — example
 
-**Status:** 2026-10-07. The three files below are copied unchanged from the project — a real pair, not a mock-up.
+**Status:** 2026-10-13. The three files below are copied unchanged from the project — a real pair, not a mock-up.
 If a format changes, this page is rebuilt from the files.
 
 A case is a **pair**: one record placed in one ward-state template. Three files, in three folders:
@@ -11,8 +11,8 @@ A case is a **pair**: one record placed in one ward-state template. Three files,
 | The ward-state template, with the wards' private notes | `data/templates/` | The environment builds the hospital from it. The system sees only the ward reports; each Department Agent also sees its own ward's notes |
 | The expected answer | `data/answer_key/` | **Metrics code only.** A test fails if any other code refers to this folder |
 
-Every pair tests **both**: reading the record (the challenge and the traps) and coordination between the agents
-(the private notes make the ward reports alone lead to a wrong answer).
+Every pair tests **both**: reading the record (the challenge and the traps) and coordination with the wards, through the
+Coordinator (the private notes make the ward reports alone lead to a wrong answer).
 
 ## Example — P-043 in template T9
 
@@ -143,7 +143,7 @@ frozen: true
 | | What is needed | Where it is |
 |---|---|---|
 | **Reading** | Isolation: C. difficile is suspected (the record says "לשלול C. diff" — "rule out C. diff"). The chief complaint, abdominal pain, does not say so | Challenge 3, misleading complaint · trap 2, uncertainty |
-| **Target ward** | The physician wrote only "לאשפוז" ("for admission"), so the agents classify it: internal medicine A | Wording `admit_only` |
+| **Target ward** | The physician wrote only "לאשפוז" ("for admission"), so the Patient Agent classifies it: internal medicine A | Wording `admit_only` |
 | **Coordination** | The reports show a free isolation room in cardiology. Cardiology's private note: tonight it takes only cardiac patients | `ward_notes` in the answer |
 | **The answer** | General surgery's isolation room, ladder level 4, temporary, awaiting transfer, with a typed reason | `expected` |
 | **A decider that never asks** | Cardiology's isolation room — wrong | `reports_alone_would_give` |

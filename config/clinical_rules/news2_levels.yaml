@@ -10,7 +10,7 @@
 #   otherwise                                       -> regular bed, unless an observation condition applies
 #
 # A physician's own request for intensive care is binding. Intensive care full -> escalate.
-# The Severity Agent may only raise the level above this mapping, with a quote — never lower it; where judgment
+# The Patient Agent may only raise the level above this mapping, with a quote — never lower it; where judgment
 # argues for less (a limit on treatment, confusion that is not new) it keeps the level and adds a note.
 
 intensive_care_from: 7

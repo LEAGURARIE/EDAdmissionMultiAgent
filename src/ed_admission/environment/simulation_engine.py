@@ -235,7 +235,7 @@ class SimulationEngine:
 
     def decide_case(self, patient_id: str, policy: Policy) -> Decision:
         """One admission decision at the current moment, one answer from the decider — nothing is applied and
-        the clock does not move. Whatever the decider does inside (e.g. up to two Safety Critic Agent rounds)
+        the clock does not move. Whatever the decider does inside (e.g. a decision refused by the hard rules and decided again)
         ends in one decision: place, temporary placement, wait, or escalate to the shift manager."""
         event = Event(time=self.clock, event_type=EventType.ADMISSION_DECISION, patient_id=patient_id)
         patient = WaitingPatient(patient_id=patient_id, decided_at=self.clock)
