@@ -147,7 +147,7 @@ understand what the patient needs. One challenge per case in each template:
 
 **The patient type in the tables is the true type** — from the expected answer, not from how the patient looks.
 
-**Why it matters for a code baseline:** it reads only structured fields, so it is expected to fail on challenges 2, 3
+**Why it matters for the baseline:** it reads only structured fields, so it is expected to fail on challenges 2, 3
 and 5 — where the agents should show their value.
 
 ## The plan of the 60 cases

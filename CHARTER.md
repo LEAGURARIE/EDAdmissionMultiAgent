@@ -1,6 +1,6 @@
 # CHARTER — Multi-Agent ED Admission Placement
 
-**Team:** Lea Gur-Arie · Ron Levi · Galit Neufeld Krushinsky · Amir Shmaryahu · **Date:** 2026-10-04 · BIU DS23 final project
+**Author:** Lea Gur-Arie · **Date:** 2026-10-04, updated 2026-10-10 · BIU DS23 final project
 
 ## 1. Problem & user
 
@@ -8,51 +8,56 @@ The **ED shift manager** placing admitted patients faces long waits — about **
 
 ## 2. Success metric (set before building)
 
-On **60 case files** with clinically approved expected answers + **3 scripted days**, vs. two baselines on the same set: "first free bed" and rules only (no agents).
+**What is measured:** 118 placement decisions with clinically approved, frozen expected answers, and 3 scripted days with 39 admissions.
 
-- **Quality of care:** **0** hard-rule violations · **≥ 85%** match (ward + bed type) · off-service placements **≤ half** of the first-free-bed baseline · **100%** of observation/isolation needs met or escalated.
-- **Time:** admission decision → suitable bed **≥ 20% shorter** than first free bed.
-- **Tracking:** **100%** of cases with a complete trace (agent inputs/outputs, ranking, critic verdict, human decision + reason) · **≥ 95%** groundedness (claims backed by a quote).
+**The baseline — the Code Coordinator:** today's procedure, written as code, with no agents. It reads the record's structured fields (vital signs, chief complaint, the ward the physician requested), looks at the wards' reports, **phones each ward** (5 minutes a call) to ask what it can really give, and ranks the beds by the rules. It does **not** read the physician's free text. The system is judged against it.
+
+| | The question | Target | Code Coordinator |
+|---|---|---|---|
+| **Safe** | Decisions that put a patient in an unsafe bed (a hard rule broken) | 0 (0%) | 45 of 118 (38%) |
+| | Patients who need observation or isolation and got it, or were escalated | 56 of 56 (100%) | 18 of 56 (32%) |
+| | Placements in a bed the ward cannot really give | 0 (0%) | 0 of 100 (0%) |
+| **Suitable** | Decisions that match the expected answer | ≥ 100 of 118 (85%) | 45 of 118 (38%) |
+| **Fast** | Minutes from the admission decision to a bed | fewer than the baseline | 26 |
+
+**Tracked:** 100% of cases with a complete trace · ≥ 95% of claims backed by a quote that is in the record. Baseline measured 2026-10-10. **Changed 2026-10-10:** judged against the Code Coordinator instead of "first free bed", which no hospital uses; its two relative targets (off-service, 20% faster) are replaced by the targets above.
 
 ## 3. Data + plan B
 
-**Synthetic only:** a simulated adult hospital (5 wards; regular and observation beds, one isolation room per ward) and synthetic ED records written by the team. **Size:** 60 case files (all must-have coverage-matrix situations; ±9% precision at 85%; 0 violations in 60 → true rate ≤ 5%) + 3 scripted days. **License:** our own, no real patient data. **Proof:** the engine already runs `data/scenarios/busy_day.yaml` with passing tests. **Plan B:** if generated records are too uniform, hand-write fewer, harder cases with a clinical reviewer.
+**Synthetic only:** a simulated adult hospital (5 wards; regular and observation beds, one isolation room per ward) and 74 synthetic ED records in Hebrew with English medical terms. **Size:** 22 ward states with private ward notes; 118 decisions (±6.5% precision at 85%; 0 violations in 118 → true rate ≤ 2.5%); 3 scripted days. Every case tests both reading the record and coordinating with the wards. **License:** our own, no real patient data. **Proof:** the baseline runs end to end, in Colab too. **Plan B:** fewer, harder hand-written cases.
 
 ## 4. Architecture
 
 ```text
-Simulated hospital ──(trigger: admission decision, record frozen)──▶ Coordinator Agent
-   patient side:  Clinical Problem · Severity · Supervision · Isolation
-   hospital side: Department Agent (one instance per ward, in parallel)
-▼ rank_placements (code): hard rules → target ward's proximity ladder → ranked options
-▼ Safety Critic Agent → recommendation → shift manager approval → bed assigned
+Simulated hospital ──(trigger: admission decision, record frozen)──▶ Coordinator
+   Coordinator ⇄ Patient Agent      reads the record: target ward, level of care, bed type, flags, quotes
+   Coordinator ⇄ Department Agent   one per ward: what it can really give — its report and private notes
+   Coordinator                      sees every report and both agents' answers, never the record; decides
+   No handoff between the agents: only the Coordinator calls an agent, and every answer returns to it.
+▼ code: rank_placements (ladder, hard rules) · decide (a decision that breaks a hard rule is refused)
+▼ recommendation → shift manager approval → bed assigned
 ```
 
 ## 5. The agent's chair
 
-- **Decides what code cannot:** reads free-text records to set the problem and target ward, escalates severity above NEWS2 with a quote, judges observation and isolation, and makes conditional ward offers. Ranking stays in code.
-- **Tools:** `read_patient_record`, `compute_news2`, `get_department_status` (bound to one ward), `rank_placements`, `hold_bed`/`release_hold`, `escalate_to_human` — each agent only its own, enforced in tool code.
-- **On failure:** one retry, then escalation to the shift manager — never a guess. **Works without agents:** the requested ward, or a fixed problem-to-ward table, goes straight into `rank_placements` with the same hard rules.
+- **Decides what code cannot:** the Patient Agent reads the free text; the Department Agent reads its ward's notes; the Coordinator weighs the wards' answers and decides. Ranking and the hard rules stay in code.
+- **Tools**, each agent only its own, enforced in code: Patient — `read_patient_record`, `compute_news2`, `clinical_lists` · Department — `department_view` · Coordinator — `assess_patient`, `all_department_status`, `rank_placements`, `ask_ward`, `hold_bed`, `decide`, `escalate_to_human`.
+- **On failure:** one retry, then escalation to the shift manager — never a guess. **Works without agents:** the Code Coordinator.
 
 ## 6. Risks & cut version
 
-- **Misclassified problem or ward** → closed lists, mandatory quotes, low confidence → human, Safety Critic Agent. **Cost or latency** → agents only on triggers; per-case budget. **Different team environments** → shared repo, one Colab notebook, pinned requirements, Colab Secrets.
+- **Misreading the record** → closed lists, every quote checked against the record, the hard rules checked in code before any decision. **Cost or latency** → agents only on triggers; request limits; per-case budget. **An agent that sees the expected answers** → only the evaluation code reads them, guarded by tests; an agent gets the patient's id and the decision time, nothing more.
 
-**Cut version:** *"If only two weeks remain, we drop the Department Agents' negotiation and the memory, and submit the patient-side agents + `rank_placements` + Safety Critic Agent on the scripted days."*
+**Cut version:** *"If only two weeks remain, we drop the single-agent comparison, and submit the two agents and the Coordinator on the cases and the scripted days."*
 
 ## 7. Milestones & hats
 
-| Who | Hat | Responsible for (end to end: prompt, contract, tests, eval cases) |
-|---|---|---|
-| Lea Gur-Arie | Product | **Coordinator Agent (orchestrator)**; simulation environment, `rank_placements`, tools; README, metrics, demo, slides |
-| Ron Levi | Agent | Clinical Problem Agent, Safety Critic Agent; cross-agent safety rules |
-| Galit Neufeld Krushinsky | Model | Severity Agent, Supervision Agent; prompts and model choice |
-| Amir Shmaryahu | Data | Isolation Agent, Department Agent; case files and scripted days |
+A personal project: Lea Gur-Arie holds every hat — product, agents, model, data.
 
-**18.10:** case files, days, rules-only baseline, first metrics · **30.10:** agents integrated, metrics vs. baselines, 1-min demo · **01.11:** freeze · **12.11:** final.
+**18.10:** cases, days, baseline, first metrics · **30.10:** agents integrated, metrics vs. the baseline, 1-min demo · **01.11:** freeze · **12.11:** final.
 
-## References
+## References — full citations in `docs/design/sources.md`
 
-- **[S1]** Singer AJ, et al. The association between length of emergency department boarding and mortality. *Academic Emergency Medicine*. 2011. PubMed [22168198](https://pubmed.ncbi.nlm.nih.gov/22168198/)
-- **[S2]** Song H, Tucker AL, et al. Capacity pooling in hospitals: the hidden consequences of off-service placement. *Management Science*. 2020;66(9):3825–3842. [doi:10.1287/mnsc.2019.3395](https://doi.org/10.1287/mnsc.2019.3395)
-- **[S3]** Greenberg et al. Reduced hospitalization rates are not associated with increased mortality or readmission rates in an Israeli emergency department. *Israel Journal of Health Policy Research*. 2018. [PMC6247762](https://pmc.ncbi.nlm.nih.gov/articles/PMC6247762/)
+- **[S1]** Singer AJ, et al. *Academic Emergency Medicine*, 2011. PubMed [22168198](https://pubmed.ncbi.nlm.nih.gov/22168198/)
+- **[S2]** Song H, Tucker AL, et al. *Management Science*, 2020;66(9):3825–3842. [doi:10.1287/mnsc.2019.3395](https://doi.org/10.1287/mnsc.2019.3395)
+- **[S3]** Greenberg et al. *Israel Journal of Health Policy Research*, 2018. [PMC6247762](https://pmc.ncbi.nlm.nih.gov/articles/PMC6247762/)

@@ -29,7 +29,10 @@ Thumbs.db
 
 # Not uploaded (decided by the user)
 CLAUDE.md
+PROJECT.md
 
-# docs/reference: only the English Agents Guide goes to the repository (decided by the user)
-docs/reference/*
-!docs/reference/Agents_Guide.pdf
+# docs/reference is local only: the course's guidelines and our reference PDFs (decided by the user)
+docs/reference/
+
+# Drafts of the agents: local only until they are reviewed and approved (decided by the user)
+drafts/
