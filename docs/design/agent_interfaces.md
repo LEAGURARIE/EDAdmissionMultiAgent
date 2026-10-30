@@ -1,6 +1,11 @@
 # Agent interfaces — what the agents are built on
 
-The system is **two agents and a Coordinator**. Each sees what the others do not:
+**Where this stands (2026-10-21):** the interfaces below are the ones built and tested — two agents and a Coordinator
+with tools. The multi-agent system is being redesigned: a Coordinator without work tools,
+a Patient Agent, a Department Agent that looks at one ward at a time, and a Judge; this document is updated as it is
+built. **The single agent** — every agent's job in one agent, for the comparison — is built and measured (section 2).
+
+As built, each agent sees what the others do not:
 
 | Agent | Sees | Decides |
 |---|---|---|
@@ -30,7 +35,7 @@ def my_decider(engine, event, waiting) -> list[Decision]: ...
 |---|---|
 | Contract | `src/ed_admission/environment/decision.py` — `Decision`: place · temporary_place · wait · escalate, `target_ward` (every action — where the patient was meant to go), flags, `physician_approval_for_icu`, `handling_minutes` |
 | Case mode | one patient (`engine.decide_case`) or two (`engine.decide_cases`, paired cases); nothing is applied |
-| Scripted day | the engine calls the decider at every trigger and **measures how long it took** (rounded up to whole minutes, under a second is instant); a placement holds the bed, and that time plus 15 minutes later the shift manager approves |
+| Scripted day | the case desk: an admission opens a **patient case** (that patient), a bed that frees while patients wait opens a **bed case** (all of them, ids and times only); patients who wait together come together. The clock goes on while a case is open: it closes after the time the decider **really took** (rounded up to whole minutes, under a second is instant). One case at a time by default, more wait in a queue (`config/hospital.yaml`). The bed is held when the case closes, and 15 minutes later the shift manager approves; a bed taken meanwhile by another case is a conflict, a bed that was not free is the decider's error |
 | Run it | `scripts/run_cases.py --decider NAME [--set first|second|paired]` · `scripts/run_metrics.py --decider NAME` — NAME is `code_coordinator` (the baseline), `example_pipeline`, or any `module:function` |
 | The flow in code | `src/ed_admission/orchestration/example_pipeline.py` — no model; uses every tool of the Coordinator |
 
@@ -44,13 +49,22 @@ A tool the role may not use raises `PermissionDenied`.
 | `read_patient_record` | ✓ | | | ✓ |
 | `compute_news2` | ✓ | | | ✓ |
 | `clinical_lists` (observation, isolation, chief complaints) | ✓ | | | ✓ |
-| `department_view` (its own report and notes) | | ✓ bound to one ward | | |
+| `department_view` (a ward's report and notes) | | ✓ bound to its own ward | | ✓ any ward, by id |
 | `assess_patient` (runs the Patient Agent) | | | ✓ | |
+| `record_assessment` (its own assessment, in the Patient Agent's format) | | | | ✓ |
 | `all_department_status` (every report, no notes) | | | ✓ | ✓ |
 | `rank_placements` | | | ✓ | ✓ |
-| `ask_ward` (negotiation) | | | ✓ | ✓ |
-| `hold_bed`, `release_hold`, `escalate_to_human` | | | ✓ | ✓ |
+| `ask_ward` (negotiation) | | | ✓ | |
+| `escalate_to_human` | | | ✓ | ✓ |
 | `decide` (the hard rules, in code) | | | ✓ | ✓ |
+
+**The single agent's tools** (`agents/single_agent_tools.py`): nine tools, each with a Pydantic input model (the
+schema the model sees, strict) and a description in four parts — What, When, When not, How. Its needs come from its
+own assessment (`record_assessment`): `rank_placements` takes a patient id only, so it cannot search for a bed
+different from the patient it assessed. It reads every ward's report and notes itself (`department_view`, by ward
+id) — the Department Agents' job — so it has no wards to ask: the same task as the multi-agent system, not wards
+that answer it from their true state (2026-10-15). It works only on the patients of its case, and a bed it gave is
+not offered again in the same case. No agent holds or releases a bed: the environment holds it when the case closes.
 
 **`assess_patient`** runs the Patient Agent with its own toolbox, checks every finding's quote against the record
 (`grounded`), hands the findings to the trace, and keeps the assessment. **`decide`** checks the decision against that
@@ -134,9 +148,10 @@ Coordinator); `run_agent_metrics.py`: the agent next to its code example; `run_b
 alone. Add `--details` for everything else: by rule, challenge, trap and template, each day, minutes saved,
 cost and tokens, and every wrong case.
 
-**The run history** — every run of `run_metrics.py` and `run_agent_metrics.py` adds to two files, so improvement is
-seen run after run: `runs.csv` (one row per run — did it improve?) and `admissions.csv` (one row per patient — which
-patient was fixed, which was broken). Add `--label "what changed"`. The version is computed from the code, prompts,
+**The run history** — every run of `run_metrics.py` and `run_agent_metrics.py` adds to the run history, so improvement
+is seen run after run: `runs.csv` (one row per run — did it improve?), `admissions.csv` (one row per patient — which
+patient was fixed, which was broken) and `costs.csv` (one row per case of a decider that calls a model — what did it
+cost? `scripts/compare_systems.py` sets the single agent against the multi-agent system — quality, latency and cost). Add `--label "what changed"`. The version is computed from the code, prompts,
 configuration and data: a rerun at the same version replaces its rows, a change adds new ones. Locally in
 `outputs/`; in Colab in Google Drive (the notebook sets `ED_OUTPUTS`). `src/ed_admission/database/run_log.py`.
 

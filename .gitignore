@@ -36,3 +36,6 @@ docs/reference/
 
 # Drafts of the agents: local only until they are reviewed and approved (decided by the user)
 drafts/
+
+# The slides and their visuals: local only (decided by the user)
+presentation/

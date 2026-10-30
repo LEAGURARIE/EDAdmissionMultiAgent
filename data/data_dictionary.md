@@ -11,8 +11,8 @@ loaded.
 |---|---|---|---|
 | Patient records | `data/records/` | 74 | The system — only through the `read_patient_record` tool |
 | Ward-state templates | `data/templates/` | 22 | The environment only. The system sees the ward reports built from them |
-| Scripted days | `data/scenarios/` | 3 | The environment only |
-| Expected answers | `data/answer_key/` | 115 | **The evaluation code only** — a test fails if any other code refers to it |
+| Scripted days | `data/scenarios/` | 4 | The environment only |
+| Expected answers | `data/answer_key/` | 117 | **The evaluation code only** — a test fails if any other code refers to it |
 | The hospital and the clinical rules | `config/` | 8 | The environment, the tools and the baseline |
 | Run history (results, never in Git) | `outputs/` | 2 | The person who runs the measurement |
 
@@ -111,7 +111,7 @@ A **ward state** holds:
 | `effect` | Meaning |
 |---|---|
 | `unavailable` | The free beds of this type cannot take a patient now — staffing, broken, promised |
-| `hidden_free` | One bed of this type is free, but the report still shows it occupied |
+| `hidden_free` | The bed the note names (`bed: <number>`, the same number as in the note's text) is free, but the report still shows it occupied |
 | `discharge_not_today` | The discharges the report expects today will not happen |
 | `discharge_within_hour` | One bed of this type frees within about an hour, and is not in the report |
 | `cleaning_long` | The beds in cleaning will not be ready within the hour |
@@ -130,10 +130,11 @@ hard-rule violations, time to a bed and escalations.
 
 | Field | Meaning | Type | Allowed values |
 |---|---|---|---|
-| `name` | The day's identifier | text | `busy_day` · `evening_night` · `weekend` |
+| `name` | The day's identifier | text | `busy_day` · `evening_night` · `weekend` · `competing_for_a_bed` |
 | `description` | What the day is like | text | |
 | `day` | The day of the week the scenario starts on | text | `Sunday` … `Saturday` |
 | `start_time` | The time the scenario starts | text | `HH:MM` |
+| `concurrent_cases` | Cases the desk may hold open at once, for this day (optional; default in `config/hospital.yaml`) | integer or empty | 1 or more; empty = no limit |
 | `free_at_start.<ward>` | The beds that are free at the start, by number; every other bed is occupied | list of integers | regular wards: 1–10 regular, 11–12 observation, 13 the isolation room · intensive care: 1–6, 7 the isolation room |
 | `events` | The events of the day, in time order | list | see below |
 
@@ -167,6 +168,15 @@ A case is a pair: one record in one template. 60 pairs in the first file, 44 in 
 | `pairs[].case_id` | The record | text | a record identifier |
 | `pairs[].template` | The template it is placed in | text | a template identifier |
 | `pairs[].target_ward` | The record's true target ward — needed to build a relative template | text | a ward identifier |
+
+### `dev_test_sets.yaml` — the development and test sets of the comparison
+
+Frozen on 2026-10-15, before any paid run; built by `src/ed_admission/evaluation/sets.py`.
+
+| Field | Meaning | Type | Allowed values |
+|---|---|---|---|
+| `frozen` | When the sets were frozen | date | 2026-10-15 |
+| `dev[]`, `test[]` | The pairs of each set: `case_id` and `template` | list | 22 pairs each, one per template |
 
 ### `paired_cases.yaml` — two patients, one suitable bed
 
@@ -217,6 +227,17 @@ A case is a pair: one record in one template. 60 pairs in the first file, 44 in 
 | `approved_by` | Who approved the answer, and when | text | |
 | `frozen` | The answer is final | true | |
 
+### `contention_moments.yaml` — the moments of competition designed into a day
+
+| Field | Meaning | Type | Allowed values |
+|---|---|---|---|
+| `<day>[].name` | What the moment tests | text | |
+| `<day>[].time` | When the case is meant to open | text | `HH:MM` |
+| `<day>[].bed` | The contested bed: `ward`, `bed` | fields | a ward and a bed number |
+| `<day>[].patients` | The patients meant to compete for it | list of record identifiers | |
+
+Who should get the bed is not written: the evaluation computes it at the moment, from the patients' true needs and the approved rule for two patients and one bed.
+
 ### `PC-<n>.yaml` — the expected answer of one paired case (7 files)
 
 | Field | Meaning | Type |
@@ -234,10 +255,12 @@ Settings, not measurements: each value is written once and read through `src/ed_
 
 | File | What it holds |
 |---|---|
-| `hospital.yaml` | The 5 wards and their beds (a regular ward: 10 regular beds, 2 observation beds, 1 isolation room · intensive care: 6 beds, 1 isolation room), and how long things take, in simulated minutes: cleaning 45 · a hold 30 · the shift manager's approval 15 · a phone call of the baseline 5 |
+| `hospital.yaml` | The 5 wards and their beds (a regular ward: 10 regular beds, 2 observation beds, 1 isolation room · intensive care: 6 beds, 1 isolation room), and how long things take, in simulated minutes: cleaning 45 · a hold 30 · the shift manager's approval 15 · a phone call of the baseline 5. The case desk: how many cases are open at once (`concurrent_cases`) and when the bed is held (`hold_bed_when`) |
+| `agents.yaml` | The single agent's model, the effort, the budget (per activation, per case, per run) and the prices of every kind of token, with the date they were checked |
 | `clinical_rules/chief_complaints.yaml` | The closed list of 11 chief complaints, and the ward each one points to |
 | `clinical_rules/proximity_ladder.yaml` | For each target ward, the wards from nearest to farthest |
 | `clinical_rules/news2_levels.yaml` | The NEWS2 score → level of care |
+| `clinical_rules/severity_judgment.yaml` | When the record raises the level NEWS2 points to, keeps it with a note, or which data counts — the approved situations reach the agents through `clinical_lists` |
 | `clinical_rules/observation_conditions.yaml` | The 16 conditions that need an observation bed |
 | `clinical_rules/isolation_conditions.yaml` | The 9 conditions that need the isolation room, and what is not isolation |
 | `clinical_rules/structured_signs.yaml` | The signs of severity the baseline reads from the structured fields, with their sources |
@@ -247,7 +270,7 @@ The sources of the clinical thresholds: `docs/design/sources.md`.
 
 ---
 
-## 6. Run history — `outputs/runs.csv`, `outputs/admissions.csv`
+## 6. Run history — `outputs/runs.csv`, `outputs/admissions.csv`, `outputs/costs.csv`
 
 Results, written by the measurement scripts (`src/ed_admission/database/run_log.py`). They accumulate from run to
 run and are never uploaded to Git. A column is filled only for the kind of run it belongs to.
@@ -276,7 +299,17 @@ run and are never uploaded to Git. A column is filled only for the kind of run i
 | `<day> minutes saved` | Mean minutes saved for each patient against the baseline, in that scripted day |
 | `complete_trace_rate` | Share of cases with a complete trace, 0–1 |
 | `groundedness` | Share of claims whose quote is in the record, 0–1 |
-| `cost_mean_usd`, `cost_total_usd` | The cost of the model calls, per case and in total, in US dollars |
+| `system` | Which system decided: `single_agent` · `multi_agent` (empty for a decider without a model) |
+| `set` | The cases: `all` · `dev` · `test` · `none` (only scripted days) — `data/answer_key/dev_test_sets.yaml` |
+| `days` | The scripted days in the run: `all` · `none` · one day |
+| `seconds_p95` | The 95th percentile of the seconds per decision |
+| `baseline bed_not_available`, `baseline mean_seconds`, `baseline <day> minutes to bed` | The baseline's, on the same cases |
+| `<day> violations`, `<day> bed_not_available` | On that scripted day |
+| `cost_cases` | The cases the run paid for — the pairs, the paired cases and the scripted days |
+| `cost_total_usd` | What the whole run cost, in US dollars |
+| `cost_mean_usd`, `cost_median_usd`, `cost_max_usd` | The cost of one case, in US dollars |
+| `cases_over_case_cap` | Cases stopped by the per-case budget, a count |
+| `partial_run` | Whether the run's budget was reached, so the run stopped early |
 | `mean_seconds` | Mean time of one decision, in seconds |
 | `target_ward`, `binding_request`, `severe`, `intensive_care`, `observation`, `isolation`, `flag …` | For an agent measured alone: the share it got right on each check, 0–1 |
 | `errors` | Cases that ended in an error, a count |
@@ -311,3 +344,22 @@ run and are never uploaded to Git. A column is filled only for the kind of run i
 | `minutes_to_bed`, `minutes_to_shift_manager`, `minutes_waited` | Simulated minutes, in a scripted day |
 | `decider_minutes` | The part of the wait that the decider itself took |
 | `shift_manager` | The shift manager's answer — always `approved` in the simulation |
+
+### `costs.csv` — one row per case in a run of a decider that calls a model
+
+| Column | Meaning |
+|---|---|
+| `run_id`, `time`, `kind`, `decider`, `agent`, `version`, `label` | The run, as in `runs.csv` |
+| `source` | Where the case comes from: a set of pairs, the paired cases, or `day:<name>` |
+| `case_id` | The case |
+| `system` | `single_agent` · `multi_agent` |
+| `ended` | How the case ended: `final` (a decision) · `budget` (the per-case budget) · `run_budget` (the run's budget) · `refused` · `failed` · `no_final` |
+| `model_calls` | How many times the model was called |
+| `tokens_in`, `tokens_out` | Tokens read and written by the model |
+| `cost_usd` | What the case cost, in US dollars |
+| `cost_<agent>_usd` | What each agent cost in that case, in US dollars — one column per agent |
+
+`outputs/comparison_report.csv` and `outputs/comparison_report.md` are the comparison report
+`scripts/compare_systems.py` makes from the run history: for each system its latest 3 test runs (mean and range of
+every measure — quality, latency, cost — the baseline on the same cases, which system is better beyond the spread,
+the stability of the decisions) and its latest run of each scripted day, with the protocol's reading.

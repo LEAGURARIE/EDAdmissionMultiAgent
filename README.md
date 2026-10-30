@@ -3,9 +3,11 @@
 A system that runs in a simulated hospital. When a patient is admitted, it reads the medical record and recommends the
 safest, most suitable bed in the shortest time, for the shift manager's approval.
 
-**Two agents and a Coordinator**, each seeing what the others do not: the **Patient Agent** reads the record; a
-**Department Agent** for each ward knows what the ward can really give; the **Coordinator** sees every ward's report
-and both answers, and decides where the patient goes. Ranking and the hard safety rules are code.
+**A multi-agent system**, each agent seeing what the others do not: the **Patient Agent** reads the record; the
+**Department Agent** looks for a bed one ward at a time, reading that ward's report and private notes; the **Judge**
+checks a proposed placement against a rubric; the **Coordinator** activates them and decides. Ranking and the hard
+safety rules are code. It is compared with a **single agent** that does every agent's job — built and measured — and
+with the baseline: today's procedure, written as code.
 
 ## Documents
 
@@ -17,7 +19,8 @@ and both answers, and decides where the patient goes. Ranking and the hard safet
 ## The baseline — the Code Coordinator
 
 **What is measured:** 118 placement decisions with clinically approved, frozen expected answers (104 single cases and
-7 cases of two patients for one bed), and 3 scripted days with 39 admissions. All the records are synthetic.
+7 cases of two patients for one bed), and 4 scripted days: three with 39 admissions, for the time to a bed, and a
+fourth with three moments when two patients compete for one bed. All the records are synthetic.
 
 **The baseline is the Code Coordinator: today's procedure, written as code, with no agents.** For every admitted
 patient it:
@@ -29,14 +32,15 @@ patient it:
 
 It does **not** read the physician's free text. The system is judged against it.
 
-**The results** (measured 2026-10-10):
+**The results** (measured 2026-10-10; re-measured 2026-10-15 — the same, except the match: when the record names
+neither internal medicine A nor B, the decision is now scored by the occupancy rule in `DECISIONS.md`):
 
 | | The question | Code Coordinator | Target |
 |---|---|---|---|
 | **Safe** | In how many decisions did the patient get an unsafe bed? (a hard rule broken — e.g. a patient who needs observation in a regular bed) | 45 of 118 (38%) | 0 (0%) |
 | | Of the 56 patients who need observation or isolation, how many got it or were escalated? | 18 of 56 (32%) | 56 of 56 (100%) |
 | | How many times was a bed chosen that the ward cannot really give? (it looks free in the report, but there is no nurse, or it is broken or promised) | 0 of 100 placements (0%) | 0 (0%) |
-| **Suitable** | In how many decisions was the answer exactly the expected one? | 45 of 118 (38%) | at least 100 (85%) |
+| **Suitable** | In how many decisions was the answer exactly the expected one? | 56 of 118 (47%) | at least 100 (85%) |
 | **Fast** | How many minutes, on average, from the admission decision to a bed? | 26 | fewer than the baseline |
 
 **What the numbers say:**
@@ -45,36 +49,72 @@ It does **not** read the physician's free text. The system is judged against it.
   free text, where an isolation need or a hidden severity is written. That is the Patient Agent's job.
 - **It never takes a bed the ward cannot give** — because it phones the wards. But every call costs 5 minutes, and
   it does not understand a ward's conditions. That is the Department Agent's job: the same answer, without the phone.
-- **It is right in 45 of 118 decisions (38%)**, and a patient reaches a bed after 26 minutes on average.
+- **It is right in 56 of 118 decisions (47%)**, and a patient reaches a bed after 26 minutes on average.
 
 The system has to be safe, right **and** faster than the baseline.
+
+**The scripted days run like a real shift.** Every admission opens a case; a bed that frees while patients wait opens
+a case for all of them, and the decider decides who gets it — from the records, never from a hint. Patients who wait
+together are handed together. The clock goes on while a case is open, so a slow decider makes the next patients
+wait too; one case at a time by default (`config/hospital.yaml`). The report adds a line for this: the longest wait
+for a case, and the conflicts — two open cases that chose the same bed.
+
+**Day 4 — competing for a bed** checks the rule for two patients and one bed at three moments: the same state, the
+earlier decision first · the bed type needed before a last resort · severe before non-severe. Who should get the bed
+is computed at the moment from the patients' true needs. The baseline reaches **none of the three**: it does not
+read isolation in the free text, so it puts the isolation patients in regular beds and the competition never forms.
+
+## The single agent — built and measured
+
+One agent with every agent's tools: it reads the record, reads every ward's report and notes, ranks the options and
+decides. It is the strong opponent of the comparison — the same task, the same rules and the same cases as the
+multi-agent system (`docs/design/comparison_protocol.md`, written before any paid run). Improved in 2 rounds on 22
+development cases, then measured 3 times on 29 test cases it had never seen:
+
+| | Single agent (mean, range of 3) | Baseline, the same cases |
+|---|---|---|
+| Hard rules broken | 1 in each run | 11 |
+| Needs met or escalated | 100% | 47% |
+| A bed the ward cannot give | 0 | 0 |
+| Match | 76% (72–78%) | 42% |
+| The same decision in all 3 runs | 94% | — |
+| Seconds per case | 33 | — |
+| Cost per case | $0.12 | — |
+
+On the 4 scripted days, once: no hard rule broken, and all 3 moments of competing for a bed decided right. The one
+broken rule is the same case each time: a known contradiction in the rules about confusion that is not new, kept on
+purpose for both systems (`DECISIONS.md`).
 
 ```
 .venv\Scripts\python scripts\run_baseline.py                                  the results above
 .venv\Scripts\python scripts\run_metrics.py --decider code_coordinator --details    in full
 .venv\Scripts\python scripts\run_scenario.py data\scenarios\busy_day.yaml --policy code_coordinator --display
+.venv\Scripts\python scripts\run_metrics.py --decider single_agent --set test --repeat 3 --paid   the single agent (paid)
+.venv\Scripts\python scripts\compare_systems.py                              quality, latency and cost, side by side
 ```
+
+A decider that calls a model runs only with `--paid`, after its estimated cost is approved.
 
 ## Layout
 
 | Folder | What it holds |
 |---|---|
-| `src/ed_admission/agents` | The Patient Agent, the Department Agent and the Coordinator — a file each; entry points only, the agents are not built yet |
-| `src/ed_admission/prompts` | A prompt file for each agent |
+| `src/ed_admission/agents` | The single agent — its loop, tools, budget and the monthly price check; the agents of the multi-agent system — a file each, being built |
+| `src/ed_admission/prompts` | A prompt file for each agent: the single agent's is written; the others as they are built |
 | `src/ed_admission/tools` | The tools the agents use, their permissions, and `decide` — the hard rules in code |
 | `src/ed_admission/environment` | The simulated hospital and the simulation engine |
 | `src/ed_admission/contracts` | The contracts: the record, the Patient Agent's assessment, the request and answer in the negotiation with the wards |
 | `src/ed_admission/orchestration` | The stages of a placement case, the Coordinator's flow in code, and a code example of each agent |
 | `src/ed_admission/observability` | The trace of every case |
 | `src/ed_admission/baselines` | The baseline: the Code Coordinator — today's procedure, written as code |
-| `src/ed_admission/evaluation` | The runner, the building of the expected answers, the metrics and the report |
-| `src/ed_admission/database` | The run history: `runs.csv` and `admissions.csv` |
-| `config` | Settings: wards and beds, cleaning, hold and approval times, and the clinical rules |
+| `src/ed_admission/evaluation` | The runner, the building of the expected answers, the metrics, the development and test sets, and the comparison report |
+| `src/ed_admission/database` | The run history: `runs.csv`, `admissions.csv` and `costs.csv` |
+| `config` | Settings: wards and beds, cleaning, hold and approval times, the clinical rules, the single agent's model, budget and prices |
 | `data/records` | The 74 synthetic records |
 | `data/templates` | 22 ward-state templates |
 | `data/answer_key` | The expected answers, for the evaluation code only |
-| `data/scenarios` | 3 scripted days |
-| `scripts` | Running: the baseline, the metrics, one agent alone, cases, a scripted day, a health check |
+| `data/scenarios` | 4 scripted days |
+| `scripts` | Running: the baseline, the metrics, one agent alone, cases, a scripted day, the comparison report, the price check, a health check |
 | `notebooks` | The Colab notebook |
 | `tests` | The tests |
 | `docs/design` | Design documents |
@@ -106,8 +146,9 @@ python -m venv .venv
 
 The Anthropic key goes in a local `.env` file (copy `.env.example`); it is never uploaded.
 
-Every measured run is added to the run history in `outputs/` — `runs.csv` (one row per run) and `admissions.csv`
-(one row per patient) — so improvement can be followed run after run. Results are never uploaded.
+Every measured run is added to the run history in `outputs/` — `runs.csv` (one row per run), `admissions.csv`
+(one row per patient) and `costs.csv` (one row per case, for a decider that calls a model) — so improvement and cost
+can be followed run after run. `scripts/compare_systems.py` sets the single agent against the multi-agent system — quality, latency and cost, per case and per run. Results are never uploaded.
 
 ## How the project is kept
 
