@@ -36,7 +36,7 @@ def example_pipeline(engine, event, waiting) -> list:
 
         assessment = coordinator.assess_patient(pid)
         reports = coordinator.all_department_status()
-        target = resolve_target_ward(assessment.target_ward, reports)      # internal medicine: A or B by occupancy
+        target = resolve_target_ward(assessment.target, reports)   # intensive care if needed; internal medicine: A or B
         needs = PatientNeeds(target, assessment.bed_type, severe=assessment.never_waits)
         ranking = coordinator.rank_placements(needs, taken)
 

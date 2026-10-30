@@ -37,9 +37,20 @@ def column(scored: list, days: dict[str, dict], traces: dict | None = None) -> d
     numbers = {key: summary[key] for _, key, *_ in ROWS if key in summary}
     numbers["minutes_to_bed"] = minutes / placed if placed else None
     numbers["still_waiting"] = sum(len(d["still_waiting"]) for d in days.values())
+    numbers["case_desk"] = {key: [d.get(key) for d in days.values()]
+                            for key in ("concurrent_cases", "max_minutes_in_queue", "conflicts")}
     if traces:
         numbers.update(complete_trace_rate=traces["complete_trace_rate"], groundedness=traces["groundedness"])
     return numbers
+
+
+def moments_line(name: str, moments: list[dict]) -> str:
+    """The contention day in one line: moments decided right, out of those the day reached as designed."""
+    reached = [m for m in moments if m["as_designed"]]
+    right = sum(m["right"] for m in reached)
+    missed = len(moments) - len(reached)
+    tail = f" · {missed} not reached as designed" if missed else ""
+    return f"  {name}: competing for a bed — {right} of {len(reached)} moments right{tail}"
 
 
 def _show(value, kind: str) -> str:
@@ -72,6 +83,13 @@ def render(columns: dict[str, dict], judged: str | None = None, baseline: str = 
             mark = "" if met is None else ("  ✓" if met else "  ✗")
         lines.append(f"  {group:<10}{label:<25}{cells}   {target}{mark}")
     for name in names:
+        desk = columns[name].get("case_desk")
+        if desk and desk["concurrent_cases"]:
+            at_once = set(desk["concurrent_cases"])
+            at_once = "no limit" if at_once == {None} else " / ".join(str(n) for n in sorted(at_once, key=str))
+            longest = max((m for m in desk["max_minutes_in_queue"] if m is not None), default=0)
+            lines.append(f"  {name}: {at_once} case(s) at a time · longest wait in the queue {longest:.0f} min · "
+                         f"{sum(desk['conflicts'])} conflicts")
         if columns[name]["still_waiting"]:
             lines.append(f"  {name}: {columns[name]['still_waiting']} patients still waiting at the end of the days"
                          " — not counted in its minutes to a bed")

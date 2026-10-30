@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 from ed_admission import config
+from ed_admission.agents.budget import RunStopped
 from ed_admission.evaluation import deciders
 from ed_admission.evaluation import run_cases, run_paired
 
@@ -37,14 +38,27 @@ def main() -> None:
                         help=f"one of {sorted(deciders.DECIDERS)}, or module:function")
     parser.add_argument("--cases", nargs="*", help="case ids, e.g. P-001 P-007; default: every written record")
     parser.add_argument("--set", choices=["first", "second", "paired"], default="first")
+    parser.add_argument("--paid", action="store_true", help="run a decider that calls a model and is paid for — "
+                        "only after its estimated cost was approved")
     args = parser.parse_args()
-
-    if args.set == "paired":
-        for result in run_paired(deciders.resolve(args.decider)):
-            decided = " · ".join(describe(d) for d in result.decisions or [])
-            print(f"{result.case_id:<6} {result.template:<5} {decided}{'  ERROR ' + result.error if result.error else ''}")
+    try:
+        decider = deciders.resolve(args.decider, paid=args.paid)
+    except deciders.PaidWithoutApproval as refused:
+        print(refused)
         return
-    results = run_cases(deciders.resolve(args.decider), case_ids=args.cases, evaluation_set=args.set)
+
+    try:
+        with deciders.paid_run(decider):
+            if args.set == "paired":
+                for result in run_paired(decider):
+                    decided = " · ".join(describe(d) for d in result.decisions or [])
+                    print(f"{result.case_id:<6} {result.template:<5} {decided}"
+                          f"{'  ERROR ' + result.error if result.error else ''}")
+                return
+            results = run_cases(decider, case_ids=args.cases, evaluation_set=args.set)
+    except RunStopped as stop:
+        print(f"STOPPED — {stop}. Nothing is saved here; run_metrics.py keeps a partial run in the history.")
+        return
     print(f"{'case':<7} {'template':<9} {'seconds':>8}  decision")
     for result in results:
         print(f"{result.case_id:<7} {result.template:<9} {result.seconds:>8.4f}  {describe(result.decision)}"

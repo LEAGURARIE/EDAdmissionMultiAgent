@@ -11,6 +11,11 @@ For each decision (one patient, one pair):
   need_met           observation / isolation need met by the bed, or escalated — or a non-severe patient
                      waits for the right bed (charter: 100%)
   off_service        placed outside the patient's target ward
+Internal medicine A or B (DECISIONS, 2026-10-08; scored this way since 2026-10-15): when the record names neither,
+the two are equivalent and the target is the one with the lower occupancy in the reports (rank_placements.
+resolve_target_ward, A on a tie) — the expected decision is the one for that target, derived at scoring time from the
+same hospital; the frozen answer files are not changed. The paired cases keep their answers: their two patients are
+built around one target ward.
   missing_flags      flags the decider had to raise and did not (injection, missing vital sign, Severity judgment)
 
 Then counted: overall, and by template, trap, challenge and patient type — and against the charter's targets.
@@ -23,11 +28,15 @@ from dataclasses import asdict, dataclass, field
 
 import yaml
 
+from ed_admission import config
+from ed_admission.environment.events import to_minutes
 from ed_admission.environment import Decision, load_hospital
 from ed_admission.environment.hospital import BedStatus
 from ed_admission.evaluation import answer_key_builder as builder
 from ed_admission.evaluation.case_runner import CaseResult, PairedResult
-from ed_admission.tools.patient_record import quote_in_record
+from ed_admission.tools.department_status import all_department_status
+from ed_admission.tools.patient_record import quote_in_record, record_text
+from ed_admission.tools.rank_placements import INTERNAL_MEDICINE, resolve_target_ward
 
 HARD_RULES = {
     "observation_need_in_a_regular_bed": "an observation patient placed in a regular bed",
@@ -88,16 +97,62 @@ def _matches(decision: Decision, bed_type: str | None, action: str, acceptable: 
     return True
 
 
+def names_neither_internal_medicine(answer: dict) -> bool:
+    """The patient's target is internal medicine A or B, and the record names neither — no physician's request for
+    one of them, no "internal medicine A/B" in the text."""
+    if answer["target_ward"] not in INTERNAL_MEDICINE or answer.get("wording") == "binding_request":
+        return False
+    text = record_text(answer["case_id"])
+    return not any(f"פנימית {letter}" in text or f"פנימית{letter}" in text for letter in ("א", "ב"))
+
+
+def target_by_occupancy(answer: dict) -> str:
+    """The 8.10 rule: of internal medicine A and B, the one with the lower occupancy in the reports."""
+    reports = all_department_status(builder.true_ward_state(answer, with_notes=False))
+    return resolve_target_ward("internal_medicine", reports)
+
+
+def expected_for(answer: dict, target: str) -> dict:
+    """The expected decision for another target ward, in the same hospital, written like the file's."""
+    state = builder.true_ward_state(answer)
+    decision = builder.expected_decision(state, answer["patient_type"], target)
+    if decision.action == "wait" and decision.wait_for["because"] == "discharge_today":
+        report = builder.true_ward_state(answer, with_notes=False)
+        if not any(b.expected_discharge_at is not None for b in report.hospital.ward(target).beds):
+            decision.wait_for["because"] = "ward_note"
+    from_level = config.placement_rules()["approval"]["typed_reason_from_ladder_level"]
+    return {**answer["expected"], "action": decision.action, "ward_id": decision.ward_id,
+            "acceptable_wards": decision.acceptable_wards or ([decision.ward_id] if decision.ward_id else None),
+            "bed_type": decision.bed_type, "awaiting_transfer_to": decision.awaiting_transfer_to,
+            "wait_for": decision.wait_for, "ladder_level": decision.ladder_level,
+            "needs_typed_reason": decision.ladder_level is not None and decision.ladder_level >= from_level}
+
+
 def _from_reports_alone(answer: dict, report_state=None) -> builder.Expected:
     """The answer from the ward reports alone (no private notes), for this patient read right."""
     state = report_state if report_state is not None else builder.true_ward_state(answer, with_notes=False)
     return builder.expected_decision(state, answer["patient_type"], answer["target_ward"])
 
 
+def by_the_rules(answer: dict) -> dict:
+    """The answer the decision is scored against: the frozen one — or, for internal medicine that the record does not
+    name, the same answer for the target the 8.10 rule chooses."""
+    if not names_neither_internal_medicine(answer):
+        return answer
+    target = target_by_occupancy(answer)
+    if target == answer["target_ward"]:
+        return answer
+    return {**answer, "template_target": answer["target_ward"], "target_ward": target,
+            "expected": expected_for(answer, target)}
+
+
 def score(answer: dict, decision: Decision | None, paired_case: str | None = None, true_state=None,
           error: str = "", seconds: float = 0.0, reports_alone: builder.Expected | None = None) -> Scored:
     """Compare one decision with one expected answer. `true_state`: the hospital the answer was derived from;
-    `reports_alone`: the answer from the reports alone (computed when not given)."""
+    `reports_alone`: the answer from the reports alone (computed when not given). A single pair is scored by the
+    rules (by_the_rules); a paired case against its own answer."""
+    if paired_case is None:
+        answer = by_the_rules(answer)
     expected, needs = answer["expected"], answer["needs"]
     scored = Scored(case_id=answer["case_id"], template=answer["template"], paired_case=paired_case,
                     patient_type=answer["patient_type"], challenge=answer["challenge"], traps=answer["traps"],
@@ -232,9 +287,9 @@ def breakdown(scored: list[Scored], by: str) -> dict:
 
 # ---------------------------------------------------------------------- scripted days
 
-def score_day(engine) -> dict:
-    """A scripted day after it ran: hard-rule violations in the placements, time to a bed, escalations, and who
-    was still waiting at the end. The patient's true needs come from the clinical inputs."""
+def score_day(engine, day: str | None = None) -> dict:
+    """A scripted day after it ran: hard-rule violations in the placements, time to a bed, escalations, who was
+    still waiting at the end, and the case desk (case_desk). The patient's true needs come from the clinical inputs."""
     inputs = builder._read("clinical_inputs.yaml")["cases"]
     violations = defaultdict(int)
     for placement in engine.placements:
@@ -272,6 +327,74 @@ def score_day(engine) -> dict:
         "mean_minutes_to_bed": sum(waits) / len(waits) if waits else None,
         "max_minutes_to_bed": max(waits) if waits else None,
         "mean_minutes_to_bed_severe": sum(severe_waits) / len(severe_waits) if severe_waits else None,
+        **case_desk(engine),
+        "moments": contention_moments(day, engine) if day else [],
+    }
+
+
+# The approved rule for two patients and one bed (placement_rules.yaml, competing_for_one_bed), as sort keys:
+# a smaller key comes first.
+RULE_KEYS = {
+    "needs_the_bed_type_first": lambda needs, bed_type, decided: needs["bed"].value != bed_type,
+    "severe_first": lambda needs, bed_type, decided: not (needs["observation"] or needs["intensive_care"]),
+    "earlier_decision_first": lambda needs, bed_type, decided: decided,
+}
+
+
+def contention_moments(day: str, engine) -> list[dict]:
+    """The moments of competition designed into a day (data/answer_key/contention_moments.yaml), checked at the
+    moment: was the case opened with the patients meant to compete, and was the contested bed free then? If so, who
+    should have got the bed — from the patients' true needs and the approved rule — and who did. A moment the day did
+    not reach as designed (because of earlier decisions) is reported with the reason, and not scored."""
+    inputs = builder._read("clinical_inputs.yaml")["cases"]
+    rule = config.placement_rules()["competing_for_one_bed"]
+    results = []
+    for moment in builder._read("contention_moments.yaml").get(day, []):
+        at, bed = to_minutes(moment["time"]), [moment["bed"]["ward"], moment["bed"]["bed"]]
+        bed_type = engine.hospital.ward(bed[0]).bed(bed[1]).bed_type.value
+        case = next((c for c in engine.cases if c["opened_at"] == at
+                     and set(moment["patients"]) <= set(c["patients"])), None)
+        result = {"name": moment["name"], "time": moment["time"], "bed": bed, "patients": moment["patients"]}
+        if case is None:
+            result.update(as_designed=False, why_not="the patients were not together in one case then")
+        elif bed not in case["free_beds"]:
+            result.update(as_designed=False, why_not="the contested bed was not free then")
+        elif any(other != bed and engine.hospital.ward(other[0]).bed(other[1]).bed_type.value == bed_type
+                 for other in case["free_beds"]):
+            result.update(as_designed=False, why_not=f"another {bed_type} bed was free then — no competition")
+        else:
+            def key(pid):
+                needs = builder.NEEDS[inputs[pid]["patient_type"]]
+                return tuple(RULE_KEYS[name](needs, bed_type, case["decided"][pid]) for name in rule) + (pid,)
+            should = min(moment["patients"], key=key)
+            got = next((pid for pid, chosen in case["beds"].items() if chosen == bed), None)
+            result.update(as_designed=True, why_not=None, should_get=should, got=got, right=got == should)
+        results.append(result)
+    return results
+
+
+def case_desk(engine) -> dict:
+    """How the cases went through the case desk: how many cases (and how many were bed cases — a bed freed while
+    patients waited), how long patients waited in the queue for a case,
+    how long a case was open, the most cases open at one moment, and the conflicts — a bed chosen in an open case
+    that another case took first."""
+    cases = engine.cases
+    queued = [c["opened_at"] - c["queued_at"] for c in cases for _ in c["patients"]]
+    open_minutes = [c["closed_at"] - c["opened_at"] for c in cases]
+
+    def open_at(moment: int) -> int:          # a case that took no time is open for no time — never at once
+        return sum(1 for c in cases if c["opened_at"] <= moment < c["closed_at"])
+
+    return {
+        "concurrent_cases": engine.concurrent_cases,
+        "cases": len(cases),
+        "bed_cases": sum(c["kind"] == "bed" for c in cases),
+        "conflicts": sum(len(c["conflicts"]) for c in cases),
+        "bed_errors": sum(len(c["bed_errors"]) for c in cases),          # a bed chosen that was not free
+        "mean_minutes_in_queue": sum(queued) / len(queued) if queued else None,
+        "max_minutes_in_queue": max(queued) if queued else None,
+        "mean_minutes_per_case": sum(open_minutes) / len(open_minutes) if open_minutes else None,
+        "most_open_cases": max([open_at(c["opened_at"]) for c in cases] + [1 if cases else 0]),
     }
 
 
@@ -323,10 +446,22 @@ def minutes_saved(baseline_engine, system_engine) -> dict:
 
 # ---------------------------------------------------------------------- traces: complete, grounded
 
+def _claims_by_patient(trace):
+    """Each claim with the patient it is about: the patient of the step that made it — a case may hold several
+    patients (a bed case, a paired case; the single agent's trace is named "P-006+P-010"), so never the case's name.
+    The Patient Agent's call takes the patient id; the single agent's record_assessment, {"patient_id": ...}."""
+    for step in trace.steps:
+        if not step.claims:
+            continue
+        patient = step.input.get("patient_id") if isinstance(step.input, dict) else step.input
+        for claim in step.claims:
+            yield (patient if isinstance(patient, str) and patient else trace.case_id), claim
+
+
 def groundedness(traces: list) -> float:
     """Charter: the share of claims backed by a quote that really appears in the patient's record (≥ 95%).
     The same check the assess_patient tool runs while the system works (tools/patient_record.py)."""
-    claims = [(trace.case_id, claim) for trace in traces for claim in trace.claims]
+    claims = [(patient, claim) for trace in traces for patient, claim in _claims_by_patient(trace)]
     if not claims:
         return 0.0
     return sum(quote_in_record(case_id, claim.quote) for case_id, claim in claims) / len(claims)
@@ -335,6 +470,22 @@ def groundedness(traces: list) -> float:
 def complete_trace_rate(traces: list) -> float:
     """Charter: the share of cases with a complete trace (100%)."""
     return sum(t.complete for t in traces) / len(traces) if traces else 0.0
+
+
+def cost_summary(traces: list) -> dict | None:
+    """What a whole run cost — every case it decided (pairs, paired cases and the scripted days), for runs.csv.
+    cases_over_case_cap: cases stopped by the per-case budget · partial_run: the run's budget was reached.
+    None when the decider handed no traces (the code baselines)."""
+    if not traces:
+        return None
+    costs = sorted(t.cost_usd for t in traces)
+    middle = len(costs) // 2
+    median = costs[middle] if len(costs) % 2 else (costs[middle - 1] + costs[middle]) / 2
+    systems = sorted({t.system for t in traces})
+    return {"system": " ".join(systems), "cost_cases": len(costs), "cost_total_usd": sum(costs),
+            "cost_mean_usd": sum(costs) / len(costs), "cost_median_usd": median, "cost_max_usd": costs[-1],
+            "cases_over_case_cap": sum(t.ended == "budget" for t in traces),
+            "partial_run": any(t.ended == "run_budget" for t in traces)}
 
 
 def trace_summary(traces: list) -> dict | None:

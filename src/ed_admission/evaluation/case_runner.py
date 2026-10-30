@@ -19,6 +19,7 @@ from dataclasses import dataclass
 import yaml
 
 from ed_admission import config
+from ed_admission.agents.budget import RunStopped
 from ed_admission.environment import Decision, Policy, load_template
 
 ANSWER_KEY = config.PROJECT / "data" / "answer_key"
@@ -43,11 +44,15 @@ def load_pairs(evaluation_set: str = "first") -> list[dict]:
     return yaml.safe_load((ANSWER_KEY / SETS[evaluation_set]).read_text(encoding="utf8"))["pairs"]
 
 
-def run_cases(policy: Policy, case_ids: list[str] | None = None, evaluation_set: str = "first") -> list[CaseResult]:
-    """Run the decider on every pair of the set whose record exists (or only on `case_ids`), in file order."""
+def run_cases(policy: Policy, case_ids: list[str] | None = None, evaluation_set: str = "first",
+              only: set[tuple[str, str]] | None = None) -> list[CaseResult]:
+    """Run the decider on every pair of the set whose record exists (or only on `case_ids`, or only on the
+    (case_id, template) pairs in `only` — a development or test set, evaluation/sets.py), in file order."""
     results = []
     for pair in load_pairs(evaluation_set):
         if case_ids is not None and pair["case_id"] not in case_ids:
+            continue
+        if only is not None and (pair["case_id"], pair["template"]) not in only:
             continue
         if not (RECORDS / f"{pair['case_id']}.yaml").exists():
             continue                                      # record not written yet
@@ -61,6 +66,8 @@ def _run_one(pair: dict, policy: Policy) -> CaseResult:
     try:
         decision = engine.decide_case(pair["case_id"], policy)
         error = ""
+    except RunStopped:                                    # the run's budget is spent: the whole run stops
+        raise
     except Exception as failure:                          # a failing decider is a result, not a crash of the run
         decision, error = None, f"{type(failure).__name__}: {failure}"
     return CaseResult(case_id=pair["case_id"], template=pair["template"], decision=decision,
@@ -92,6 +99,8 @@ def run_paired(policy: Policy) -> list[PairedResult]:
         started = time.perf_counter()
         try:
             decisions, error = engine.decide_cases(patients, policy), ""
+        except RunStopped:
+            raise
         except Exception as failure:
             decisions, error = None, f"{type(failure).__name__}: {failure}"
         results.append(PairedResult(case_id=case["id"], template=case["template"], decisions=decisions,

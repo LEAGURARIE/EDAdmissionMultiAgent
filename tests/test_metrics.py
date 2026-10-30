@@ -33,12 +33,18 @@ def expected_as_decision(answer: dict) -> Decision:
 
 
 def test_the_expected_answers_score_perfectly():
-    results = [CaseResult(a["case_id"], a["template"], expected_as_decision(a), 0.0) for a in ANSWERS]
-    summary = metrics.summarize(metrics.score_cases(results))
+    # scored by the rules: internal medicine the record does not name — the target by occupancy (2026-10-15)
+    results = [CaseResult(a["case_id"], a["template"], expected_as_decision(metrics.by_the_rules(a)), 0.0)
+               for a in ANSWERS]
+    scored = metrics.score_cases(results)
+    summary = metrics.summarize(scored)
     assert summary["match_rate"] == 1.0 and summary["violations"] == 0 and summary["need_met_rate"] == 1.0
     assert summary["bed_not_available"] == 0 and summary["missing_flags"] == 0
     assert all(summary["meets_charter"].values())
-    assert summary["report_match_rate"] == 0.0         # every pair needs the notes: right answer != reports alone
+    # every pair with its frozen target needs the notes: the right answer is not the reports-alone one. A pair whose
+    # target the occupancy rule moves to the other internal medicine ward may no longer meet the note.
+    kept = [s for s, a in zip(scored, ANSWERS) if metrics.by_the_rules(a) is a]
+    assert kept and not any(s.report_match for s in kept)
 
 
 def reports_alone_as_decision(answer: dict) -> Decision:
@@ -56,9 +62,11 @@ def reports_alone_as_decision(answer: dict) -> Decision:
 
 
 def test_a_decider_that_never_asks_reaches_only_the_report_match():
-    results = [CaseResult(a["case_id"], a["template"], reports_alone_as_decision(a), 0.0) for a in ANSWERS]
-    summary = metrics.summarize(metrics.score_cases(results))
-    assert summary["report_match_rate"] == 1.0 and summary["match_rate"] == 0.0
+    results = [CaseResult(a["case_id"], a["template"], reports_alone_as_decision(metrics.by_the_rules(a)), 0.0)
+               for a in ANSWERS]
+    scored = metrics.score_cases(results)
+    assert metrics.summarize(scored)["report_match_rate"] == 1.0
+    assert not any(s.match for s, a in zip(scored, ANSWERS) if metrics.by_the_rules(a) is a)
 
 
 def test_an_observation_patient_in_a_regular_bed_is_a_violation():
@@ -158,3 +166,17 @@ def test_traces_are_collected_once_and_summarized_with_cost():
 
 def test_a_decider_without_traces_has_no_trace_metrics():
     assert metrics.trace_summary([]) is None
+
+
+def test_internal_medicine_the_record_does_not_name_is_scored_by_occupancy():
+    """Lea, 2026-10-15: A and B are equivalent. P-024 on T14 names neither; the frozen answer was built around B, but
+    A has the lower occupancy, so the right decision is a place in A — the bed the single agent chose."""
+    answer = next(a for a in ANSWERS if (a["case_id"], a["template"]) == ("P-024", "T14"))
+    assert metrics.names_neither_internal_medicine(answer)
+    ruled = metrics.by_the_rules(answer)
+    assert ruled["target_ward"] == "internal_medicine_a" and ruled["expected"]["action"] == "place"
+    decision = Decision(patient_id="P-024", action="place", ward_id="internal_medicine_a", bed_number=1,
+                        target_ward="internal_medicine_a")
+    assert metrics.score(answer, decision).match
+    named = next(a for a in ANSWERS if a.get("wording") == "binding_request")
+    assert metrics.by_the_rules(named) is named                       # a record that names its ward keeps it

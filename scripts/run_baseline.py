@@ -18,6 +18,7 @@ from ed_admission.evaluation import metrics, report, run_cases, run_paired
 
 PROJECT = Path(__file__).resolve().parents[1]
 DAYS = ["busy_day", "evening_night", "weekend"]
+CONTENTION_DAY = "competing_for_a_bed"           # shown apart: not in the minutes to a bed
 
 
 def main() -> None:
@@ -28,9 +29,13 @@ def main() -> None:
         engine = load_scenario(PROJECT / "data" / "scenarios" / f"{name}.yaml")
         engine.policy = code_coordinator
         engine.run_to_end()
-        days[name] = metrics.score_day(engine)
+        days[name] = metrics.score_day(engine, name)
     print("The baseline — the Code Coordinator: today's procedure, written as code\n")
     print(report.render({"code coordinator": report.column(scored, days)}))
+    engine = load_scenario(PROJECT / "data" / "scenarios" / f"{CONTENTION_DAY}.yaml")
+    engine.policy = code_coordinator
+    engine.run_to_end()
+    print(report.moments_line("code coordinator", metrics.contention_moments(CONTENTION_DAY, engine)))
     summary = metrics.summarize(scored)
     with_need = [s for s in scored if s.need_met is not None]
     placed = [s for s in scored if s.decided.startswith(("place", "temporary_place"))]

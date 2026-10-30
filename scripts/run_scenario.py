@@ -15,6 +15,7 @@ import sys
 import time
 from pathlib import Path
 
+from ed_admission.agents.budget import RunStopped
 from ed_admission.evaluation import deciders
 from ed_admission.environment import BedStatus, BedType, load_scenario, to_clock
 
@@ -65,10 +66,25 @@ def main() -> None:
     parser.add_argument("--seconds-per-step", type=float, default=1.0)
     parser.add_argument("--policy", default="code_coordinator",
                         help=f"who decides placements: one of {sorted(deciders.DECIDERS)}, none, or module:function")
+    parser.add_argument("--paid", action="store_true", help="run a decider that calls a model and is paid for — "
+                        "only after its estimated cost was approved")
     args = parser.parse_args()
 
     engine = load_scenario(Path(args.scenario))
-    engine.policy = None if args.policy == "none" else deciders.resolve(args.policy)
+    try:
+        engine.policy = None if args.policy == "none" else deciders.resolve(args.policy, paid=args.paid)
+    except deciders.PaidWithoutApproval as refused:
+        print(refused)
+        return
+    try:
+        with deciders.paid_run(engine.policy):
+            play(engine, args)
+    except RunStopped as stop:
+        print(f"STOPPED — {stop}.")
+
+
+def play(engine, args) -> None:
+    """The day, event by event (or step by step with --display)."""
     print(board(engine))
 
     printed = 0

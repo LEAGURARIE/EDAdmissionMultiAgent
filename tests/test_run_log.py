@@ -32,16 +32,20 @@ def test_the_version_is_a_fingerprint_that_does_not_change_by_itself():
     assert run_log.version() == run_log.version() and len(run_log.version()) == 10
 
 
-def test_runs_accumulate_and_a_rerun_at_the_same_version_replaces_its_own_row(outputs):
+def test_runs_accumulate_and_a_rerun_with_the_same_label_replaces_its_own_row(outputs):
+    """The same decider, version and label again replaces its row; another label is another run (2026-10-15: the
+    repetitions of a test, each with its own label, must all be kept)."""
     first = run_log.new_run("system", "never_asks", "first try")
     run_log.log_run(first, {"match_rate": 0.1})
     other = run_log.new_run("system", "example_pipeline")
     run_log.log_run(other, {"match_rate": 0.2, "groundedness": 1.0})       # a new column
-    again = run_log.new_run("system", "never_asks", "second try")
+    again = run_log.new_run("system", "never_asks", "first try")
     run_log.log_run(again, {"match_rate": 0.3})
+    another = run_log.new_run("system", "never_asks", "second try")
+    run_log.log_run(another, {"match_rate": 0.4})
     rows = _rows(outputs / run_log.RUNS)
     assert [(r["decider"], r["label"], r["match_rate"]) for r in rows] == [
-        ("example_pipeline", "", "0.2"), ("never_asks", "second try", "0.3")]
+        ("example_pipeline", "", "0.2"), ("never_asks", "first try", "0.3"), ("never_asks", "second try", "0.4")]
     assert "groundedness" in rows[0] and rows[1]["groundedness"] == ""
 
 

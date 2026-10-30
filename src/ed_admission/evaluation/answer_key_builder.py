@@ -151,9 +151,10 @@ def _expected_news2(record, true_vitals: dict) -> int | None:
 def true_ward_state(pair: dict, with_notes: bool = True):
     """The template's hospital for this pair — after its wards' private notes are applied (environment/ward_truth.py),
     or the plain report, without."""
-    engine = load_template(TEMPLATES / f"{pair['template']}.yaml", target_ward=pair["target_ward"])
+    built_for = pair.get("template_target", pair["target_ward"])     # a relative template is built around this ward
+    engine = load_template(TEMPLATES / f"{pair['template']}.yaml", target_ward=built_for)
     if with_notes:
-        apply_all(engine, pair["target_ward"])
+        apply_all(engine, pair["target_ward"])     # the patient's target: a ward that takes only its own patients
     return engine
 
 

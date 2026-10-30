@@ -3,6 +3,8 @@
 `pairs.yaml` — the first set, 60 pairs: which template each record is placed in, and its true target ward.
 `pairs_set2.yaml` — 44 more pairs: 30 in templates T13-T22 (ward notes, ping-pong, the shift rule) and the added records P-061-P-074. What each private ward note means for the beds is written next to it in the template (`note_effects`).
 `paired_cases.yaml` — two patients, one bed; answers in `PC-<n>.yaml`.
+`contention_moments.yaml` — the moments of competition in day 4: the bed and the two patients, never the winner — it is computed at the moment.
+`dev_test_sets.yaml` — the development and test sets of the comparison, frozen 2026-10-15 (built by `src/ed_admission/evaluation/sets.py`; `docs/design/comparison_protocol.md`).
 `clinical_inputs.yaml` — per record: true patient type, challenge, traps, wording, corrected vital signs.
 Answers are built by `src/ed_admission/evaluation/answer_key_builder.py`; a frozen answer is never overwritten.
 One file per pair — a record placed in a ward-state template, named `<case_id>__<template>.yaml`.

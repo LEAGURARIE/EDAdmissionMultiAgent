@@ -1,4 +1,4 @@
-"""The run history — two CSV files that accumulate every run, so improvement can be seen run after run.
+"""The run history — three CSV files that accumulate every run, so improvement can be seen run after run.
 
   runs.csv         one row per run: who decided (decider, agent), which version, a label saying what changed, and the
                    run's numbers — for the whole system (scripts/run_metrics.py) or for one agent alone
@@ -6,12 +6,17 @@
   admissions.csv   one row per patient per run of the whole system: what was decided, where, why, how long — and,
                    for the evaluation pairs, whether it matched. Answers "what changed?": which patient was fixed,
                    which was broken.
+  costs.csv        one row per case per run of a decider that calls a model: which system (single_agent ·
+                   multi_agent), how the case ended, model calls, tokens and cost — in total and per agent. Answers
+                   "what did it cost?"; scripts/compare_systems.py sets the single agent against the multi-agent system.
+                   runs.csv carries the run's cost summary (metrics.cost_summary).
 
 Both live in config.outputs_dir() — outputs/ locally, a Google Drive folder in Colab — and never go to Git.
 
 The version is computed, never typed: a short fingerprint of the code, prompts, configuration and data. Change a
-prompt and the version changes. A rerun of the same decider (or agent) at the same version replaces its earlier
-rows; a new version adds rows. A run's traces are saved as traces/<run id>.jsonl; admissions.csv points to them.
+prompt and the version changes. A rerun of the same decider (or agent) at the same version and with the same label
+replaces its earlier rows; a new version, or a new label, adds rows — so the repetitions of a test, each with its own
+label, are all kept. A run's traces are saved as traces/<run id>.jsonl; admissions.csv points to them.
 
 Owner: Lea Gur-Arie
 """
@@ -25,7 +30,7 @@ from ed_admission.environment import load_hospital
 from ed_admission.environment.decision import Decision
 from ed_admission.environment.events import to_clock
 
-RUNS, ADMISSIONS = "runs.csv", "admissions.csv"
+RUNS, ADMISSIONS, COSTS = "runs.csv", "admissions.csv", "costs.csv"
 FINGERPRINTED = ("src", "config", "data")          # what makes a version: code, prompts, rules, data
 
 
@@ -49,7 +54,9 @@ def new_run(kind: str, decider: str, label: str = "", agent: str = "") -> dict:
 
 
 def _same_run(row: dict, run: dict) -> bool:
-    return all(row.get(k, "") == run[k] for k in ("kind", "decider", "agent", "version"))
+    """The same run again: the same decider at the same version with the same label. A different label is another
+    run — the repetitions of a test (run_metrics.py --repeat) each have their own, so none replaces another."""
+    return all(row.get(k, "") == run[k] for k in ("kind", "decider", "agent", "version", "label"))
 
 
 def _write(name: str, run: dict, rows: list[dict]) -> Path:
@@ -79,6 +86,19 @@ def log_run(run: dict, numbers: dict) -> Path:
 def log_admissions(run: dict, rows: list[dict]) -> Path:
     """The run's rows in admissions.csv."""
     return _write(ADMISSIONS, run, [{**run, **row} for row in rows])
+
+
+def log_costs(run: dict, rows: list[dict]) -> Path:
+    """The run's rows in costs.csv — one per case."""
+    return _write(COSTS, run, [{**run, **row} for row in rows])
+
+
+def cost_row(source: str, trace) -> dict:
+    """One case's cost, from its trace. One column per agent (cost_<role>_usd): the header grows with new agents."""
+    return {"source": source, "case_id": trace.case_id, "system": trace.system, "ended": trace.ended,
+            "model_calls": trace.model_calls, "tokens_in": trace.tokens_in, "tokens_out": trace.tokens_out,
+            "cost_usd": round(trace.cost_usd, 6),
+            **{f"cost_{role}_usd": round(cost, 6) for role, cost in sorted(trace.cost_by_role.items())}}
 
 
 # ---------------------------------------------------------------------- building the rows
@@ -112,7 +132,8 @@ def scored_row(source: str, decision: Decision | None, scored, trace: str = "") 
 
 
 def day_rows(day: str, engine) -> list[dict]:
-    """A scripted day after it ran: one row per patient — placed, escalated, or still waiting at the end."""
+    """A scripted day after it ran: one row per patient — placed, escalated, or still waiting at the end — with its
+    cases at the case desk: how many, minutes in the queue, conflicts."""
     rows = []
     for p in engine.placements:
         rows.append({"source": f"day:{day}", "patient_id": p.patient_id, "outcome": "placed",
@@ -132,4 +153,8 @@ def day_rows(day: str, engine) -> list[dict]:
         rows.append({"source": f"day:{day}", "patient_id": w.patient_id, "outcome": "still waiting",
                      "admission_decision_at": to_clock(w.decided_at),
                      "minutes_waited": engine.clock - w.decided_at})
+    for row in rows:
+        cases = [c for c in engine.cases if row["patient_id"] in c["patients"]]
+        row.update(cases=len(cases), minutes_in_queue=sum(c["opened_at"] - c["queued_at"] for c in cases),
+                   conflicts=sum(row["patient_id"] in c["conflicts"] for c in cases))
     return rows

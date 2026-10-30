@@ -1,4 +1,4 @@
-"""Tests for the decision loop: the engine asks a policy at every trigger and applies its decision.
+"""Tests for the decision loop: the engine opens a case for every waiting patient and applies its decision.
 No agents — the policies here are a first-free-bed decider (tests/simple_deciders.py) and small stubs."""
 from pathlib import Path
 
@@ -62,9 +62,10 @@ def test_waits_then_placed_when_cleaning_is_done():
     assert placement.wait_minutes == 120                       # 09:00 -> clean 10:45 -> approved 11:00
 
 
-def test_the_policy_decides_who_goes_first():
+def test_a_freed_bed_goes_to_the_patient_the_decider_chooses():
+    """When a bed frees while several patients wait, the decider gets all of them (a bed case) and chooses — the
+    environment does not rank the waiting patients for it."""
     def latest_first(engine, event, waiting):
-        """Gives cardiology bed 5 to the most recent decision — the engine must follow it, not rank the queue itself."""
         if engine.hospital.ward("cardiology").bed(5).status != BedStatus.FREE:
             return [Decision.wait(p.patient_id) for p in waiting]
         newest = max(waiting, key=lambda p: p.decided_at)
@@ -78,7 +79,6 @@ def test_the_policy_decides_who_goes_first():
 
     assert [p.patient_id for p in engine.placements] == ["P-002"]
     assert [p.patient_id for p in engine.hospital.emergency_queue] == ["P-001"]
-
 
 def test_first_free_bed_serves_in_decision_order():
     engine = make_engine(first_free_bed, free={})

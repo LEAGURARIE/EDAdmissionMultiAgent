@@ -45,3 +45,43 @@ def never_asks(engine, event, waiting) -> list[Decision]:
             taken.add((option.ward_id, option.bed_number))
         decisions.append(to_decision(patient.patient_id, option, reading.needs.target_ward, reading))
     return decisions
+
+
+def knows_the_answers(engine, event, waiting, order: str = "rule") -> list[Decision]:
+    """For the tests only: knows every patient's TRUE needs and target ward (it reads the answer key — no decider may)
+    and follows the approved rules: the rule for two patients and one bed decides who comes first, rank_placements
+    decides where. It shows a day's designed moments can be reached and scored right. order="arrival":
+    the same, but first come first served — what a decider that ignores the rule would do."""
+    from types import SimpleNamespace
+
+    from ed_admission import config
+    from ed_admission.evaluation import answer_key_builder as builder
+    from ed_admission.evaluation.metrics import RULE_KEYS
+    from ed_admission.tools.rank_placements import PatientNeeds
+
+    inputs = builder._read("clinical_inputs.yaml")["cases"]
+    pairs = builder._read("pairs.yaml")["pairs"] + builder._read("pairs_set2.yaml")["pairs"]
+    targets = {p["case_id"]: p["target_ward"] for p in pairs}
+    rule = config.placement_rules()["competing_for_one_bed"]
+    needs = {p.patient_id: builder.NEEDS[inputs[p.patient_id]["patient_type"]] for p in waiting}
+
+    def first(patient):
+        """The approved order. On a day where beds are short, an observation-only patient can only get the isolation
+        room as a last resort — so, for the first key, the contested bed type is the isolation room."""
+        n = needs[patient.patient_id]
+        contested = "isolation" if n["bed"].value in ("isolation", "observation") else n["bed"].value
+        return tuple(RULE_KEYS[name](n, contested, patient.decided_at) for name in rule) + (patient.patient_id,)
+
+    reports = {ward: engine.department_status(ward) for ward in engine.hospital.wards}
+    taken, decisions = set(), []
+    arrival = lambda p: (p.decided_at, p.patient_id)
+    for patient in sorted(waiting, key=first if order == "rule" else arrival):
+        n, target = needs[patient.patient_id], targets[patient.patient_id]
+        severe = n["observation"] or n["intensive_care"]
+        ranking = rank_placements(reports, PatientNeeds(target, n["bed"].value, severe), taken)
+        option = ranking.options[0]
+        reading = SimpleNamespace(flags=[], physician_approval_for_icu=False)
+        decisions.append(to_decision(patient.patient_id, option, target, reading))
+        if option.bed_number is not None and option.action in ("place", "temporary_place"):
+            taken.add((option.ward_id, option.bed_number))
+    return decisions
