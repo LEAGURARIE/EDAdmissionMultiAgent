@@ -415,13 +415,6 @@ class SimulationEngine:
         self.schedule(Event(time=bed.hold_expires_at, event_type=EventType.HOLD_EXPIRED,
                             ward_id=ward_id, bed_number=bed_number, patient_id=patient_id))
 
-    def release_hold(self, ward_id: str, bed_number: int) -> None:
-        bed = self._bed(ward_id, bed_number)
-        self._move(bed, BedStatus.FREE)
-        self._write(f"released    {ward_id} bed {bed_number} (was held for {bed.held_for})")
-        bed.held_for = None
-        bed.hold_expires_at = None
-
     def assign_bed(self, ward_id: str, bed_number: int, patient_id: str) -> None:
         """Final placement, after the shift manager's approval. The bed must be held for this patient."""
         bed = self._bed(ward_id, bed_number)

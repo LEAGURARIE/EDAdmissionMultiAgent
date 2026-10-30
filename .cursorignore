@@ -1,5 +1,0 @@
-# Files Cursor must not read, index or send to any model.
-.env
-*.token
-.venv/
-.local_tools/

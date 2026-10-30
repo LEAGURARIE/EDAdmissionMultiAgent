@@ -4,7 +4,7 @@
     toolbox = Toolbox("department", engine, ward_id="cardiology")
     toolbox.read_patient_record("P-001")                -> PermissionDenied: the Department Agent never sees a record
 
-Two agents and a Coordinator (2026-10-10) — each sees what the others do not:
+The roles as built (2026-10-10; the multi-agent system is being redesigned) — each sees what the others do not:
 
   patient       the record only: read_patient_record, compute_news2, clinical_lists
   department    its own ward only: department_view (its report and private notes); bound to one ward in advance, and
@@ -22,8 +22,8 @@ No agent holds or releases a bed: the decision is the hold — the environment h
                 notes itself, as the Department Agents do, so it has no wards to ask (no ask_ward); the ranking
                 and decide.
 
-PERMISSIONS lists which role may call which tool. The single agent of the comparison gets every tool the system has
-and asks the wards through the same negotiation, so the comparison tests the architecture, not access to information.
+PERMISSIONS lists which role may call which tool. The single agent of the comparison does every agent's job with
+their tools, so the comparison tests the architecture, not access to information.
 Every call is recorded in the trace when one is given (observability/tracing.py). Given the placement case
 (orchestration/placement_case.py), the Coordinator's tools also move it through its steps — assess_patient, the
 reports, the ranking, a ward asked, the rules checked, decided — so a step out of order is refused in code.
