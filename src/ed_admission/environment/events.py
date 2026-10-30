@@ -19,6 +19,7 @@ class EventType(str, Enum):
     APPROVAL_DONE = "approval_done"            # the shift manager approved: held -> occupied (scheduled by the engine)
     WARD_NOTE = "ward_note"                    # a ward's private note starts (scripted days)
     WARD_NOTE_END = "ward_note_end"            # ... and ends
+    CASE_CLOSED = "case_closed"                # the decider's time on a case is over: its decision applies
 
 
 class Event(BaseModel):
@@ -30,6 +31,7 @@ class Event(BaseModel):
     text: str | None = None                    # ward_note / ward_note_end: the note
     effects: list[dict] = []                   # ward_note: what the note means for the beds (ward_truth.py)
     in_report: bool = True                     # discharge: False = the ward has not updated the system yet
+    case_number: int | None = None             # case_closed: which case
 
 
 def to_minutes(clock: str) -> int:

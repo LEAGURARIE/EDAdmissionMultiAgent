@@ -18,10 +18,10 @@ ladder:
     observation_free: 0
     isolation_free: false
     notes:
-      - "שבת. הכונן שחרר בבוקר שני מטופלים, ממיטה רגילה וממיטת השגחה. המיטות נקיות ופנויות, המזכירה תעדכן רק ביום ראשון."
+      - "שבת. הכונן שחרר בבוקר שני מטופלים, ממיטה רגילה 1 וממיטת השגחה 11. המיטות נקיות ופנויות, המזכירה תעדכן רק ביום ראשון."
     note_effects:
-      - {effect: hidden_free, bed_type: regular}
-      - {effect: hidden_free, bed_type: observation}
+      - {effect: hidden_free, bed_type: regular, bed: 1}
+      - {effect: hidden_free, bed_type: observation, bed: 11}
   level_2:
     regular_free: 1
     observation_free: 1

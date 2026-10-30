@@ -23,7 +23,7 @@ ladder:
     notes:
       - "מטופל ממיטה 7 שוחרר לפני חצי שעה, המיטה נוקתה ופנויה, עוד לא עודכן במחשב. המיטה שבניקוי תהיה מוכנה כמתוכנן."
     note_effects:
-      - {effect: hidden_free, bed_type: regular}
+      - {effect: hidden_free, bed_type: regular, bed: 7}
   level_2:
     regular_free: 1
     observation_free: 1

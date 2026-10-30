@@ -1,0 +1,20 @@
+# The moments of competition designed into the scripted days — evaluation code only.
+# Each moment names the contested bed, the patients meant to compete for it, and the time the case is meant to open.
+# Which patient should get the bed is NOT written here: the evaluation computes it at the moment, from the patients'
+# true needs (clinical_inputs.yaml) and the approved rule for two patients and one bed
+# (config/clinical_rules/placement_rules.yaml, competing_for_one_bed). A moment the day did not reach as designed —
+# because of earlier decisions — is reported apart, never scored.
+
+competing_for_a_bed:
+  - name: the same state — the earlier decision first
+    time: "08:25"
+    bed: {ward: internal_medicine_b, bed: 13}
+    patients: [P-046, P-058]
+  - name: the bed type needed before a last resort
+    time: "09:50"
+    bed: {ward: cardiology, bed: 13}
+    patients: [P-030, P-043]
+  - name: severe before non-severe
+    time: "11:00"
+    bed: {ward: general_surgery, bed: 13}
+    patients: [P-050, P-057]

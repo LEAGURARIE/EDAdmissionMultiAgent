@@ -20,9 +20,9 @@ ladder:
     observation_free: 1
     isolation_free: false
     notes:
-      - "מיטה רגילה התפנתה אחרי הביקור ועוד לא עודכנה, מטופל יציב אפשר לקבל אליה. הלילה אח אחד על כל החדרים הרחוקים, אין לנו צוות לחולה לא יציב."
+      - "מיטה רגילה 1 התפנתה אחרי הביקור ועוד לא עודכנה, מטופל יציב אפשר לקבל אליה. הלילה אח אחד על כל החדרים הרחוקים, אין לנו צוות לחולה לא יציב."
     note_effects:
-      - {effect: hidden_free, bed_type: regular}
+      - {effect: hidden_free, bed_type: regular, bed: 1}
       - {effect: unavailable, bed_type: observation}
   level_2:
     regular_free: 1

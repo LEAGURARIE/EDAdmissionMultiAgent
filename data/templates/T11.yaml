@@ -34,4 +34,4 @@ intensive_care:
   notes:
     - "המטופל ממיטה 3 הועבר למחלקה לפני שעה, המיטה מוכנה. עוד לא עודכן במערכת."
   note_effects:
-    - {effect: hidden_free, bed_type: intensive_care}
+    - {effect: hidden_free, bed_type: intensive_care, bed: 3}

@@ -11,6 +11,7 @@ from ed_admission import config
 from ed_admission.environment.events import Event, EventType, to_minutes
 from ed_admission.environment.hospital import Bed, BedStatus, BedType, Hospital, Ward, WardLevel
 from ed_admission.environment.simulation_engine import SimulationEngine
+from ed_admission.environment.scenario_check import check_scenario
 
 
 def load_hospital(hospital_path: Path | None = None) -> Hospital:
@@ -31,6 +32,9 @@ def load_scenario(scenario_path: Path, hospital_path: Path | None = None) -> Sim
     """A scripted day: the starting beds, then a timed list of discharges, admission decisions and ward notes.
     A discharge with in_report: false frees the bed without updating the system: the report keeps showing it
     occupied, and the ward does not announce it in advance. Times past midnight are written like 01:45 +1d."""
+    problems = check_scenario(scenario_path)                # a day that contradicts itself never runs
+    if problems:
+        raise ValueError(f"{Path(scenario_path).name} contradicts itself: " + " · ".join(problems))
     scenario = yaml.safe_load(Path(scenario_path).read_text(encoding="utf8"))
     hospital = load_hospital(hospital_path)
 
@@ -50,6 +54,8 @@ def load_scenario(scenario_path: Path, hospital_path: Path | None = None) -> Sim
         clock=to_minutes(scenario["start_time"]),
         day=scenario.get("day"),
     )
+    if "concurrent_cases" in scenario:                 # a day may set its own case desk (config/hospital.yaml)
+        engine.concurrent_cases = scenario["concurrent_cases"]
 
     for item in scenario["events"]:
         event = Event(

@@ -9,6 +9,14 @@ operations:
   phone_call_minutes: 5     # the Code Coordinator's phone call to a ward (today's procedure)
   # The system's own time is not set here: the engine measures how long each decision really took (scripted days).
 
+# The case desk (scripted days): every admitted patient is one case, and the decider handles one patient per case.
+concurrent_cases: 1        # cases open at the same time; more wait in a queue, by admission decision time.
+                           # 1 = one shift manager, case after case; a number = that many at once; null = no limit.
+                           # A scripted day may set its own.
+hold_bed_when: close       # close: the bed is held when the case closes, after the decider's time; two open
+                           # cases may choose the same bed, and the later one goes back to the queue (a conflict).
+                           # start: the bed is held when the decider answers.
+
 # Wards.
 # level: regular = regular ward (regular beds + observation beds); intensive_care = intensive care unit.
 # Observation beds also serve as intermediate care — there is no separate intermediate care unit.

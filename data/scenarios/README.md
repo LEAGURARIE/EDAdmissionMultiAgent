@@ -13,7 +13,10 @@ Each file is one simulated day: the starting state of the beds, then a timed lis
 | `busy_day.yaml` | Monday 08:00-20:00 — 15 admissions, a shortage of observation beds, intensive care full by evening |
 | `evening_night.yaml` | Thursday 18:00 to Friday 08:00 — 12 admissions, almost no discharges, staffing limits at night |
 | `weekend.yaml` | Friday 14:00 to Saturday 22:00 — 12 admissions, few discharges, freed beds not updated until Sunday |
+| `competing_for_a_bed.yaml` | Monday 07:30-11:00 — 6 admissions, three moments when two patients need one isolation room |
 
 Times after midnight are written like `01:45 +1d`; the day of the week in the ward report moves on with them.
 No needs, severity or expected answers here — patients' details come from `data/records/`. The days have no
-expected answers: they measure hard-rule violations, time to a bed and escalations. Synthetic data only.
+expected answers: they measure hard-rule violations, time to a bed and escalations. Day 4's moments are listed in
+`data/answer_key/contention_moments.yaml`; who should get each bed is computed at the moment. A day may set
+`concurrent_cases`. A day that contradicts itself never runs (`environment/scenario_check.py`). Synthetic data only.

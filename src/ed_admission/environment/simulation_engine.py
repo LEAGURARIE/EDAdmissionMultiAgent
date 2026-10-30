@@ -1,8 +1,21 @@
 """The simulation engine: the simulated clock, and the only code that changes the hospital's state.
 
 Two ways to run it:
-  scripted day  the clock moves from event to event (discharges, cleaning, admission decisions, approvals);
-                after each event that may free a bed, the decider is asked about the waiting patients
+  scripted day  the clock moves from event to event (discharges, cleaning, admission decisions, approvals).
+                The case desk — two kinds of case:
+                  patient case  an admission decision: the decider gets that one patient
+                  bed case      a bed freed (or a hold expired) while patients wait: the decider gets every patient
+                                waiting then — their ids and admission decision times only, nothing about their
+                                needs — and decides who gets what; it must find out from the records who is severe
+                Patients waiting for a case at the same moment — admitted in the same minute, or piled up while the
+                desk was busy — are handed together, in one case: the decider sees them side by side, the way a
+                shift manager sees the list, and decides who comes first.
+                A case opens when there is room (concurrent_cases), else it waits in a queue; it closes after the
+                time the decider really took (and its phone calls), while the clock goes on — other patients
+                arrive, beds free up. The bed is held when the case closes (hold_bed_when: close), so two open cases
+                may choose the same bed: the later one finds it taken (a conflict) and that patient gets a new
+                patient case. A bed that was not free when the case opened is the decider's error, not a conflict:
+                the patient gets one more case, and at a second such error is escalated
   case mode     one admission decision at one moment (a ward-state template); the decider answers once,
                 nothing is applied and the clock does not move — see decide_case
 
@@ -57,6 +70,8 @@ class SimulationEngine:
     clock: int                                  # current simulated minute
     day: str | None = None                      # day of the week, e.g. "Saturday" — shown in the ward reports
     policy: Policy | None = None                # the decider; None = nobody decides (the queue only grows)
+    concurrent_cases: int | None = field(default_factory=lambda: config.case_desk()["concurrent_cases"])
+    hold_bed_when: str = field(default_factory=lambda: config.case_desk()["hold_bed_when"])
 
     # Times, from config/hospital.yaml
     cleaning_minutes: int = field(default_factory=lambda: config.operations()["cleaning_minutes"])
@@ -69,6 +84,7 @@ class SimulationEngine:
     placements: list[Placement] = field(default_factory=list)
     escalations: list[Escalation] = field(default_factory=list)
     holds: list[dict] = field(default_factory=list)              # every hold, with the ward's note effects then
+    cases: list[dict] = field(default_factory=list)              # every case: kind, patients, times, decisions, conflicts
 
     # Internal
     _awaiting_approval: dict[str, Decision] = field(default_factory=dict)   # patient id -> decision being approved
@@ -76,6 +92,11 @@ class SimulationEngine:
     _sequence: int = 0                                                      # keeps same-minute events in order
     _notes_effects: dict = field(default_factory=dict)                      # (ward, note text) -> its effects
     _deciding_minutes: dict = field(default_factory=dict)                   # patient id -> decider's minutes
+    _open: dict = field(default_factory=dict)                               # case number -> the open case
+    _case_queue: list = field(default_factory=list)                         # cases waiting to open
+    _case_number: int = 0
+    _changed: bool = False                                                  # the last event freed a bed or a patient
+    _bed_errors: dict = field(default_factory=dict)                         # patient id -> beds chosen that were not free
 
     # ------------------------------------------------------------------ scheduling
 
@@ -95,6 +116,8 @@ class SimulationEngine:
             self._apply(event)
             self._run_policy(event)
             applied.append(event)
+            if not (self._queue and self._queue[0][0] == self.clock):
+                self._open_cases()              # after every event of this minute: who waits together, together
         self.clock = max(self.clock, minute)
         return applied
 
@@ -106,6 +129,7 @@ class SimulationEngine:
     # ------------------------------------------------------------------ event handlers
 
     def _apply(self, event: Event) -> None:
+        self._changed = event.event_type in (EventType.ADMISSION_DECISION, EventType.CLEANING_DONE)
         handlers = {
             EventType.DISCHARGE: self._on_discharge,
             EventType.CLEANING_DONE: self._on_cleaning_done,
@@ -114,6 +138,7 @@ class SimulationEngine:
             EventType.APPROVAL_DONE: self._on_approval_done,
             EventType.WARD_NOTE: self._on_ward_note,
             EventType.WARD_NOTE_END: self._on_ward_note_end,
+            EventType.CASE_CLOSED: self._on_case_closed,
         }
         handlers[event.event_type](event)
 
@@ -164,6 +189,7 @@ class SimulationEngine:
         self._move(bed, BedStatus.FREE)
         bed.held_for = None
         bed.hold_expires_at = None
+        self._changed = True
         self._write(f"hold expired {event.ward_id} bed {bed.number} ({event.patient_id}) -> free")
 
     def _on_approval_done(self, event: Event) -> None:
@@ -176,6 +202,7 @@ class SimulationEngine:
         if bed.status != BedStatus.HELD or bed.held_for != event.patient_id:
             self._write(f"approval    {event.patient_id}: {event.ward_id} bed {event.bed_number} "
                         f"no longer held — back to waiting")
+            self._changed = True
             return
         self.assign_bed(event.ward_id, event.bed_number, event.patient_id)
         self.placements.append(Placement(
@@ -184,52 +211,145 @@ class SimulationEngine:
             awaiting_transfer_to=decision.awaiting_transfer_to, reason=decision.reason,
             deciding_minutes=self._deciding_minutes.pop(patient.patient_id, 0), target_ward=decision.target_ward))
 
-    # ------------------------------------------------------------------ decision loop (scripted day)
+    # ------------------------------------------------------------------ decision loop (scripted day): the case desk
 
     def _run_policy(self, event: Event) -> None:
-        """Hand the trigger and the waiting patients to the decider, then apply its decisions in its order.
-        The environment does not rank the queue — who goes first is the decider's choice."""
-        waiting = [p for p in self.hospital.emergency_queue if not p.awaiting_approval]
-        if self.policy is None or not waiting or event.event_type not in DECISION_EVENTS:
-            return
-        if event.event_type != EventType.ADMISSION_DECISION:
-            self._write(f"TRIGGER     bed freed — {len(waiting)} waiting")
+        """An admission decision opens a patient case for that patient. An event that may free a bed opens a bed
+        case for every patient waiting then, who is not in a case already. Cases open while there is room."""
+        if self.policy is None or event.event_type not in DECISION_EVENTS or not self._changed:
+            return                                  # nothing freed (a hold that already became a placement)
+        if event.event_type == EventType.ADMISSION_DECISION:
+            self._enqueue("patient", event, [event.patient_id])
+        else:
+            busy = self._patients_in_cases()
+            waiting = [p.patient_id for p in self.hospital.emergency_queue
+                       if not p.awaiting_approval and p.patient_id not in busy]
+            if waiting:
+                self._write(f"TRIGGER     bed freed — {len(waiting)} waiting")
+                self._enqueue("bed", event, waiting)
 
-        # The decider's real time counts: measured, rounded up to whole simulated minutes (40 seconds -> 1 minute,
-        # 3 minutes -> 3), so a slow decider pays for it in the patients' time to a bed. Under a second is instant
-        # (plain code).
-        started = time.perf_counter()
-        decisions = self.policy(self, event, waiting)
-        seconds = time.perf_counter() - started
-        measured = math.ceil(seconds / 60) if seconds >= 1 else 0
-        by_id = {p.patient_id: p for p in waiting}
-        for decision in decisions:
-            if decision.patient_id not in by_id:
-                raise ValueError(f"decision for {decision.patient_id}, who is not waiting")
-            patient = by_id[decision.patient_id]
+    def _enqueue(self, kind: str, event: Event, patient_ids: list[str]) -> None:
+        self._case_number += 1
+        self._case_queue.append({"number": self._case_number, "kind": kind, "event": event,
+                                 "patients": patient_ids, "queued_at": self.clock})
 
-            if decision.action in (Action.PLACE, Action.TEMPORARY_PLACE):
-                # Hold the bed now; the shift manager's approval arrives approval_minutes later. In the simulation
-                # the shift manager always approves (no approval screen yet). The hold outlasts the approval.
-                # Time the decider spent first (e.g. phone calls) comes before the approval; the hold covers it.
-                deciding = measured + decision.handling_minutes
-                self.hold_bed(decision.ward_id, decision.bed_number, patient.patient_id, extra_minutes=deciding)
-                patient.awaiting_approval = True
-                self._awaiting_approval[patient.patient_id] = decision
-                self._deciding_minutes[patient.patient_id] = deciding
-                self.schedule(Event(time=self.clock + deciding + self.approval_minutes,
-                                    event_type=EventType.APPROVAL_DONE,
-                                    ward_id=decision.ward_id, bed_number=decision.bed_number,
-                                    patient_id=patient.patient_id))
+    def _patients_in_cases(self) -> set[str]:
+        return ({pid for case in self._open.values() for pid in case["record"]["patients"]}
+                | {pid for case in self._case_queue for pid in case["patients"]})
+
+    def _waiting_patient(self, patient_id: str) -> WaitingPatient | None:
+        return next((p for p in self.hospital.emergency_queue if p.patient_id == patient_id), None)
+
+    def _open_cases(self) -> None:
+        """When there is room, open one case for everyone waiting for a case now — together. The decider answers
+        now, from the hospital as it is now; its decisions apply when the case closes, after the time the decider
+        really took."""
+        while self._case_queue and (self.concurrent_cases is None or len(self._open) < self.concurrent_cases):
+            together, self._case_queue = self._case_queue, []
+            kinds = {item["kind"] for item in together}
+            queued = {"number": together[0]["number"], "event": together[0]["event"],
+                      "queued_at": min(item["queued_at"] for item in together),
+                      "patients": list(dict.fromkeys(pid for item in together for pid in item["patients"]))}
+            queued["kind"] = "bed" if "bed" in kinds else "patient" if len(queued["patients"]) == 1 else "patients"
+            in_other_cases = {pid for case in self._open.values() for pid in case["record"]["patients"]}
+            patients = [self._waiting_patient(pid) for pid in queued["patients"] if pid not in in_other_cases]
+            patients = sorted((p for p in patients if p is not None and not p.awaiting_approval),
+                              key=lambda p: (p.decided_at, p.patient_id))
+            if not patients:
+                continue
+            ids = [p.patient_id for p in patients]
+            # The decider's real time counts: measured, rounded up to whole simulated minutes (40 seconds -> 1
+            # minute, 3 minutes -> 3), so a slow decider pays for it in the patients' time. Under a second is
+            # instant (plain code). Its own simulated time (the Code Coordinator's phone calls) is added.
+            started = time.perf_counter()
+            decisions = self.policy(self, queued["event"], patients)
+            seconds = time.perf_counter() - started
+            unknown = [d.patient_id for d in decisions if d.patient_id not in ids]
+            if unknown:
+                raise ValueError(f"decisions for {unknown}, who are not in this case")
+            if len({d.patient_id for d in decisions}) != len(decisions):
+                raise ValueError("two decisions for one patient in one case")
+            beds = [(d.ward_id, d.bed_number) for d in decisions if d.bed_number is not None]
+            if len(beds) != len(set(beds)):
+                raise ValueError(f"two decisions use the same bed: {beds}")
+            deciding = (math.ceil(seconds / 60) if seconds >= 1 else 0) + max(
+                (d.handling_minutes for d in decisions), default=0)
+            record = {"number": queued["number"], "kind": queued["kind"], "patients": ids,
+                      "queued_at": queued["queued_at"], "opened_at": self.clock, "closed_at": self.clock + deciding,
+                      "actions": {d.patient_id: d.action.value for d in decisions}, "conflicts": [], "bed_errors": [],
+                      # for the evaluation of a contention moment: who waited since when, what was free, who got what
+                      "decided": {p.patient_id: p.decided_at for p in patients},
+                      "free_beds": [[w.ward_id, b.number] for w in self.hospital.wards.values() for b in w.beds
+                                    if b.status == BedStatus.FREE],
+                      "beds": {d.patient_id: [d.ward_id, d.bed_number] for d in decisions if d.bed_number is not None}}
+            self.cases.append(record)
+            # A bed must be free when the case opens; a bed that was not is the decider's error.
+            not_free = {d.patient_id for d in decisions if d.action in (Action.PLACE, Action.TEMPORARY_PLACE)
+                        and self._bed(d.ward_id, d.bed_number).status != BedStatus.FREE}
+            self._open[queued["number"]] = {"decisions": decisions, "deciding": deciding, "record": record,
+                                            "not_free": not_free}
+            if self.hold_bed_when == "start":
+                for decision in decisions:
+                    if decision.action in (Action.PLACE, Action.TEMPORARY_PLACE) and decision.patient_id not in not_free:
+                        self._hold_for_approval(self._waiting_patient(decision.patient_id), decision, deciding,
+                                                extra_minutes=deciding)
+            self.schedule(Event(time=self.clock + deciding, event_type=EventType.CASE_CLOSED,
+                                case_number=queued["number"]))
+
+    def _on_case_closed(self, event: Event) -> None:
+        """The decider's time on the case is over: its decisions apply now. A bed chosen while the case was open
+        may have been taken by a case that closed first — a conflict: that patient gets a new patient case."""
+        opened = self._open.pop(event.case_number)
+        record = opened["record"]
+        for decision in opened["decisions"]:
+            patient = self._waiting_patient(decision.patient_id)
+            if patient is None:
+                continue
+            placing = decision.action in (Action.PLACE, Action.TEMPORARY_PLACE)
+            if placing and patient.patient_id in opened["not_free"]:
+                record["bed_errors"].append(patient.patient_id)
+                errors = self._bed_errors.setdefault(patient.patient_id, [])
+                errors.append((decision.ward_id, decision.bed_number))
+                self._write(f"BED ERROR   {patient.patient_id}: {decision.ward_id} bed {decision.bed_number} was not "
+                            f"free when the case opened")
+                if len(errors) < 2:
+                    self._enqueue("patient", event, [patient.patient_id])
+                else:
+                    self.hospital.emergency_queue.remove(patient)
+                    reason = "the decider chose a bed that was not free, twice"
+                    self.escalations.append(Escalation(
+                        patient_id=patient.patient_id, decided_at=patient.decided_at, escalated_at=self.clock,
+                        reason=reason, flags=[f.value for f in decision.flags], target_ward=decision.target_ward))
+                    self._write(f"ESCALATED   {patient.patient_id} -> shift manager, leaves the queue: {reason}")
+            elif placing and self.hold_bed_when == "close":
+                bed = self._bed(decision.ward_id, decision.bed_number)
+                if bed.status != BedStatus.FREE:
+                    record["conflicts"].append(patient.patient_id)
+                    self._write(f"CONFLICT    {patient.patient_id}: {decision.ward_id} bed {decision.bed_number} "
+                                f"was taken while the case was open — a new case")
+                    self._enqueue("patient", event, [patient.patient_id])
+                else:
+                    self._hold_for_approval(patient, decision, opened["deciding"])
             elif decision.action == Action.ESCALATE:
                 # The shift manager takes over: the patient leaves the queue and the simulation stops following them.
                 self.hospital.emergency_queue.remove(patient)
                 self.escalations.append(Escalation(
-                    patient_id=patient.patient_id, decided_at=patient.decided_at,
-                    escalated_at=self.clock + measured + decision.handling_minutes,
+                    patient_id=patient.patient_id, decided_at=patient.decided_at, escalated_at=self.clock,
                     reason=decision.reason, flags=[f.value for f in decision.flags], target_ward=decision.target_ward))
                 self._write(f"ESCALATED   {patient.patient_id} -> shift manager, leaves the queue: {decision.reason}")
-            # Action.WAIT: nothing to apply — the patient stays in the queue and is asked about again at the next trigger.
+            # Action.WAIT, or no decision for a patient in a bed case: the patient waits, and is in the bed case
+            # of the next event that may free a bed.
+
+    def _hold_for_approval(self, patient: WaitingPatient, decision: Decision, deciding: int,
+                           extra_minutes: int = 0) -> None:
+        """Hold the bed; the shift manager's approval arrives approval_minutes after the case closes. In the
+        simulation the shift manager always approves (no approval screen yet). The hold outlasts the approval."""
+        self.hold_bed(decision.ward_id, decision.bed_number, patient.patient_id, extra_minutes=extra_minutes)
+        patient.awaiting_approval = True
+        self._awaiting_approval[patient.patient_id] = decision
+        self._deciding_minutes[patient.patient_id] = deciding
+        self.schedule(Event(time=self.clock + extra_minutes + self.approval_minutes, event_type=EventType.APPROVAL_DONE,
+                            ward_id=decision.ward_id, bed_number=decision.bed_number, patient_id=patient.patient_id))
 
     # ------------------------------------------------------------------ case mode
 

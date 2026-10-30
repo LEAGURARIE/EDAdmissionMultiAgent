@@ -30,7 +30,7 @@ wards:
     notes:
       - "מיטה 4 התפנתה לפני שעה, מיטה רגילה, נקייה. עוד לא עודכן במערכת."
     note_effects:
-      - {effect: hidden_free, bed_type: regular}
+      - {effect: hidden_free, bed_type: regular, bed: 4}
 
 intensive_care:
   intensive_care_free: 1

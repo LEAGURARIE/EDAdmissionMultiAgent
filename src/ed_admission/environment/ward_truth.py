@@ -3,7 +3,7 @@
 A ward's report shows what the system knows; its notes say what only the ward knows. Each note may carry effects
 (written next to it in the template or scenario), and applying them gives the true state:
   unavailable            the free beds of this type cannot take a patient now (staffing, broken, promised)
-  hidden_free            one bed of this type is free, but the report still shows it occupied
+  hidden_free            the bed the note names (bed: <number>) is free, but the report still shows it occupied
   discharge_not_today    the discharges the report expects today will not happen
   discharge_within_hour  one bed of this type frees within about an hour (not in the report)
   cleaning_long          the beds in cleaning will not be ready within the hour
@@ -31,8 +31,12 @@ def apply_effect(engine, ward_id: str, effect: dict, patient_target: str | None 
             if bed.status == BedStatus.FREE:
                 bed.status = BedStatus.OCCUPIED
     elif kind == "hidden_free":
-        if occupied:
-            occupied[0].status, occupied[0].patient_id = BedStatus.FREE, None
+        # The bed the note names is the one that is free (2026-10-15: before, the first occupied bed of the type was
+        # freed, so a decider that took the note's bed was scored "a bed the ward cannot give").
+        named = next((b for b in typed if b.number == effect.get("bed")), None)
+        if named is None:
+            raise ValueError(f"{ward_id}: a hidden_free effect must name its bed (bed: <number>), as its note does")
+        named.status, named.patient_id = BedStatus.FREE, None
     elif kind == "discharge_not_today":
         for bed in beds:
             bed.expected_discharge_at = None

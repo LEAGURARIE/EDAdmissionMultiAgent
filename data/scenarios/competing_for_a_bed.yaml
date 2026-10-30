@@ -1,0 +1,26 @@
+# Scripted day 4 — competing for a bed: three moments when two patients need the same bed, built on the approved
+# rule for two patients and one bed. Synthetic data only. Admission events carry only the time and the patient id;
+# what the patients need the decider must read in their records. Which patient should get each bed is never
+# written here.
+
+name: competing_for_a_bed
+description: Monday morning — three moments when two patients compete for one isolation room
+day: Monday
+start_time: "07:30"
+
+# Every bed starts occupied, except these. Beds: 1-10 regular, 11-12 observation, 13 isolation room;
+# intensive care 1-6, 7 isolation room. Every observation bed and every isolation room starts occupied.
+free_at_start:
+  internal_medicine_a: [2]
+  cardiology: [3]
+
+events:
+  - {time: "07:40", type: discharge, ward: internal_medicine_b, bed: 13, expected_time: "07:40"}
+  - {time: "08:00", type: admission_decision, patient: P-046}
+  - {time: "08:15", type: admission_decision, patient: P-058}
+  - {time: "09:00", type: discharge, ward: cardiology, bed: 13, expected_time: "09:00"}
+  - {time: "09:50", type: admission_decision, patient: P-030}
+  - {time: "09:50", type: admission_decision, patient: P-043}
+  - {time: "10:00", type: discharge, ward: general_surgery, bed: 13, expected_time: "10:00"}
+  - {time: "11:00", type: admission_decision, patient: P-050}
+  - {time: "11:00", type: admission_decision, patient: P-057}

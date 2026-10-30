@@ -1,0 +1,19 @@
+# When the record changes the level of care NEWS2 points to — the approved situations, two of each kind.
+# NEWS2 is the floor: the record may raise the level, with a quote; it never lowers it — where it argues for less,
+# the level is kept and a judgment note is written (flag severity_judgment_note).
+# Clinically approved by Lea on 2026-10-07 (DECISIONS.md, "Severity judgment notes"). Written here on 2026-10-15 so
+# that the agents of both systems get them through clinical_lists — before, they were in DECISIONS.md only.
+# A situation whose status is not "approved" is kept here and never handed to an agent.
+
+raise:
+  - {id: 1, situation: "a treatment that needs intensive care — a vasopressor, BiPAP", status: approved}
+  - {id: 2, situation: "a deteriorating trend between measurements", status: approved}
+
+keep_the_level_and_write_a_note:
+  - {id: 3, situation: "a limit on treatment — not a candidate for intensive care", status: approved}
+  - {id: 4, situation: "confusion that is not new — known dementia",
+     status: "to be checked against the NEWS2 source before use"}
+
+which_data_counts:
+  - {id: 5, situation: "a faulty measurement that was repeated — the repeated measurement counts", status: approved}
+  - {id: 6, situation: "two physicians who disagree — the senior physician's later note counts", status: approved}

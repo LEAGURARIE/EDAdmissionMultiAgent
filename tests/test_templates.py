@@ -179,3 +179,25 @@ def test_ward_notes_are_private(tmp_path):
     assert engine.ward_notes("cardiology") == ["one nurse on the observation beds tonight"]
     assert "nurse" not in str(engine.department_status("cardiology"))
     assert engine.ward_notes("internal_medicine_a") == []
+
+
+def test_a_note_that_frees_a_bed_names_it_and_the_true_state_frees_that_bed():
+    """2026-10-15: every hidden_free effect names its bed, the note's text gives the same number, and the true state
+    frees exactly that bed — a decider that takes the note's bed is never scored "a bed the ward cannot give"."""
+    import re
+    from ed_admission.environment.hospital import BedStatus
+    from ed_admission.environment.ward_truth import true_state
+    from ed_admission.evaluation import sets
+    checked = 0
+    for pair in sets.all_pairs():
+        engine = load_template(TEMPLATES / f"{pair['template']}.yaml", target_ward=pair["target_ward"])
+        truth = true_state(engine, patient_target=pair["target_ward"])
+        for ward_id, ward in engine.hospital.wards.items():
+            for effect in ward.note_effects:
+                if effect["effect"] != "hidden_free":
+                    continue
+                assert any(str(effect["bed"]) in re.findall(r"\d+", note) for note in ward.notes), (pair, ward_id)
+                assert ward.bed(effect["bed"]).status == BedStatus.OCCUPIED                 # the report: occupied
+                assert truth.hospital.ward(ward_id).bed(effect["bed"]).status == BedStatus.FREE   # the truth: free
+                checked += 1
+    assert checked

@@ -18,9 +18,9 @@ wards:
     observation_free: 0
     isolation_free: false
     notes:
-      - "המטופל מחדר הבידוד עבר לטיפול נמרץ לפני שעה, החדר נוקה ופנוי. עוד לא עודכן."
+      - "המטופל מחדר הבידוד, מיטה 13, עבר לטיפול נמרץ לפני שעה, החדר נוקה ופנוי. עוד לא עודכן."
     note_effects:
-      - {effect: hidden_free, bed_type: isolation}
+      - {effect: hidden_free, bed_type: isolation, bed: 13}
   general_surgery:
     regular_free: 2
     observation_free: 0

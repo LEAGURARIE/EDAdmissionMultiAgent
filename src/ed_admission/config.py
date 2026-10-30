@@ -1,7 +1,9 @@
 """One place that reads the configuration files.
 
 config/hospital.yaml          what exists: wards and beds, and how long cleaning, holds and approvals take
-config/clinical_rules/*.yaml  what is right to do: ladders, complaint -> ward, NEWS2 levels, placement rules
+config/agents.yaml            the agents' models, effort, the budget guard and the prices
+config/clinical_rules/*.yaml  what is right to do: ladders, complaint -> ward, NEWS2 levels, placement rules,
+                              severity judgments
 
 Where results go: outputs_dir() — outputs/ in the project, or the folder in the ED_OUTPUTS environment variable
 (in Colab, a Google Drive folder, so the history outlives the session).
@@ -34,9 +36,23 @@ def _read(path: Path) -> dict:
 
 
 @cache
+def agents() -> dict:
+    """The agents' settings: the model of each agent, effort, max_tokens, the budget guard and the prices."""
+    return _read(PROJECT / "config" / "agents.yaml")
+
+
+@cache
 def hospital() -> dict:
     """The whole hospital file: operations and wards."""
     return _read(HOSPITAL_FILE)
+
+
+@cache
+def case_desk() -> dict:
+    """How the scripted days hand cases to the decider: concurrent_cases (1, a number, or None = no limit) and
+    hold_bed_when (close or start)."""
+    values = hospital()
+    return {"concurrent_cases": values["concurrent_cases"], "hold_bed_when": values["hold_bed_when"]}
 
 
 @cache
@@ -73,6 +89,14 @@ def chief_complaints() -> dict[str, list[str]]:
 def news2_levels() -> dict:
     """NEWS2 thresholds for the level of care."""
     return _read(RULES / "news2_levels.yaml")
+
+
+@cache
+def severity_judgment() -> dict[str, list[dict]]:
+    """When the record raises the level NEWS2 points to, keeps it with a note, or which data counts — the approved
+    situations only (a situation still to be checked is never handed to an agent)."""
+    groups = _read(RULES / "severity_judgment.yaml")
+    return {group: [item for item in items if item["status"] == "approved"] for group, items in groups.items()}
 
 
 @cache

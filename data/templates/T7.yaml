@@ -30,7 +30,7 @@ wards:
       - "השחרור בוטל, המשפחה לא יכולה לקחת אותו היום. מיטת השגחה 12 התפנתה לפני רבע שעה, עוד לא עודכן."
     note_effects:
       - {effect: discharge_not_today}
-      - {effect: hidden_free, bed_type: observation}
+      - {effect: hidden_free, bed_type: observation, bed: 12}
   internal_medicine_a:
     regular_free: 2
     observation_free: 1
