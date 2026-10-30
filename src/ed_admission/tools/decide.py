@@ -9,7 +9,8 @@ A decision that breaks a rule is refused with the reasons, and the Coordinator t
                               observation bed
   a severe patient never waits
   the target ward stands      a ward the physician requested is never changed; "internal_medicine" (the record names
-                              neither A nor B) may become A or B, nothing else
+                              neither A nor B) may become A or B, nothing else; a patient who needs intensive care has
+                              intensive care as the target ward (PatientAssessment.target)
   nothing is dropped          every flag the Patient Agent raised is in the decision · intensive care that the
                               physician did not request (NEWS2 7 or more) is marked for a physician's approval
 
@@ -55,10 +56,12 @@ def broken_rules(decision: Decision, assessment: PatientAssessment) -> list[str]
     elif decision.action == Action.WAIT and assessment.never_waits:
         reasons.append("a severe patient never waits")
 
-    allowed = set(INTERNAL_MEDICINE) if assessment.target_ward == "internal_medicine" else {assessment.target_ward}
+    target = assessment.target                       # intensive care whenever the patient needs it
+    allowed = set(INTERNAL_MEDICINE) if target == "internal_medicine" else {target}
     if decision.target_ward not in allowed:
-        kind = "requested by the physician" if assessment.binding_request else "found by the Patient Agent"
-        reasons.append(f"the target ward is {assessment.target_ward} ({kind}); the decision says {decision.target_ward}")
+        kind = ("the patient needs intensive care" if target != assessment.target_ward
+                else "requested by the physician" if assessment.binding_request else "found by the Patient Agent")
+        reasons.append(f"the target ward is {target} ({kind}); the decision says {decision.target_ward}")
 
     requested_by_physician = assessment.binding_request and assessment.target_ward == "intensive_care"
     if (decision.action in (Action.PLACE, Action.TEMPORARY_PLACE) and assessment.intensive_care

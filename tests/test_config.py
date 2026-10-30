@@ -74,3 +74,19 @@ def test_structured_signs_point_to_observation_conditions():
     assert used <= conditions and set(signs["not_readable"]) <= conditions
     assert used | set(signs["not_readable"]) | {4, 15, 16} == conditions
     assert {"condition": 7, "glucose_at_least": 200, "ph_below": 7.30} in signs["observation_signs"]
+
+
+def test_the_severity_judgments_reach_the_agents_only_when_approved():
+    """2026-10-15: the approved severity judgments (DECISIONS, 2026-10-07) are in config and in clinical_lists, for both
+    systems; a situation still to be checked against its source is never handed over."""
+    from ed_admission import config
+    from ed_admission.environment import load_template
+    from ed_admission.tools.toolbox import Toolbox
+    judged = config.severity_judgment()
+    assert set(judged) == {"raise", "keep_the_level_and_write_a_note", "which_data_counts"}
+    assert all(item["status"] == "approved" for items in judged.values() for item in items)
+    assert any("deteriorating trend" in item["situation"] for item in judged["raise"])
+    assert not any("dementia" in item["situation"] for items in judged.values() for item in items)    # not yet checked
+    engine = load_template(config.PROJECT / "data" / "templates" / "T1.yaml", target_ward="internal_medicine_a")
+    for role in ("single_agent", "patient"):
+        assert Toolbox(role, engine).clinical_lists()["severity_judgment"] == judged

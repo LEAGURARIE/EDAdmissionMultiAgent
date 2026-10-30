@@ -1,0 +1,43 @@
+# The agents' settings and their budget guard — read by src/ed_admission/agents/budget.py, checked when loaded.
+# To try another model or effort for one agent, change its line here — nothing else.
+
+# The model each agent calls (Anthropic). No temperature is ever sent: these models reject it.
+# The single agent is frozen on the strongest model.
+models:
+  single_agent: claude-opus-5-5
+
+# How hard the model thinks before it answers: low | medium | high | xhigh | max.
+# The model's own default is medium; high is the advice for multi-step tool use.
+effort: high
+
+# The longest answer of one model call, in tokens.
+max_tokens: 16000
+
+# The budget guard. Over any limit the loop stops and never guesses: the case is escalated to the shift manager.
+# Starting values — set from measurement after the first trial.
+budget:
+  # One activation of one agent: its loop's model calls and its cost.
+  # For the single agent one activation is one case, so this is also its per-case limit.
+  activation:
+    single_agent: {max_iterations: 15, cost_cap_usd: 1.00}
+  # One case of the multi-agent system, every agent together — enforced when that system is built. 20% above the
+  # single agent's: the fixed overhead of several agents (docs/design/comparison_protocol.md, section 8).
+  # (The single agent's per-case cap is its activation cap above: one activation is one case.)
+  case_cost_cap_usd:
+    multi_agent: 1.20
+  # One run of a script, every case together, per system. Over it the run stops; the cases already decided are kept
+  # and the run is marked partial.
+  run_cost_cap_usd:
+    single_agent: 12.00          # a test run (29 cases) at the high estimate, $0.35 a case, fits
+    multi_agent: 14.40           # 20% above, as the case cap (comparison protocol, section 8)
+
+# Anthropic's published API prices, USD per million tokens. The API returns token counts only, never prices.
+# cache_write is the 5-minute cache (the only one used). Every paid run first checks that `checked` is not older
+# than recheck_after_days; if it is, scripts/check_prices.py compares these prices with the page and stops the run
+# when one changed.
+prices:
+  checked: 2026-10-17
+  source: https://platform.claude.com/docs/en/about-claude/pricing.md
+  recheck_after_days: 30
+  models:
+    claude-opus-5-5: {input: 4.00, cache_write: 5.00, cache_read: 0.20, output: 20.00}

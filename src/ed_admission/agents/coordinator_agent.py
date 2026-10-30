@@ -5,8 +5,8 @@ the record itself: what it knows about the patient is the Patient Agent's assess
 their Department Agents answer, and decides: place, temporary placement, wait, or escalate. The code keeps the limits
 whatever it decides — the ranking (rank_placements), the hard rules (decide), the limits on requests to the wards.
 
-Tools: Toolbox("coordinator") — assess_patient, all_department_status, rank_placements, ask_ward, hold_bed,
-release_hold, escalate_to_human, decide.
+Tools: Toolbox("coordinator") — assess_patient, all_department_status, rank_placements, ask_ward,
+escalate_to_human, decide. The bed is held by the environment when the case closes — no agent holds a bed.
 Interfaces: docs/design/agent_interfaces.md
 
 Owner: Lea Gur-Arie

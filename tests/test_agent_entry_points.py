@@ -12,6 +12,7 @@ ENTRY_POINTS = {
     "patient_agent": (["toolbox", "patient_id"], "PatientAssessment"),
     "department_agent": (["view", "request"], "WardAnswer"),
     "coordinator_agent": (["engine", "event", "waiting"], "list[Decision]"),
+    "single_agent": (["engine", "event", "waiting"], "list[Decision]"),       # the comparison: one agent, all of it
 }
 EXAMPLES = {"patient_agent": "patient", "department_agent": "department"}
 
@@ -39,7 +40,7 @@ def test_the_code_examples_have_the_same_signatures(module):
     assert _return_name(example) == returns
 
 
-def test_there_are_two_agents_and_a_coordinator_and_nothing_else():
+def test_two_agents_a_coordinator_and_the_single_agent_and_nothing_else():
     from ed_admission import config
     files = {p.stem for p in (config.PROJECT / "src" / "ed_admission" / "agents").glob("*_agent.py")}
     prompts = {p.stem for p in (config.PROJECT / "src" / "ed_admission" / "prompts").glob("*_agent.md")}

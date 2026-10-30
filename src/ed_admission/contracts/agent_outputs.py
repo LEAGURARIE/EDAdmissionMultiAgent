@@ -48,5 +48,12 @@ class PatientAssessment(AgentOutput):
         return "observation" if self.observation or self.severe else "regular"
 
     @property
+    def target(self) -> str:
+        """The target ward the bed search and the hard rules use: intensive care whenever the patient needs intensive
+        care — the physician's request or NEWS2 7 or more (a system rule, in code for both systems, 2026-10-15) —
+        else target_ward as assessed."""
+        return "intensive_care" if self.intensive_care else self.target_ward
+
+    @property
     def never_waits(self) -> bool:
         return self.severe or self.observation or self.intensive_care

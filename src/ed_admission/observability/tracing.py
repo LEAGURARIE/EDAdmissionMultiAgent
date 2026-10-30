@@ -10,6 +10,10 @@ Handing the traces to the measurement: a decider calls collect(trace) once a cas
 clears the collection before a run and takes it after (take), so every decider hands its traces the same way.
 A decider that collects none (the code baselines) has no trace metrics.
 
+The cost of every case comes from its trace too: each agent call records its model calls, tokens and cost, and the
+trace records how the case ended (`ended`: the agent loop's status). database/run_log.py writes one row per case to
+costs.csv; `system` says which system decided — the single agent, the multi-agent system, or code.
+
 Traces are saved as JSON lines in outputs/traces/ (not uploaded to Git); scripts/run_metrics.py saves each run's
 traces as traces/<run id>.jsonl, and the admissions log points to them.
 
@@ -23,6 +27,7 @@ from ed_admission import config
 
 # The steps every case must have, in the order of the placement case (orchestration/placement_case.py).
 REQUIRED_STEPS = ("patient_assessed", "availability_collected", "ranked", "rules_checked", "decided")
+SINGLE_AGENT_ROLE = "single_agent"     # an agent call by this role means the single agent decided the case
 
 
 @dataclass
@@ -47,6 +52,7 @@ class Step:
     seconds: float = 0.0
     error: str = ""
     claims: list[Claim] = field(default_factory=list)
+    model_calls: int = 0               # an agent call: how many times its loop called the model
     at: float = field(default_factory=time.time)
 
 
@@ -55,15 +61,20 @@ class Trace:
     case_id: str
     decider: str
     steps: list[Step] = field(default_factory=list)
+    ended: str = ""                    # how the case ended: final · budget · run_budget · refused · failed · no_final
+                                       # ("" for a decider without a model)
 
     def agent_call(self, role: str, input, output, *, model: str, prompt_version: str, tokens_in: int = 0,
                    tokens_out: int = 0, cost_usd: float = 0.0, seconds: float = 0.0, claims: list[Claim] = (),
-                   error: str = "") -> None:
+                   error: str = "", model_calls: int = 0) -> None:
         self.steps.append(Step("agent_call", role, role, input, output, model, prompt_version, tokens_in, tokens_out,
-                               cost_usd, seconds, error, list(claims)))
+                               cost_usd, seconds, error, list(claims), model_calls))
 
-    def tool_call(self, role: str, tool: str, input, output, seconds: float, error: str = "") -> None:
-        self.steps.append(Step("tool_call", role, tool, input, output, seconds=seconds, error=error))
+    def tool_call(self, role: str, tool: str, input, output, seconds: float, error: str = "",
+                  claims: list[Claim] = ()) -> None:
+        """`claims`: a tool that carries an agent's findings (the single agent's record_assessment)."""
+        self.steps.append(Step("tool_call", role, tool, input, output, seconds=seconds, error=error,
+                               claims=list(claims)))
 
     def milestone(self, name: str, output=None) -> None:
         """A step of the placement case — e.g. patient_assessed, ranked, decided."""
@@ -81,6 +92,38 @@ class Trace:
     @property
     def cost_usd(self) -> float:
         return sum(s.cost_usd for s in self.steps)
+
+    @property
+    def _agent_calls(self) -> list[Step]:
+        return [s for s in self.steps if s.kind == "agent_call"]
+
+    @property
+    def model_calls(self) -> int:
+        return sum(s.model_calls for s in self._agent_calls)
+
+    @property
+    def tokens_in(self) -> int:
+        return sum(s.tokens_in for s in self._agent_calls)
+
+    @property
+    def tokens_out(self) -> int:
+        return sum(s.tokens_out for s in self._agent_calls)
+
+    @property
+    def cost_by_role(self) -> dict[str, float]:
+        """The case's cost per agent — in the multi-agent system, which agent cost what."""
+        costs: dict[str, float] = {}
+        for step in self._agent_calls:
+            costs[step.actor] = costs.get(step.actor, 0.0) + step.cost_usd
+        return costs
+
+    @property
+    def system(self) -> str:
+        """single_agent · multi_agent · code (no agent call — a code decider)."""
+        roles = {s.actor for s in self._agent_calls}
+        if SINGLE_AGENT_ROLE in roles:
+            return "single_agent"
+        return "multi_agent" if roles else "code"
 
     def save(self, folder=None, name: str | None = None) -> None:
         """Append to <folder>/<name>.jsonl — by default outputs/traces/<decider>.jsonl."""

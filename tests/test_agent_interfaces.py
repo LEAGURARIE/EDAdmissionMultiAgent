@@ -50,8 +50,6 @@ def test_only_the_coordinator_acts():
     for role in ("patient",):
         with pytest.raises(PermissionDenied):
             Toolbox(role, engine).escalate_to_human("P-001", "no bed")
-        with pytest.raises(PermissionDenied):
-            Toolbox(role, engine).hold_bed("cardiology", 1, "P-001")
 
 
 def test_a_department_toolbox_must_be_bound_to_one_ward():
@@ -183,13 +181,21 @@ def test_a_day_counts_a_bed_the_ward_cannot_give():
     assert metrics.score_day(engine)["bed_not_available"] >= 1
 
 
-def test_the_single_agent_gets_the_same_tools_as_the_system():
-    """The comparison with a single agent: every tool of the system's agents, and the wards through the same
-    negotiation — never a ward's notes directly. One tool it does not need: assess_patient runs the Patient Agent,
-    and the single agent reads the record itself."""
+def test_the_single_agent_does_every_agents_job():
+    """The fair comparison (2026-10-15): one agent with every agent's tools. It reads the record and hands in its
+    own assessment (record_assessment, instead of assess_patient which runs the Patient Agent), and it reads every
+    ward's report and notes itself (department_view, the Department Agents' tool) — so it has no wards to ask
+    (no ask_ward): the same task as the multi-agent system, not a ward that answers from the true state."""
     from ed_admission.tools.toolbox import PERMISSIONS
-    system = {tool for tool, roles in PERMISSIONS.items() if roles - {"single_agent", "department"}}
+    every_agent = {tool for tool, roles in PERMISSIONS.items() if roles - {"single_agent"}}
     single = {tool for tool, roles in PERMISSIONS.items() if "single_agent" in roles}
-    assert single == system - {"assess_patient"}
+    assert single == every_agent - {"assess_patient", "ask_ward"} | {"record_assessment"}
+    view = Toolbox("single_agent", engine_of("T13")).department_view("internal_medicine_a")
+    assert view.ward_id == "internal_medicine_a"
+
+
+def test_the_department_agent_still_sees_only_its_own_ward():
+    toolbox = Toolbox("department", engine_of("T13"), ward_id="internal_medicine_a")
+    assert toolbox.department_view().ward_id == "internal_medicine_a"
     with pytest.raises(PermissionDenied):
-        Toolbox("single_agent", engine_of("T13")).department_view()
+        toolbox.department_view("cardiology")

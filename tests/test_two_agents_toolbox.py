@@ -38,7 +38,11 @@ def test_each_role_has_its_own_tools():
     assert tools["patient"] == {"read_patient_record", "compute_news2", "clinical_lists"}
     assert tools["department"] == {"department_view"}
     assert tools["coordinator"] == {"assess_patient", "all_department_status", "rank_placements", "ask_ward",
-                                    "hold_bed", "release_hold", "escalate_to_human", "decide"}
+                                    "escalate_to_human", "decide"}
+
+
+def test_no_agent_holds_or_releases_a_bed():
+    assert not {"hold_bed", "release_hold"} & set(PERMISSIONS)       # the environment holds it when the case closes
 
 
 def test_the_coordinator_never_reads_the_record_itself():
@@ -152,3 +156,17 @@ def test_internal_medicine_without_a_or_b_may_become_either_and_nothing_else():
     cardiology = Decision(patient_id="P-001", action="place", ward_id="cardiology", bed_number=1,
                           target_ward="cardiology")
     assert broken_rules(cardiology, unnamed)
+
+
+# ---------------------------------------------------------------- an intensive-care need sets the target ward
+
+def test_a_patient_who_needs_intensive_care_has_intensive_care_as_the_target():
+    """2026-10-15: a system rule in code, for both systems — whatever target the assessment wrote, an intensive-care
+    need makes intensive care the target ward of the bed search and of the hard-rule check."""
+    needs_it = assessment(target_ward="internal_medicine", severe=True, intensive_care=True)
+    assert needs_it.target == "intensive_care" and assessment().target == WARD
+    icu = Decision(patient_id="P-001", action="place", ward_id="intensive_care", bed_number=1,
+                   target_ward="intensive_care", physician_approval_for_icu=True)
+    assert broken_rules(icu, needs_it) == []
+    wrong = Decision(patient_id="P-001", action="wait", target_ward="internal_medicine_a")      # the old target
+    assert any("needs intensive care" in reason for reason in broken_rules(wrong, needs_it))

@@ -10,8 +10,17 @@ Two agents and a Coordinator (2026-10-10) — each sees what the others do not:
   department    its own ward only: department_view (its report and private notes); bound to one ward in advance, and
                 it gets the patient's needs from the Coordinator's request — never an identifier
   coordinator   every ward's report, and the two agents' answers — never the record itself:
-                assess_patient (runs the Patient Agent), all_department_status, rank_placements, ask_ward, hold_bed,
-                release_hold, escalate_to_human, and decide (the hard rules, checked in code — tools/decide.py)
+                assess_patient (runs the Patient Agent), all_department_status, rank_placements, ask_ward,
+                escalate_to_human, and decide (the hard rules, checked in code — tools/decide.py)
+
+No agent holds or releases a bed: the decision is the hold — the environment holds the bed when the case closes
+(simulation_engine.py, hold_bed_when), for the shift manager's approval.
+
+  single_agent  one agent doing every agent's job (the fair comparison, 2026-10-15): the record and its own
+                assessment (record_assessment, in the Patient Agent's format, instead of assess_patient), every
+                ward's report, and every ward's report and notes (department_view with a ward id) — it reads the
+                notes itself, as the Department Agents do, so it has no wards to ask (no ask_ward); the ranking
+                and decide.
 
 PERMISSIONS lists which role may call which tool. The single agent of the comparison gets every tool the system has
 and asks the wards through the same negotiation, so the comparison tests the architecture, not access to information.
@@ -29,11 +38,11 @@ from ed_admission.contracts.negotiation import WardAnswer, WardRequest
 from ed_admission.contracts.patient_record import Vitals
 from ed_admission.environment.decision import Decision, Flag
 from ed_admission.observability.tracing import Claim
-from ed_admission.tools import bed_holds, department_status, escalation, patient_record
+from ed_admission.tools import department_status, escalation, patient_record
 from ed_admission.tools import decide as decide_tool
 from ed_admission.tools.negotiation import DepartmentView, Negotiation
 from ed_admission.tools.news2 import compute_news2, level_of_care
-from ed_admission.tools.rank_placements import PatientNeeds, Ranking, rank_placements
+from ed_admission.tools.rank_placements import PatientNeeds, Ranking, rank_placements, resolve_target_ward
 
 ROLES = ("coordinator", "patient", "department", "single_agent")
 PERMISSIONS = {
@@ -41,13 +50,12 @@ PERMISSIONS = {
     "compute_news2": {"patient", "single_agent"},
     "clinical_lists": {"patient", "single_agent"},
     "assess_patient": {"coordinator"},
+    "record_assessment": {"single_agent"},
     "decide": {"coordinator", "single_agent"},
     "all_department_status": {"coordinator", "single_agent"},
-    "department_view": {"department"},
+    "department_view": {"department", "single_agent"},
     "rank_placements": {"coordinator", "single_agent"},
-    "ask_ward": {"coordinator", "single_agent"},
-    "hold_bed": {"coordinator", "single_agent"},
-    "release_hold": {"coordinator", "single_agent"},
+    "ask_ward": {"coordinator"},
     "escalate_to_human": {"coordinator", "single_agent"},
 }
 
@@ -82,9 +90,9 @@ class Toolbox:
         if self._case is not None:
             self._case.reach(step, output)
 
-    def _record(self, tool: str, arguments: dict, result, started: float) -> None:
+    def _record(self, tool: str, arguments: dict, result, started: float, claims=()) -> None:
         if self._trace is not None:
-            self._trace.tool_call(self.role, tool, arguments, result, time.perf_counter() - started)
+            self._trace.tool_call(self.role, tool, arguments, result, time.perf_counter() - started, claims=claims)
 
     # ---------------------------------------------------------------- the patient
     def read_patient_record(self, patient_id: str) -> dict:
@@ -103,11 +111,13 @@ class Toolbox:
         return result
 
     def clinical_lists(self) -> dict:
-        """The closed lists: observation conditions, isolation conditions, chief complaints."""
+        """The closed lists: observation conditions, isolation conditions, chief complaints, and the approved
+        severity judgments (when the record raises the level, keeps it with a note, or which data counts)."""
         started = self._check("clinical_lists", {})
         result = {"observation_conditions": config.observation_conditions(),
                   "isolation_conditions": config.isolation_conditions(),
-                  "chief_complaints": config.chief_complaints()}
+                  "chief_complaints": config.chief_complaints(),
+                  "severity_judgment": config.severity_judgment()}
         self._record("clinical_lists", {}, "lists", started)
         return result
 
@@ -136,6 +146,37 @@ class Toolbox:
                                          "never_waits": assessment.never_waits})
         return assessment
 
+    def record_assessment(self, patient_id: str, assessment: PatientAssessment) -> PatientAssessment:
+        """The single agent hands in its own assessment, in the Patient Agent's format. Every finding's quote is
+        checked against the record (`grounded`) — a quote not found is kept and marked, never dropped, so the
+        groundedness measured is the real one. The last assessment of a patient counts."""
+        started = self._check("record_assessment", {"patient_id": patient_id})
+        for finding in assessment.findings:
+            finding.grounded = patient_record.quote_in_record(patient_id, finding.quote)
+        self._assessments[patient_id] = assessment
+        self._record("record_assessment", {"patient_id": patient_id}, assessment.model_dump(mode="json"), started,
+                     claims=[Claim(f.claim, f.quote) for f in assessment.findings])
+        self._reach("patient_assessed", {"target_ward": assessment.target_ward, "bed_type": assessment.bed_type,
+                                         "never_waits": assessment.never_waits})
+        return assessment
+
+    def assessed(self) -> dict[str, PatientAssessment]:
+        """Every assessment kept so far, by patient — for the single agent's case state."""
+        return dict(self._assessments)
+
+    def assessment_of(self, patient_id: str) -> PatientAssessment:
+        """The assessment kept for this patient — nothing about the patient is searched or decided before it."""
+        if patient_id not in self._assessments:
+            raise ValueError(f"assess {patient_id} first (record_assessment): there are no needs to search by")
+        return self._assessments[patient_id]
+
+    def needs_of(self, patient_id: str) -> PatientNeeds:
+        """The needs the bed search uses, from the kept assessment: the target is intensive care whenever the patient
+        needs it (PatientAssessment.target); "internal_medicine" becomes A or B by occupancy, as the ranking does."""
+        assessment = self.assessment_of(patient_id)
+        target = resolve_target_ward(assessment.target, department_status.all_department_status(self._engine))
+        return PatientNeeds(target, assessment.bed_type, severe=assessment.never_waits)
+
     # ---------------------------------------------------------------- the wards
     def all_department_status(self) -> dict[str, dict]:
         started = self._check("all_department_status", {})
@@ -144,10 +185,18 @@ class Toolbox:
         self._reach("availability_collected", "reports")
         return result
 
-    def department_view(self) -> DepartmentView:
+    def department_view(self, ward_id: str | None = None) -> DepartmentView:
+        """One ward's report and its private notes. The Department Agent: its own ward only, named in advance. The
+        single agent: any ward, by its id."""
         started = self._check("department_view", {})
-        result = department_status.department_view(self._engine, self._ward_id)
-        self._record("department_view", {"ward_id": self._ward_id}, "report and notes", started)
+        if self.role == "department":
+            if ward_id not in (None, self._ward_id):
+                raise PermissionDenied(f"the Department Agent of {self._ward_id} sees no other ward")
+            ward_id = self._ward_id
+        elif ward_id not in self._engine.hospital.wards:
+            raise ValueError(f"{ward_id!r} is not a ward: one of {sorted(self._engine.hospital.wards)}")
+        result = department_status.department_view(self._engine, ward_id)
+        self._record("department_view", {"ward_id": ward_id}, "report and notes", started)
         return result
 
     def rank_placements(self, needs: PatientNeeds, taken: set = frozenset()) -> Ranking:
@@ -169,16 +218,6 @@ class Toolbox:
         return result
 
     # ---------------------------------------------------------------- acting
-    def hold_bed(self, ward_id: str, bed_number: int, patient_id: str) -> None:
-        started = self._check("hold_bed", {})
-        bed_holds.hold_bed(self._engine, ward_id, bed_number, patient_id)
-        self._record("hold_bed", {"ward_id": ward_id, "bed": bed_number, "patient_id": patient_id}, "held", started)
-
-    def release_hold(self, ward_id: str, bed_number: int) -> None:
-        started = self._check("release_hold", {})
-        bed_holds.release_hold(self._engine, ward_id, bed_number)
-        self._record("release_hold", {"ward_id": ward_id, "bed": bed_number}, "released", started)
-
     def decide(self, decision: Decision) -> Decision:
         """Hand in the decision. The hard rules are checked in code against what the Patient Agent found
         (tools/decide.py): a decision that breaks one is refused with the reasons (RuleViolation)."""
@@ -205,8 +244,8 @@ class Toolbox:
         assessment = self._assessments.get(patient_id)
         raised = list(dict.fromkeys((flags or []) + (assessment.flags if assessment else [])))   # no flag is dropped
         result = escalation.escalate_to_human(patient_id, reason, raised)
-        if assessment is not None and assessment.target_ward != "internal_medicine":
-            result.target_ward = assessment.target_ward
+        if assessment is not None and assessment.target != "internal_medicine":
+            result.target_ward = assessment.target
         self._record("escalate_to_human", {"patient_id": patient_id, "reason": reason}, "escalated", started)
         if self._case is not None:
             if self._case.step in ("ranked", "negotiating", "rules_checked"):
