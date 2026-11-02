@@ -264,7 +264,7 @@ Settings, not measurements: each value is written once and read through `src/ed_
 | `clinical_rules/observation_conditions.yaml` | The 16 conditions that need an observation bed |
 | `clinical_rules/isolation_conditions.yaml` | The 9 conditions that need the isolation room, and what is not isolation |
 | `clinical_rules/structured_signs.yaml` | The signs of severity the baseline reads from the structured fields, with their sources |
-| `clinical_rules/placement_rules.yaml` | The placement rules: who may use which bed, waiting, the shifts and the weekend, approvals, two patients for one bed, the limits on requests |
+| `clinical_rules/placement_rules.yaml` | The placement values the code reads: waiting, the shifts and the weekend, the typed-reason level, two patients for one bed, the limits on requests |
 
 The sources of the clinical thresholds: `docs/design/sources.md`.
 

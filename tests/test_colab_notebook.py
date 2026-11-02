@@ -20,9 +20,6 @@ def test_the_notebook_runs_only_scripts_and_files_that_exist():
         assert (PROJECT / script).exists(), script
     for path in re.findall(r"data/scenarios/\w+\.yaml", code):
         assert (PROJECT / path).exists(), path
-    for agent in ("patient", "department", "coordinator"):
-        assert (PROJECT / "src" / "ed_admission" / "agents" / f"{agent}_agent.py").exists()
-        assert (PROJECT / "src" / "ed_admission" / "prompts" / f"{agent}_agent.md").exists()
 
 
 def test_the_notebook_holds_no_secret_and_reads_keys_from_colab_secrets():

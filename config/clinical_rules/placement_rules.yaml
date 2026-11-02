@@ -1,18 +1,13 @@
-# Placement rules — how a bed is chosen once the patient's needs are known.
-# Used by rank_placements and by the baseline. Decisions in force: DECISIONS.md.
+# Placement rules — the values the code reads. Decisions in force: DECISIONS.md.
+# The other placement rules (who is severe, which bed each need takes, the order on a ladder level, when to
+# escalate) are written in the code itself (tools/rank_placements.py, tools/decide.py) and recorded in DECISIONS.md.
 # Clinically approved by Lea (decisions A28, A37, A51, A54, A59, A62). No external source.
-
-# Who counts as severe: a patient who needs one of these levels of care.
-severe_needs: [observation, intensive_care]
 
 waiting:
   non_severe_max_minutes: 60      # in the target ward — then the next ladder level
-  severe_max_minutes: 0           # never waits, not even for a bed that is being cleaned
-  # A discharge the ward report shows is waited for only in a weekday morning shift; in the evening, at night and
-  # at the weekend only if the ward itself said the bed frees soon. Approved by Lea, 2026-10-07.
-  discharge_in_report_only_in: weekday_morning_shift
 
-# The shift and the weekend — shown in every ward report. Approved by Lea, 2026-10-07.
+# The shift and the weekend — shown in every ward report. A discharge the ward report shows is waited for only in
+# a weekday morning shift (environment/shifts.py). Approved by Lea, 2026-10-07.
 shifts:                           # start of each shift
   morning: "07:00"
   evening: "15:00"
@@ -22,34 +17,12 @@ weekend:
   to: {day: Sunday, time: "07:00"}
 
 approval:
-  approver: shift_manager         # every placement
   typed_reason_from_ladder_level: 3
-
-beds:
-  non_severe_in_observation_bed: false
-  isolation_and_observation: isolation_room
-  observation_only_in_isolation_room: last_resort     # only when no observation bed is free on the whole ladder, with approval
-
-# No room in the target ward -> a bed further down its ladder, marked "awaiting transfer" (any target ward).
-temporary_placement_note: awaiting transfer
-
-# Two wards on the same ladder level: the one with the lower occupancy first.
-# occupancy = (occupied + held + cleaning beds) / all beds of the ward
-same_level_tie_break: lower_occupancy
-
-intensive_care:
-  physician_request: binding
-  news2_from_threshold: recommend_for_physician_approval    # threshold in news2_levels.yaml
-  when_full: escalate
-  only_for_patients_who_need_it: true
-
-no_safe_option: escalate
 
 # Negotiation between the Coordinator and the Department Agents ("ping-pong"). Approved by Lea, 2026-10-07.
 negotiation:
   max_requests_per_ward: 3        # requests to one ward in one case
   max_requests_per_case: 8        # requests to all wards together in one case
-  when_limit_reached: escalate
 
 # Two patients wait at the same moment for one suitable bed. Approved by Lea, 2026-10-07. In this order:
 competing_for_one_bed:

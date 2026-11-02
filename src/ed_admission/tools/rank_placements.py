@@ -1,4 +1,4 @@
-"""rank_placements — code, not a language model. Rules: config/clinical_rules/placement_rules.yaml.
+"""rank_placements — code, not a language model. The rules below are written here (DECISIONS.md, Placement).
 
 Works on the ward reports only — what every decider may see. Given the patient's needs and target ward:
 1. Hard rules only: level of care; observation need → observation bed; isolation need → isolation room

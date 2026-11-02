@@ -1,7 +1,7 @@
 """The deciders the run scripts know by name — and any other one, given as an import path.
 
     --decider code_coordinator                             a name from DECIDERS (single_agent too)
-    --decider ed_admission.agents.coordinator_agent:run    module:function — any other decider,
+    --decider <module>:<function>                          any other decider,
                                                            with no change to the scripts
 
 A decider that calls a model is paid for (its module has start_run — the single agent). Every run script asks for

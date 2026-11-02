@@ -54,15 +54,11 @@ def test_news2_reads_its_thresholds_from_config():
 
 def test_placement_rules_match_the_decisions():
     rules = read(RULES / "placement_rules.yaml")
-    assert rules["waiting"] == {"non_severe_max_minutes": 60, "severe_max_minutes": 0,
-                                "discharge_in_report_only_in": "weekday_morning_shift"}
+    assert rules["waiting"] == {"non_severe_max_minutes": 60}
     assert rules["shifts"] == {"morning": "07:00", "evening": "15:00", "night": "23:00"}
-    assert rules["approval"] == {"approver": "shift_manager", "typed_reason_from_ladder_level": 3}
-    assert rules["beds"]["non_severe_in_observation_bed"] is False
-    assert rules["intensive_care"]["when_full"] == "escalate"
+    assert rules["approval"] == {"typed_reason_from_ladder_level": 3}
     assert rules["competing_for_one_bed"] == ["needs_the_bed_type_first", "severe_first", "earlier_decision_first"]
-    assert rules["negotiation"] == {"max_requests_per_ward": 3, "max_requests_per_case": 8,
-                                    "when_limit_reached": "escalate"}
+    assert rules["negotiation"] == {"max_requests_per_ward": 3, "max_requests_per_case": 8}
 
 
 def test_structured_signs_point_to_observation_conditions():

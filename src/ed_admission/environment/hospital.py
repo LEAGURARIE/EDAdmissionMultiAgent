@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 class BedType(str, Enum):
     REGULAR = "regular"
     OBSERVATION = "observation"            # also serves as intermediate care
-    ISOLATION = "isolation"                # one room per ward, with observation capability (who may use it: placement_rules.yaml)
+    ISOLATION = "isolation"                # one room per ward, with observation capability (who may use it: rank_placements)
     INTENSIVE_CARE = "intensive_care"
 
 

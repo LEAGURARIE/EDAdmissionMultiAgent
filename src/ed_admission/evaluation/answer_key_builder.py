@@ -64,7 +64,7 @@ def _beds(engine, ward_id, bed_type, status):
 
 def _expected_today(engine, ward_id, bed_type):
     """Discharges worth waiting for: one the ward said frees soon (a note) — always; one only the report shows —
-    in a weekday morning shift only (placement_rules.yaml, waiting)."""
+    in a weekday morning shift only (environment/shifts.py)."""
     said = getattr(engine, "note_discharges", set())
     beds = [b for b in _beds(engine, ward_id, bed_type, BedStatus.OCCUPIED) if b.expected_discharge_at is not None]
     from_note = [b for b in beds if (ward_id, b.number) in said]

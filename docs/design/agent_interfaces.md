@@ -19,9 +19,8 @@ The Coordinator is an agent with tools: it decides the next step, and the code k
 hard rules, the limits on requests. Everything below is built and tested (`tests/test_agent_interfaces.py`,
 `tests/test_two_agents_toolbox.py`).
 
-**Status, 2026-10-13:** the interfaces and the Coordinator's flow in code (`example_pipeline.py`) are built. The three
-agents are entry points only: they are built after each one's code and system prompt is reviewed, and no agent has
-been run against a model.
+**Status, 2026-10-13:** the interfaces and the Coordinator's flow in code (`example_pipeline.py`) are built. The multi-agent
+system's agents are not built yet: each is built after its code and system prompt are reviewed.
 
 ## 1. The decider
 
@@ -124,7 +123,7 @@ toolbox (or, for the Department Agent, its ward's view and the request) and neve
 
 ```
 .venv/Scripts/python scripts/run_agent_metrics.py --agent patient                      (the code example: the number to beat)
-.venv/Scripts/python scripts/run_agent_metrics.py --agent patient --function ed_admission.agents.patient_agent:run --limit 5
+.venv/Scripts/python scripts/run_agent_metrics.py --agent patient --function <module>:run --limit 5
 ```
 
 | Agent | Its `run` | What is measured |
@@ -137,7 +136,7 @@ toolbox (or, for the Department Agent, its ward's view and the request) and neve
 **B. The whole decision.**
 
 ```
-.venv/Scripts/python scripts/run_metrics.py --decider ed_admission.agents.coordinator_agent:run
+.venv/Scripts/python scripts/run_metrics.py --decider single_agent --set test --paid
 .venv/Scripts/python scripts/run_baseline.py                                           (the baseline: the Code Coordinator)
 ```
 
@@ -171,8 +170,7 @@ record, case id or template as an example, and never tuned to one case.
 
 | Agent | Code | Entry point | Prompt |
 |---|---|---|---|
-| Patient | `agents/patient_agent.py` | `run(toolbox, patient_id)` | `prompts/patient_agent.md` |
-| Department (one per ward) | `agents/department_agent.py` | `run(view, request)` | `prompts/department_agent.md` |
-| Coordinator | `agents/coordinator_agent.py` | `run(engine, event, waiting)` | `prompts/coordinator_agent.md` |
+| Single agent | `agents/single_agent.py` | `run(engine, event, waiting)` | `prompts/single_agent.md` |
 
-The task of each agent, and the decisions behind it: the docstring of its file and `DECISIONS.md`.
+The multi-agent system's agents are added here as each is built. The task of each agent, and the decisions behind
+it: the docstring of its file and `DECISIONS.md`.

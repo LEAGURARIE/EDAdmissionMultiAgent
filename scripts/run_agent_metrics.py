@@ -3,7 +3,7 @@ r"""Measure one agent alone, against the part of the expected answers that is it
 Run (from the project folder):
     .venv\Scripts\python scripts\run_agent_metrics.py --agent patient
         (no --function: the code example of that agent, orchestration/example_agents.py — the number to beat)
-    .venv\Scripts\python scripts\run_agent_metrics.py --agent patient --function ed_admission.agents.patient_agent:run
+    .venv\Scripts\python scripts\run_agent_metrics.py --agent patient --function <module>:run   (an agent built later)
 
 The signatures (docs/design/agent_interfaces.md, "How to run and measure"):
     patient      function(toolbox, patient_id) -> PatientAssessment (contracts/agent_outputs.py)

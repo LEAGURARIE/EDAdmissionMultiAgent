@@ -99,7 +99,7 @@ A decider that calls a model runs only with `--paid`, after its estimated cost i
 
 | Folder | What it holds |
 |---|---|
-| `src/ed_admission/agents` | The single agent — its loop, tools, budget and the monthly price check; the agents of the multi-agent system — a file each, being built |
+| `src/ed_admission/agents` | The single agent — its loop, tools, budget and the monthly price check; the multi-agent system's agents are added as each is built |
 | `src/ed_admission/prompts` | A prompt file for each agent: the single agent's is written; the others as they are built |
 | `src/ed_admission/tools` | The tools the agents use, their permissions, and `decide` — the hard rules in code |
 | `src/ed_admission/environment` | The simulated hospital and the simulation engine |
