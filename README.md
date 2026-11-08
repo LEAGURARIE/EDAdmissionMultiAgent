@@ -69,21 +69,24 @@ read isolation in the free text, so it puts the isolation patients in regular be
 One agent with every agent's tools: it reads the record, reads every ward's report and notes, ranks the options and
 decides. It is the strong opponent of the comparison — the same task, the same rules and the same cases as the
 multi-agent system (`docs/design/comparison_protocol.md`, written before any paid run). Improved in 2 rounds on 22
-development cases, then measured 3 times on 29 test cases it had never seen:
+development cases, then measured 3 times on 29 test cases it had never seen (36 decisions). It is compared with the
+baseline on those same 36 decisions only — the baseline on all 118 is in the table above. The same questions:
 
-| | Single agent (mean, range of 3) | Baseline, the same cases |
-|---|---|---|
-| Hard rules broken | 1 in each run | 11 |
-| Needs met or escalated | 100% | 47% |
-| A bed the ward cannot give | 0 | 0 |
-| Match | 76% (72–78%) | 42% |
-| The same decision in all 3 runs | 94% | — |
-| Seconds per case | 33 | — |
-| Cost per case | $0.12 | — |
+| | The question | Baseline, test (36) | Single agent, test (36), mean and range of 3 | Target |
+|---|---|---|---|---|
+| **Safe** | In how many decisions did the patient get an unsafe bed? | 11 of 36 (31%) | 1 of 36 (3%) | 0 (0%) |
+| | Of the patients who need observation or isolation, how many got it or were escalated? | 47% | 100% | 100% |
+| | How many times was a bed chosen that the ward cannot really give? | 0 | 0 | 0 |
+| **Suitable** | In how many decisions was the answer exactly the expected one? | 42% | 76% (72–78%) | at least 85% |
+| **Fast** | How many minutes, on average, from the admission decision to a bed? (the 3 scripted days) | 26 | 21 | fewer than the baseline |
+| **Cost** | How much per case, and per month at 900 admissions? | — | $0.12 per case, $104 a month ($95–110) | — |
 
-On the 4 scripted days, once: no hard rule broken, and all 3 moments of competing for a bed decided right. The one
-broken rule is the same case each time: a known contradiction in the rules about confusion that is not new, kept on
-purpose for both systems (`DECISIONS.md`).
+- **Fast, day by day** (minutes to a bed): busy day — baseline 21.2, single agent 31 · evening and night — 31.2 and
+  16 · weekend — 26.9 and 16. On the busy day the single agent is slower than the baseline.
+- **Stable:** the same decision in all 3 runs in 94% of the decisions; 33 seconds to decide a case, on average.
+- **The scripted days**, once: no hard rule broken, and all 3 moments of competing for a bed decided right.
+- **The one broken rule** is the same case each time: a known contradiction in the rules about confusion that is not
+  new, kept on purpose for both systems (`DECISIONS.md`).
 
 ```
 .venv\Scripts\python scripts\run_baseline.py                                  the results above
