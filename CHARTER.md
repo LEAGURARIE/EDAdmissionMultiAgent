@@ -1,6 +1,6 @@
 # CHARTER — Multi-Agent ED Admission Placement
 
-**Author:** Lea Gur-Arie · **Date:** 2026-10-04, updated 2026-10-21
+**Author:** Lea Gur-Arie · **Date:** 2026-10-04, updated 2026-11-14
 
 ## 1. Problem & user
 
@@ -20,7 +20,7 @@ The **ED shift manager** placing admitted patients faces long waits — about **
 | **Suitable** | Decisions that match the expected answer | ≥ 100 of 118 (85%) | 56 of 118 (47%) |
 | **Fast** | Minutes from the admission decision to a bed | fewer than the baseline | 26 |
 
-**Tracked:** 100% of cases with a complete trace · ≥ 95% of claims backed by a quote that is in the record. Baseline measured 2026-10-10; match re-measured 2026-10-15 (was 38%): internal medicine A or B now scored by occupancy. **Changed 2026-10-10:** judged against the Code Coordinator instead of "first free bed", which no hospital uses; its two relative targets (off-service, 20% faster) are replaced by the targets above.
+**Tracked:** 100% of cases with a complete trace · ≥ 95% of claims backed by a quote that is in the record. Baseline measured 2026-10-10 (match re-measured 2026-10-15).
 
 ## 3. Data + plan B
 
@@ -29,24 +29,24 @@ The **ED shift manager** placing admitted patients faces long waits — about **
 ## 4. Architecture
 
 ```text
-Simulated hospital ──(trigger: admission decision, record frozen)──▶ Coordinator (no work tools)
-   Coordinator ⇄ Patient Agent      the only one that reads the record: needs, flags, quotes
-   Coordinator ⇄ Department Agent   one ward at a time — its report and private notes; a summary moves on
-   Coordinator ⇄ Judge              checks a proposed placement against a rubric before it is a decision
-   No handoff between the agents: only the Coordinator activates an agent, and every answer returns to it.
-▼ code: rank_placements (ladder, hard rules) · decide (a decision that breaks a hard rule is refused)
+Simulated hospital ──(trigger: admission decision, record frozen)──▶ Coordinator = code (a LangGraph graph)
+   Coordinator ⇄ Patient Agent      (Sonnet) the only one that reads the record: needs, flags, quotes
+   Coordinator ⇄ Department Agent   (Sonnet) one per ward, rung by rung — its report and private notes
+   Coordinator ⇄ Judge              code checks the rules, then the Judge Agent (Haiku) the reading
+   No handoff between agents: every answer is a checked contract, and routing reads closed fields only.
+▼ code: rank_placements (ladder) · the proposal · decide (a decision that breaks a hard rule is refused)
 ▼ recommendation → shift manager approval → bed assigned
 ```
 
 ## 5. The agent's chair
 
-- **Decides what code cannot:** the Patient Agent reads the free text; the Department Agent, a ward's notes; the Judge weighs a proposal; the Coordinator decides. Ranking and the hard rules stay in code.
-- **Tools**, each agent only its own, enforced in code: Patient — `read_patient_record`, `compute_news2`, `clinical_lists` · Department — `department_view` (one ward) · Judge — `check_rules` · Coordinator — none, it activates the agents. **Comparison:** a single agent with every tool.
+- **Decides what code cannot:** the Patient Agent reads the free text; the Department Agent, a ward's notes; the Judge Agent, the reading and the reason. Routing, ranking, the proposal and hard rules: code.
+- **Tools**, each agent only its own, enforced in code: Patient — `read_patient_record`, `compute_news2`, `clinical_lists`, `record_assessment` · Department — `department_view`, `answer_ward` · Judge Agent — `read_case`, `give_verdict` · Coordinator — none, it is code. **Compared with** one agent (Opus) holding every tool.
 - **On failure:** one retry, then escalation to the shift manager — never a guess. **Works without agents:** the Code Coordinator.
 
 ## 6. Risks & cut version
 
-- **Misreading the record** → closed lists, every quote checked against the record, the hard rules checked in code before any decision. **Cost or latency** → agents only on triggers; request limits; per-case budget. **An agent that sees the expected answers** → only the evaluation code reads them, guarded by tests; an agent gets the patient's id and the decision time, nothing more.
+- **Misreading the record** → closed lists, every quote checked against the record, the hard rules checked in code before any decision. **Cost or latency** → agents on triggers only; request limits; a per-case budget. **Found:** a ward's free-text knowledge is lost at a closed handoff → reported, not tuned. **An agent that sees the expected answers** → only the evaluation code reads them, guarded by tests; an agent gets the patient's id and the decision time, nothing more.
 
 **Cut version:** *"If only two weeks remain, we drop the single-agent comparison, and submit the multi-agent system on the cases and the scripted days."*
 
@@ -79,3 +79,11 @@ A personal project: Lea Gur-Arie holds every hat — product, agents, model, dat
 3. **Decided since Checkpoint 1, and why:** a fair comparison written and frozen before any paid run — the same task, cases and budget accounting for both systems, 2 improvement rounds each, 3 repetitions, and a difference counts only beyond the spread · the single agent is a strong opponent: it reads every ward's notes itself · a measurement bug fixed and recorded as a deviation (a note that frees a bed now frees the bed it names) · internal medicine A or B, when the record names neither, scored by the occupancy rule (the baseline's match 38% → 47%) · the multi-agent system redesigned: a Coordinator that only activates the agents, and a Judge that checks a placement before it is decided.
 4. **What is stuck:** the multi-agent system is not built yet. The one broken rule is the same case every run: a known contradiction in the rules about chronic confusion, kept on purpose for both systems.
 5. **Next three steps:** build the Patient Agent and the Department Agent, and measure each alone · build the Coordinator and the Judge, and run the multi-agent system on the same test cases 3 times · the comparison report, the monthly cost in the README, and the 1-minute demo.
+
+## Final update — 14.11.2026
+
+1. **What works end to end:** everything in Checkpoint 2, and the multi-agent system — the Patient Agent, the Department Agent (one per ward) and the Judge Agent, with the Coordinator and the Judge's first layer in code. Each agent measured alone, then 2 rounds on the whole system on the 22 development cases, then frozen and run 3 times on the 29 test cases and once on the 4 scripted days, under the same protocol as the single agent (`scripts/compare_systems.py`). 1,241 tests pass.
+2. **The metric against the target** (test cases, mean of 3 runs; single agent · multi-agent system · baseline): a hard rule broken in 1 decision per run · 1 · 11 (target 0) · needs met 100% · 100% · 47% (100%) · a bed the ward cannot give 0 · 0 · 0 (0) · match 76% · 60% · 42% (85%) · claims backed by the record 91% · 100% (95%) · minutes to a bed on the 3 days 21 · 16 · 26 · $0.12 · $0.04 a case — $104 · $38 a month at 900 admissions. Equally safe; the single agent more suitable; the multi-agent system better grounded, faster to a bed and 2.7 times cheaper.
+3. **Decided since Checkpoint 2, and why:** the Coordinator is code, not an agent — routing, ranking and the hard rules must be the same every time · the Judge in two layers, code first, so the Judge Agent never approves what code blocked · the multi-agent system gets 2 rounds on the whole system, like the single agent: round 1, the Department Agent on Sonnet, kept; round 2 reverted — it fixed nothing.
+4. **What is stuck:** the gap in suitability. Two side checks, kept out of the comparison, found its cause: every agent on Opus — the same match at 3 times the cost; a Judge Agent check for a better option left — no decision fixed. What a ward says only in free text ("a bed frees in about an hour") does not reach the decision, because the parts hand over closed fields; the same choice keeps every claim grounded and every step traceable.
+5. **Next three steps:** the GDPR and the EU AI Act — how the system meets each, checked against the official texts · the demo cases from the demo screen · the final upload, every file reviewed first.

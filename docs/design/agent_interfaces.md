@@ -1,26 +1,21 @@
 # Agent interfaces — what the agents are built on
 
-**Where this stands (2026-10-21):** the interfaces below are the ones built and tested — two agents and a Coordinator
-with tools. The multi-agent system is being redesigned: a Coordinator without work tools,
-a Patient Agent, a Department Agent that looks at one ward at a time, and a Judge; this document is updated as it is
-built. **The single agent** — every agent's job in one agent, for the comparison — is built and measured (section 2).
+**Where this stands (2026-11-14):** both systems are built and measured. **The multi-agent system:** a Patient Agent,
+a Department Agent run once per ward, and a Judge in two layers — code checks, then a Judge Agent — with the
+Coordinator as code: the LangGraph graph, which runs every agent and routes on their closed answers only
+(`DECISIONS.md`). **The single agent** does every agent's job in one agent, for the comparison.
 
-As built, each agent sees what the others do not:
+Each agent of the multi-agent system sees what the others do not:
 
-| Agent | Sees | Decides |
+| Agent | Sees | Answers |
 |---|---|---|
-| **Patient Agent** | the record only | what the patient needs: target ward, level of care, bed type, flags — every finding with a quote |
-| **Department Agent**, one per ward | its own ward only: the report and the private notes | what the ward can really give: a bed now, a bed with a condition, or a decline |
-| **Coordinator** | every ward's report and the two agents' answers — never the record | where the patient goes |
+| **Patient Agent** | the record only | what the patient needs: target ward, level of care, flags — every finding with a quote |
+| **Department Agent**, one per ward | its own ward only: the report and the private notes; the patient's needs, never the identity | what the ward can really give: a bed now, a bed with a condition, or a decline |
+| **Judge Agent** | a case file: the findings with the sentence each quote came from, the answers and notes of the wards that answered, the proposal and the code checks — never the whole record | whether the needs were read right and the reason is true to the wards |
+| **Coordinator** — code, `orchestration/graph.py` | every agent's closed answer, never the record | the next step; the proposal and the hard rules are code |
 
-**No handoff between the agents:** only the Coordinator calls an agent, and every answer returns to it (`tests/test_two_agents_toolbox.py`).
-
-The Coordinator is an agent with tools: it decides the next step, and the code keeps the limits — the ranking, the
-hard rules, the limits on requests. Everything below is built and tested (`tests/test_agent_interfaces.py`,
-`tests/test_two_agents_toolbox.py`).
-
-**Status, 2026-10-13:** the interfaces and the Coordinator's flow in code (`example_pipeline.py`) are built. The multi-agent
-system's agents are not built yet: each is built after its code and system prompt are reviewed.
+**No handoff between the agents:** the graph runs every agent, and every answer returns to it; no agent has a tool
+that runs another one (`tests/test_toolbox.py`, `tests/test_coordinator_graph.py`).
 
 ## 1. The decider
 
@@ -35,27 +30,27 @@ def my_decider(engine, event, waiting) -> list[Decision]: ...
 | Contract | `src/ed_admission/environment/decision.py` — `Decision`: place · temporary_place · wait · escalate, `target_ward` (every action — where the patient was meant to go), flags, `physician_approval_for_icu`, `handling_minutes` |
 | Case mode | one patient (`engine.decide_case`) or two (`engine.decide_cases`, paired cases); nothing is applied |
 | Scripted day | the case desk: an admission opens a **patient case** (that patient), a bed that frees while patients wait opens a **bed case** (all of them, ids and times only); patients who wait together come together. The clock goes on while a case is open: it closes after the time the decider **really took** (rounded up to whole minutes, under a second is instant). One case at a time by default, more wait in a queue (`config/hospital.yaml`). The bed is held when the case closes, and 15 minutes later the shift manager approves; a bed taken meanwhile by another case is a conflict, a bed that was not free is the decider's error |
-| Run it | `scripts/run_cases.py --decider NAME [--set first|second|paired]` · `scripts/run_metrics.py --decider NAME` — NAME is `code_coordinator` (the baseline), `example_pipeline`, or any `module:function` |
-| The flow in code | `src/ed_admission/orchestration/example_pipeline.py` — no model; uses every tool of the Coordinator |
+| Run it | `scripts/run_cases.py --decider NAME [--set first|second|paired]` · `scripts/run_metrics.py --decider NAME` — NAME is `code_coordinator` (the baseline), `single_agent`, `multi_agent` (these two call a model: `--paid`), or any `module:function` |
 
 ## 2. The toolbox — permissions in code
 
-`src/ed_admission/tools/toolbox.py`: `Toolbox(role, engine, ward_id=None, negotiation=None, trace=None, patient_agent=None, case=None)`.
+`src/ed_admission/tools/toolbox.py`: `Toolbox(role, engine, ward_id=None, trace=None)`. The Coordinator has no toolbox: it is code.
 A tool the role may not use raises `PermissionDenied`.
 
-| Tool | Patient | Department | Coordinator | Single agent (comparison) |
+| Tool | Patient | Department | Judge | Single agent (comparison) |
 |---|---|---|---|---|
 | `read_patient_record` | ✓ | | | ✓ |
 | `compute_news2` | ✓ | | | ✓ |
 | `clinical_lists` (observation, isolation, chief complaints) | ✓ | | | ✓ |
+| `record_assessment` (the assessment, in the Patient Agent's format) | ✓ | | | ✓ |
 | `department_view` (a ward's report and notes) | | ✓ bound to its own ward | | ✓ any ward, by id |
-| `assess_patient` (runs the Patient Agent) | | | ✓ | |
-| `record_assessment` (its own assessment, in the Patient Agent's format) | | | | ✓ |
-| `all_department_status` (every report, no notes) | | | ✓ | ✓ |
-| `rank_placements` | | | ✓ | ✓ |
-| `ask_ward` (negotiation) | | | ✓ | |
-| `escalate_to_human` | | | ✓ | ✓ |
-| `decide` (the hard rules, in code) | | | ✓ | ✓ |
+| `answer_ward` (the ward's answer, its bed checked in code) | | ✓ | | |
+| `read_case` (the Judge Agent's case file) | | | ✓ | |
+| `give_verdict` (items 2, 8 and 9) | | | ✓ | |
+| `all_department_status` (every report, no notes) | | | | ✓ |
+| `rank_placements` | | | | ✓ |
+| `escalate_to_human` | | | | ✓ |
+| `decide` (the hard rules, in code) | | | | ✓ |
 
 **The single agent's tools** (`agents/single_agent_tools.py`): nine tools, each with a Pydantic input model (the
 schema the model sees, strict) and a description in four parts — What, When, When not, How. Its needs come from its
@@ -65,9 +60,10 @@ id) — the Department Agents' job — so it has no wards to ask: the same task 
 that answer it from their true state (2026-10-15). It works only on the patients of its case, and a bed it gave is
 not offered again in the same case. No agent holds or releases a bed: the environment holds it when the case closes.
 
-**`assess_patient`** runs the Patient Agent with its own toolbox, checks every finding's quote against the record
-(`grounded`), hands the findings to the trace, and keeps the assessment. **`decide`** checks the decision against that
-kept assessment (`tools/decide.py`) and refuses it, with the reasons, when a hard rule is broken:
+**`record_assessment`** checks every finding's quote against the record (`grounded`), hands the findings to the
+trace, and keeps the assessment. **`decide`** checks the decision against that kept assessment (`tools/decide.py`) and
+refuses it, with the reasons, when a hard rule is broken — the multi-agent system runs the same check in its code
+checks (`orchestration/code_checks.py`, item 1):
 
 | The rule | |
 |---|---|
@@ -77,36 +73,36 @@ kept assessment (`tools/decide.py`) and refuses it, with the reasons, when a har
 | The target ward stands | a ward the physician requested is never changed; `internal_medicine` may become A or B, nothing else |
 | Nothing is dropped | every flag the Patient Agent raised · intensive care without a physician's request is marked for a physician's approval |
 
-The Coordinator cannot change what the Patient Agent found, and cannot decide before the patient is assessed. An
+A decision cannot change what the assessment found, and cannot come before the patient is assessed. An
 escalation always passes.
 
-## 3. The negotiation — Coordinator ⇄ Department Agent
+## 3. A request to a ward — the Coordinator ⇄ a Department Agent
 
 | | |
 |---|---|
 | Contract | `src/ed_admission/contracts/negotiation.py` — `WardRequest` (needs only: bed type, severe, observation, isolation, target ward, proposed bed — no identifier) · `WardAnswer` (accept · condition · decline, bed, reason, condition, minutes) |
-| Channel | `src/ed_admission/tools/negotiation.py` — `Negotiation(engine, responders)`; a responder is `(DepartmentView, WardRequest) -> WardAnswer` — the Department Agent |
-| Limits | 3 requests per ward, 8 per case → `LimitReached` → escalate (`placement_rules.yaml`, `negotiation`) |
+| What the ward sees | `src/ed_admission/tools/negotiation.py` — `DepartmentView`: its report and its private notes; `bed_source_failure`: where the ward says the bed comes from is checked in code |
+| Who asks | the graph (`orchestration/graph.py`): the wards of one rung of the ladder together, rung by rung |
+| Limits | 3 requests per ward, 8 per case, counted per assessment → escalate (`placement_rules.yaml`, `negotiation`) |
 | Time | not fixed per request — the engine measures the whole decision in a scripted day |
-| Code responder | `truthful_ward(engine)` answers from the ward's true state — for tests and for the Code Coordinator, the baseline |
 
-## 4. The placement case — steps in order
+## 4. The Coordinator — the graph
 
-`src/ed_admission/orchestration/placement_case.py`. The Coordinator's tools move the case themselves, so a step cannot
-be skipped; a tool called too early is refused (`StepOutOfOrder`).
+`src/ed_admission/orchestration/graph.py`: the case state is saved after every node; routing reads closed fields
+only. The Patient Agent first; the wards rung by rung; code writes the proposal (`proposal.py`) and checks it
+(`code_checks.py`, the Judge's first layer); the Judge Agent last; one correction round, then escalation. Every
+agent's answer passes a handoff check in code (`handoff.py`). The milestones every case must reach, in order:
 
 ```
-triggered → patient_assessed → availability_collected → ranked → [negotiating] → rules_checked → decided
-            assess_patient     all_department_status    rank_     ask_ward        decide
-                                                        placements
-an escalation may end the case at any step · after 3 refused decisions only an escalation is left
+patient_assessed → availability_collected → ranked → rules_checked → decided
+an escalation may end the case at any step
 ```
 
 ## 5. The trace — complete and grounded
 
 `src/ed_admission/observability/tracing.py`: one `Trace` per case. The toolbox records the tool calls, the Patient
-Agent's call (model, prompt version, tokens, cost, time) and its claims with their quotes; the placement case records
-the steps. When a case is decided, hand its trace to the measurement: `tracing.collect(trace)`.
+Agent's call (model, prompt version, tokens, cost, time) and its claims with their quotes; the decider records the
+milestones. When a case is decided, hand its trace to the measurement: `tracing.collect(trace)`.
 `scripts/run_metrics.py` takes them and prints complete traces, groundedness and the cost per case; a decider that
 collects none (the baseline) has no trace metrics.
 
@@ -131,7 +127,8 @@ toolbox (or, for the Department Agent, its ward's view and the request) and neve
 | Patient | `run(toolbox, patient_id) -> PatientAssessment` | on the 74 records: target ward · binding request · severe · intensive care · observation · isolation · flags `prompt_injection`, `missing_vital_sign`, `severity_judgment_note` |
 | Department | `run(view, request) -> WardAnswer` — the negotiation responder | on 314 requests: a bed now or not, as the ward really is · an accepted bed is really free · apart: `the note decides`, the requests where the report alone gives the wrong answer |
 
-`--cases P-007 P-043` or `--limit 5` try a few first. The code examples: `src/ed_admission/orchestration/example_agents.py`.
+`--cases P-007 P-043` or `--limit 5` try a few first. The code examples: `src/ed_admission/evaluation/example_agents.py`. The
+multi-agent system's real agents: `--real --paid`, on the development set only.
 
 **B. The whole decision.**
 
@@ -171,6 +168,10 @@ record, case id or template as an example, and never tuned to one case.
 | Agent | Code | Entry point | Prompt |
 |---|---|---|---|
 | Single agent | `agents/single_agent.py` | `run(engine, event, waiting)` | `prompts/single_agent.md` |
+| Multi-agent system | `agents/multi_agent.py` | `run(engine, event, waiting)` | — |
+| Patient Agent | `agents/orchestra_agents.py`, tools in `agents/orchestra_tools.py` | the graph's `patient_agent` node | `prompts/patient.md` |
+| Department Agent | the same | the graph's `department_agent` node, once per ward | `prompts/department.md` |
+| Judge Agent | the same | the graph's `judge_agent` node | `prompts/judge.md` |
+| Coordinator | `orchestration/graph.py` — code | | |
 
-The multi-agent system's agents are added here as each is built. The task of each agent, and the decisions behind
-it: the docstring of its file and `DECISIONS.md`.
+ The task of each agent, and the decisions behind it: the docstring of its file and `DECISIONS.md`.

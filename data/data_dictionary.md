@@ -256,7 +256,8 @@ Settings, not measurements: each value is written once and read through `src/ed_
 | File | What it holds |
 |---|---|
 | `hospital.yaml` | The 5 wards and their beds (a regular ward: 10 regular beds, 2 observation beds, 1 isolation room · intensive care: 6 beds, 1 isolation room), and how long things take, in simulated minutes: cleaning 45 · a hold 30 · the shift manager's approval 15 · a phone call of the baseline 5. The case desk: how many cases are open at once (`concurrent_cases`) and when the bed is held (`hold_bed_when`) |
-| `agents.yaml` | The single agent's model, the effort, the budget (per activation, per case, per run) and the prices of every kind of token, with the date they were checked |
+| `agents.yaml` | The model of each agent, the effort, the budget (per activation, per case, per run) and the prices of every kind of token, with the date they were checked |
+| `judge_rubric.yaml` | The Judge's rubric: 11 items, each pass or fail, blocking or not, checked in code or by the Judge |
 | `clinical_rules/chief_complaints.yaml` | The closed list of 11 chief complaints, and the ward each one points to |
 | `clinical_rules/proximity_ladder.yaml` | For each target ward, the wards from nearest to farthest |
 | `clinical_rules/news2_levels.yaml` | The NEWS2 score → level of care |
@@ -282,7 +283,7 @@ run and are never uploaded to Git. A column is filled only for the kind of run i
 | `run_id` | Date, time and the name of what was run |
 | `time` | When the run was made |
 | `kind` | `system` — the whole decision · `agent` — one agent alone |
-| `decider` | What decided: `code_coordinator`, `example_pipeline`, or a function |
+| `decider` | What decided: `code_coordinator`, `single_agent`, `multi_agent`, or a function |
 | `agent` | The agent measured alone: `patient` · `department` |
 | `version` | A fingerprint of the code, prompts, configuration and data — a rerun at the same version replaces its rows |
 | `label` | What changed since the last run, in the runner's words |

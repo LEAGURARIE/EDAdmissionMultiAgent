@@ -5,8 +5,10 @@
 `paired_cases.yaml` — two patients, one bed; answers in `PC-<n>.yaml`.
 `contention_moments.yaml` — the moments of competition in day 4: the bed and the two patients, never the winner — it is computed at the moment.
 `dev_test_sets.yaml` — the development and test sets of the comparison, frozen 2026-10-15 (built by `src/ed_admission/evaluation/sets.py`; `docs/design/comparison_protocol.md`).
+`judge_cases.yaml` — 12 cases for measuring the Judge Agent alone (rubric items 2, 8 and 9; four each, right and wrong), built from real record sentences and ward notes, patients of the development set or of no set — **approved as they are by Lea, 2026-11-10** (`status`).
 `clinical_inputs.yaml` — per record: true patient type, challenge, traps, wording, corrected vital signs.
-Answers are built by `src/ed_admission/evaluation/answer_key_builder.py`; a frozen answer is never overwritten.
+The answers were built from the rules by `src/ed_admission/evaluation/answer_key_builder.py`, approved by Lea and frozen;
+the one-time build and freeze steps were removed afterwards (2026-11-14), so a frozen answer cannot be rebuilt by mistake.
 One file per pair — a record placed in a ward-state template, named `<case_id>__<template>.yaml`.
 Each file also lists the text traps planted in the record (`traps`) — they are written here only, never in the record.
 **Only the metrics code may read this folder.** The environment, tools, baselines and agents never do;

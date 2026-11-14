@@ -24,9 +24,6 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Local helper tools (not part of the project)
-.local_tools/
-
 # Not uploaded (decided by the user)
 CLAUDE.md
 PROJECT.md
@@ -34,8 +31,11 @@ PROJECT.md
 # docs/reference is local only: the guidelines and our reference PDFs (decided by the user)
 docs/reference/
 
-# Drafts of the agents: local only until they are reviewed and approved (decided by the user)
+# Drafts: local only — the user's private notes (decided by the user)
 drafts/
 
 # The slides and their visuals: local only (decided by the user)
 presentation/
+
+# Learning material: local only, never uploaded
+learning/

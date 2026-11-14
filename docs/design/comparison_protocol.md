@@ -171,3 +171,87 @@ agent on Opus; less with cheaper models where the multi-agent system's measureme
   26 minutes). Some of the 27 pairs no longer meet the note their template planted for the original ward — what a
   real shift manager choosing by occupancy would also not meet. The development runs, re-scored without a model
   call: 73% · 73% · 86%.
+- **2026-11-09, a known difference in the prompts (Lea approved), before any multi-agent run:** the Patient Agent's
+  prompt keeps the single agent's wording for reading the record, and adds what the single agent's prompt does not
+  have: three short examples of reading traps (negation and uncertainty; someone else's finding and the past; a
+  field empty with the value in the text), a confidence per finding, the needs each finding backs, the Judge's
+  correction round, and a refusal example (it never picks a bed). The examples teach reading, which both systems
+  do, so they may favour the multi-agent system on the Judge's item 2 and on groundedness. The single agent's
+  prompt is not changed — it was measured as it is. The report names this difference next to any result on
+  reading the record.
+- **2026-11-09, a clarification of how the days are shown (Lea approved), before any multi-agent run:** what is
+  measured does not change, only how the report shows it. The three days of a shift (39 admissions) are shown
+  together, day by day and pooled: the minutes to a bed over every patient placed, each day weighted by its placed
+  patients. Day 4, competing for a bed, is shown apart: the moments decided right out of those reached as designed,
+  and its violations, never its minutes to a bed. Two patients compete for one isolation room there, so one of them
+  waits by design; a system that misses the isolation need does not wait, and would look faster for being less
+  safe. The baseline is shown in both parts, from the same runs.
+- **2026-11-12, deviation — the multi-agent system's 2 rounds made on the whole system (Lea decided), after its
+  first test runs:** the single agent's 2 rounds each followed a run of the whole system on the development set
+  (section 6). The multi-agent system's two changes so far — the Judge Agent's prompt (items 8 and 9) and the Patient
+  Agent's check of its flags — were made on agents measured alone, before the whole system had run, so neither
+  could see where the whole decision fails. Its first whole-system development run showed a kind of mistake the
+  agents alone were never measured on: a bed in the target ward that frees soon (T15, T16, T21) is not offered as a
+  wait — the Department Agent declines a bed that has no number in its note, or answers a condition with no
+  minutes. Decided: those two changes count as building the agents (the model and prompt ladder of build step 5),
+  and the multi-agent system gets **2 rounds on the whole system, as the single agent did**, each after a whole
+  development run. **Round 1: the Department Agent moves from Haiku 5.5 to Sonnet 5.5** (the model ladder of
+  DECISIONS, "start cheap, climb only where measurement asks for it" — its prompt already shows this case, example
+  3, and it still misses it); round 2 is chosen from round 1's development run. The first three test runs (match
+  58%, `20261112-181532`, `-183443`, `-185404`) stay in the report as the multi-agent system before its rounds;
+  after the rounds the test set is run 3 times again. Two things the single agent did not have are named in the
+  report: the multi-agent system's test results were seen before its rounds, and its development set was
+  measured agent by agent as well. The rounds are chosen from the development set only.
+- **2026-11-12, the multi-agent system's 2 whole-system rounds (Lea approved each), on the development set:**
+  round 1 — the Department Agent on Sonnet 5.5 (run `20261112-205417`, match 68%, unchanged; the wards' answers
+  closer to right: a bed soon now answered as a condition, but without its minutes, or with a bed the note does not
+  name) · round 2 — `answer_ward` refused a condition with neither minutes nor the closed question (run
+  `20261112-211545`, match 73%; the only decision that changed, P-019, changed by the Patient Agent's run-to-run
+  variation; the Department Agent sent the refused answer again unchanged until its loop budget ran out, so P-025 was
+  escalated). **Round 2 was reverted (Lea), on the development set:** it fixed none of the decisions it was made
+  for. The multi-agent system is frozen with round 1 and run 3 times on the test set.
+- **2026-11-13, deviation — a third arm: the multi-agent system with Opus 5.5 in every agent (Lea decided), after
+  the comparison:** the single agent runs on Opus 5.5, the multi-agent system on Sonnet 5.5, Sonnet 5.5 and
+  Haiku 5.5, so the gap in match (76% against 60%) mixes the design with the models. To separate them, the
+  multi-agent system is run once more with the same model as the single agent in all three agents — the same
+  prompts, the same code, the same limits; only the three model lines of `config/agents.yaml` change, for these
+  runs only, and are restored after. It is a check of where the gap comes from, not a contender: it gets **no
+  rounds**. One run on the development set (to see that nothing breaks with Opus), then 3 runs on the test set.
+  The frozen multi-agent system (round 1) stays the system compared in the report; this arm is reported beside
+  it. Estimated cost: about $18.
+- **2026-11-13, the Opus arm's result:** test runs `20261113-213546`, `-215934`, `-222334` —
+  match 58%, 64%, 61% (mean 61%) against 60% (58–61%) for the frozen system on its cheaper models;
+  the ranges overlap entirely. A stronger model in every agent did not close the gap to the single agent (76%); it
+  tripled the cost ($0.131 a case). The gap comes from the design, not the models. Spent: $14.0.
+- **2026-11-13, deviation — round 2, a second attempt (Lea decided), after the test results were seen:** round 2
+  (`answer_ward` refusing a condition without minutes) was reverted on 2026-11-12. The Opus arm showed the misses are
+  in the method between the agents: a ward that knows a bed frees soon says so in its reason, its closed fields do
+  not carry it, and the code goes on to a temporary bed. The second attempt is **rubric item 12, "no better option
+  left"**, checked by the Judge Agent: the case file — now with each ward's rung, the target ward and the waiting
+  rule — shows no option that meets the need and the rules and is better than the proposal, by the order of the
+  rules. Worded as a principle, not for the cases seen (Lea: the agents must act in every situation); its example
+  is a situation no template has. When it fails, the Judge names the ward (`missed_ward`, checked in code), only
+  that ward is asked again, and code proposes from its answer. **Named in the report:** this is the third change
+  tried on the multi-agent system's whole-system rounds, and it was chosen after its test results were seen — the
+  single agent had neither. It is measured on the development set first; it is kept only if it fixes decisions
+  there, and then the test set is run 3 times and the days again.
+- **2026-11-14, round 2's second attempt reverted (Lea decided):** the development run `20261113-225831` with rubric
+  item 12 matched 68% — the same as round 1; no decision changed for the better, and one got worse: T21, a temporary
+  bed before, was escalated because the Judge Agent's verdict failed the handoff check twice. In T15 and T16 the Judge
+  Agent quoted the target ward's "about an hour" but passed item 12, reading it as not clearly within the allowed
+  wait. By the rule set above (kept only if it fixes decisions on the development set), item 12 was removed from the
+  rubric, the Judge Agent's prompt, the verdict, the case file, the Coordinator and the tests; the version fingerprint
+  is back to `f177bc7f43`, the frozen system. The test set was not run with it. **Named in the report as a finding:**
+  neither a stronger model in every agent (the Opus arm) nor a general check by the Judge Agent closed the gap — what
+  a ward knows and says only in free text is lost between the agents. Spent: $0.82.
+- **2026-11-14, side checks kept out of the comparison (Lea approved):** the report takes each system's latest 3
+  complete test runs and latest day runs, but never a run whose label starts with a side-check prefix
+  (`SIDE_CHECKS` in `evaluation/comparison_report.py`: "Opus arm"); the side checks are reported apart, as checks of
+  where the gap comes from. The report again reads the frozen system's runs `20261112-213908`, `20261113-175416`,
+  `-181450`.
+- **2026-11-14, the side checks in the report (Lea approved):** `comparison_report.md` gets a section "Where the gap
+  comes from": each side check (`SIDE_CHECKS` — "Stronger models", the Opus arm; "Judge Agent looks for a better option", round 2's second
+  attempt, which was rubric item 12), set by set,
+  against the frozen system on the same set (the version of its chosen test runs) — match, hard-rule violations,
+  escalations, cost a case; beyond the spread only when both sides have at least two runs, a single run is shown
+  as "one run — no spread". On the test set the Opus arm is the same on every quality measure and 3x the cost.
