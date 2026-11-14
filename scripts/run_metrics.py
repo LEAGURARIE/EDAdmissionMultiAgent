@@ -3,7 +3,7 @@ today's procedure written as code — and against the charter's targets.
 
 Run (from the project folder):
     .venv\\Scripts\\python scripts\\run_metrics.py                     (decider: code_coordinator — the baseline itself)
-    .venv\\Scripts\\python scripts\\run_metrics.py --decider example_pipeline
+    .venv\\Scripts\\python scripts\\run_metrics.py --decider multi_agent --paid --set dev   (paid)
     .venv\\Scripts\\python scripts\\run_metrics.py --decider my_package.my_module:my_decider   (your own decider)
 
 What it runs, for the decider and for the baseline: the pairs of both files (one decision each), the paired cases (two
@@ -218,8 +218,8 @@ def run_once(args, decider) -> bool:
     except RunStopped as stop:
         save_partial_run(args, sourced, stop)
         return False
-    except Exception as failure:                                    # whatever stops it, what was paid for is kept
-        save_partial_run(args, sourced, failure)
+    except (Exception, KeyboardInterrupt) as failure:              # whatever stops it — Ctrl+C too — what was
+        save_partial_run(args, sourced, failure)                    # paid for is kept
         raise
     try:
         pairs, paired, rows, baseline_pairs, baseline_paired, days, baseline_days, saved, day_engines, moments = evaluated
@@ -261,13 +261,15 @@ def run_everything(decider, sourced: list, set_name: str = "all", which_days: st
         baseline_days[name] = metrics.score_day(engines["baseline"], name)
         saved[name] = metrics.minutes_saved(engines["baseline"], engines["system"])
         day_engines[name] = engines["system"]
-    moments = {"system": [], "baseline": []}
+    # The contention day: its moments, and its day score (violations) — kept apart from the three days.
+    moments = {"system": [], "baseline": [], "scored": {}}
     for label, policy in ((("system", decider), ("baseline", code_coordinator)) if CONTENTION_DAY in chosen else ()):
         engine = load_scenario(PROJECT / "data" / "scenarios" / f"{CONTENTION_DAY}.yaml")
         engine.policy = policy
         engine.run_to_end()
         sourced += [(f"day:{CONTENTION_DAY}", trace) for trace in tracing.take() if label == "system"]
-        moments[label] = metrics.contention_moments(CONTENTION_DAY, engine)
+        moments["scored"][label] = metrics.score_day(engine, CONTENTION_DAY)
+        moments[label] = moments["scored"][label]["moments"]
         if label == "system":
             day_engines[CONTENTION_DAY] = engine
     return pairs, paired, rows, baseline_pairs, baseline_paired, days, baseline_days, saved, day_engines, moments
@@ -344,6 +346,10 @@ def report_and_log(args, decider, evaluated, sourced, everything, trace_metrics)
         numbers[f"{name} bed_not_available"] = days[name]["bed_not_available"]
         numbers[f"baseline {name} minutes to bed"] = (None if baseline_days[name]["mean_minutes_to_bed"] is None
                                                       else round(baseline_days[name]["mean_minutes_to_bed"], 1))
+        numbers[f"{name} placed"] = days[name]["placed"]               # to pool the three days' minutes
+        numbers[f"baseline {name} placed"] = baseline_days[name]["placed"]
+        numbers[f"baseline {name} violations"] = baseline_days[name]["violations"]
+        numbers[f"baseline {name} bed_not_available"] = baseline_days[name]["bed_not_available"]
     for name in days:
         mean_saved, to_bed = saved[name]["mean_saved"], days[name]["mean_minutes_to_bed"]
         numbers[f"{name} minutes saved"] = None if mean_saved is None else round(mean_saved, 1)
@@ -354,9 +360,13 @@ def report_and_log(args, decider, evaluated, sourced, everything, trace_metrics)
         numbers.update({k: round(trace_metrics[k], 4) for k in ("complete_trace_rate", "groundedness")})
     if run_cost:
         numbers.update({k: round(v, 6) if isinstance(v, float) else v for k, v in run_cost.items()})
-    reached = [m for m in moments["system"] if m["as_designed"]]
-    numbers["competing moments as designed"] = len(reached)
-    numbers["competing moments right"] = sum(m["right"] for m in reached)
+    for label, prefix in (("system", ""), ("baseline", "baseline ")):  # the contention day: moments and safety
+        if label in moments["scored"]:
+            reached = [m for m in moments[label] if m["as_designed"]]
+            numbers[f"{prefix}competing moments as designed"] = len(reached)
+            numbers[f"{prefix}competing moments right"] = sum(m["right"] for m in reached)
+            numbers[f"{prefix}{CONTENTION_DAY} violations"] = moments["scored"][label]["violations"]
+            numbers[f"{prefix}{CONTENTION_DAY} bed_not_available"] = moments["scored"][label]["bed_not_available"]
     numbers["mean_seconds"] = round(everything["mean_seconds"], 3)
     path = run_log.log_run(run, numbers)
     if run_cost:

@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ED Bed Placement · Replay</title>
+<style>
+/* The demo replay page. scripts/build_demo_replay.py puts the saved cases in CASES and writes
+   presentation/demo_replay.html. No external file, font or library: it must run offline in class. */
+:root {
+  --bg: #eef2f3; --surface: #ffffff; --raised: #f7f9fa; --fg: #17262b; --muted: #5d6e73; --line: #d5dee0;
+  --accent: #0f6e74; --accent-soft: #dcefef; --agent: #6b46b8; --agent-soft: #ece5f8;
+  --ok: #1d7a4a; --ok-soft: #e1f3e8; --wait: #9a6200; --wait-soft: #fbf0d9; --no: #b23b2c; --no-soft: #f9e3df;
+  --mark: #fff0a8; --shadow: 0 1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.06);
+  --body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mono: Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1719; --surface: #172327; --raised: #1c2a2e; --fg: #e3ecec; --muted: #9aaeb1; --line: #2c3c40;
+    --accent: #5cc3c8; --accent-soft: #18383a; --agent: #b59ae8; --agent-soft: #2a2340;
+    --ok: #7fd1a0; --ok-soft: #173325; --wait: #f0b960; --wait-soft: #3a2c14; --no: #f08a7a; --no-soft: #3d1f1a;
+    --mark: #5c4f12; --shadow: none; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1719; --surface: #172327; --raised: #1c2a2e; --fg: #e3ecec; --muted: #9aaeb1; --line: #2c3c40;
+  --accent: #5cc3c8; --accent-soft: #18383a; --agent: #b59ae8; --agent-soft: #2a2340;
+  --ok: #7fd1a0; --ok-soft: #173325; --wait: #f0b960; --wait-soft: #3a2c14; --no: #f08a7a; --no-soft: #3d1f1a;
+  --mark: #5c4f12; --shadow: none; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; }
+.app { height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+
+/* ---- top bar ---- */
+.top { display: flex; align-items: center; gap: 16px; padding: 12px 22px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top h1 { font-size: 21px; margin: 0; font-weight: 700; letter-spacing: -.01em; }
+.top h1 span { color: var(--accent); }
+.top .grow { flex: 1; }
+.clock { font-family: var(--mono); font-size: 18px; padding: 4px 10px; border-radius: 8px; background: var(--raised); border: 1px solid var(--line); }
+select, button { font: inherit; color: inherit; }
+select { padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--raised); }
+
+/* ---- middle: the stages rail and the stage ---- */
+.middle { display: grid; grid-template-columns: 230px 1fr; min-height: 0; }
+.rail { padding: 18px 14px; border-right: 1px solid var(--line); background: var(--surface); display: grid; align-content: start; gap: 6px; }
+.rail .item { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; color: var(--muted); font-size: 15px; }
+.rail .dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.rail .item.done { color: var(--fg); }
+.rail .item.done .dot { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.rail .item.now { background: var(--accent-soft); color: var(--fg); font-weight: 600; }
+.rail .item.now .dot { border-color: var(--accent); color: var(--accent); animation: pulse 1.4s infinite; }
+.rail .who { font-size: 12px; color: var(--muted); font-weight: 400; display: block; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(15,110,116,.35); } 50% { box-shadow: 0 0 0 7px rgba(15,110,116,0); } }
+
+.stage { padding: 20px 26px; overflow: auto; min-height: 0; }
+.stage h2 { margin: 0 0 4px; font-size: 24px; }
+.stage .sub { color: var(--muted); margin: 0 0 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); }
+.enter { animation: enter .45s ease both; }
+@keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* admission */
+.board { display: grid; gap: 10px; max-width: 760px; }
+.board .row { display: grid; grid-template-columns: 90px 110px 1fr 120px; gap: 12px; align-items: center; padding: 12px 16px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.board .row.new { border: 2px solid var(--accent); box-shadow: var(--shadow); animation: slidein .7s ease both; }
+@keyframes slidein { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
+.board .id { font-family: var(--mono); font-weight: 700; }
+.tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--raised); border: 1px solid var(--line); }
+.tag.go { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+
+/* patient agent */
+.two { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; align-items: start; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 700; margin: 0 0 6px; }
+.he { direction: rtl; text-align: right; unicode-bidi: plaintext; line-height: 1.75; font-size: 16px; white-space: pre-wrap; }
+mark { background: var(--mark); color: inherit; border-radius: 4px; padding: 0 2px; transition: background .4s; }
+mark.fresh { outline: 2px solid var(--agent); }
+.finding { border-left: 4px solid var(--agent); background: var(--agent-soft); border-radius: 8px; padding: 9px 12px; margin-bottom: 8px; }
+.finding .claim { font-weight: 600; }
+.finding .q { margin-top: 4px; color: var(--muted); }
+.conf { font-size: 12px; font-weight: 700; margin-left: 6px; }
+.needs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+.need { border-radius: 10px; padding: 10px; text-align: center; border: 1px solid var(--line); background: var(--raised); }
+.need b { display: block; font-size: 18px; }
+.need.yes { background: var(--no-soft); border-color: var(--no); color: var(--no); }
+.need span { font-size: 13px; color: var(--muted); }
+.target { margin-top: 10px; font-size: 18px; }
+.target b { color: var(--accent); }
+
+/* department agent: the hospital map */
+.map { position: relative; display: grid; gap: 12px; }
+.rung { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: stretch; }
+.rung .rl { font-size: 13px; color: var(--muted); font-weight: 700; padding-top: 14px; }
+.rung .rl small { display: block; font-weight: 400; }
+.tiles { display: flex; gap: 12px; flex-wrap: wrap; }
+.tile { width: 200px; min-height: 64px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); padding: 10px 12px; transition: background .4s, border-color .4s, opacity .4s; }
+.tile .n { font-weight: 700; }
+.tile .s { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.tile.off { opacity: .4; }
+.tile.visiting { border-color: var(--agent); box-shadow: 0 0 0 4px var(--agent-soft); }
+.tile.accept { background: var(--ok-soft); border-color: var(--ok); }
+.tile.condition { background: var(--wait-soft); border-color: var(--wait); }
+.tile.decline { background: var(--no-soft); border-color: var(--no); }
+.token { position: absolute; left: 0; top: 0; width: 44px; height: 44px; border-radius: 50%; background: var(--agent); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 14px; box-shadow: 0 3px 10px rgba(0,0,0,.25); transition: transform .9s cubic-bezier(.5,0,.25,1); z-index: 2; pointer-events: none; }
+.wardgrid { display: grid; grid-template-columns: minmax(560px, 1.1fr) 1fr; gap: 18px; align-items: start; }
+.screen { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.screen .box { border-radius: 12px; padding: 12px 14px; border: 1px solid var(--line); background: var(--surface); }
+.screen .box.secret { background: var(--agent-soft); border: 1.5px dashed var(--agent); }
+.screen h3 { margin: 0 0 6px; font-size: 15px; }
+.answer { border-radius: 12px; padding: 12px 14px; border: 2px solid var(--line); }
+.answer .word { font-weight: 800; letter-spacing: .06em; font-size: 20px; }
+.answer.accept { border-color: var(--ok); background: var(--ok-soft); } .answer.accept .word { color: var(--ok); }
+.answer.condition { border-color: var(--wait); background: var(--wait-soft); } .answer.condition .word { color: var(--wait); }
+.answer.decline { border-color: var(--no); background: var(--no-soft); } .answer.decline .word { color: var(--no); }
+.answer.pending { border-style: dashed; color: var(--muted); }
+.typing::after { content: "…"; animation: dots 1s steps(3) infinite; }
+@keyframes dots { 0% { content: ""; } 33% { content: "."; } 66% { content: ".."; } 100% { content: "..."; } }
+.sent { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+/* checks and judge */
+.list { display: grid; gap: 8px; max-width: 900px; }
+.check { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; padding: 9px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+.check .mk { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; background: var(--ok); }
+.check.fail .mk { background: var(--no); }
+.check .why { color: var(--muted); font-size: 14px; }
+.proposal { font-size: 20px; margin-bottom: 14px; }
+.proposal b { color: var(--accent); }
+
+/* shift manager */
+.rec { max-width: 900px; border: 2px solid var(--accent); border-radius: 16px; padding: 20px 22px; background: var(--surface); box-shadow: var(--shadow); }
+.rec .big { font-size: 26px; font-weight: 700; margin: 4px 0 8px; }
+.rec .why { color: var(--muted); }
+.btns { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.btn { padding: 10px 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--raised); font-weight: 600; cursor: default; }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.warn { margin-top: 10px; padding: 8px 12px; border-radius: 8px; background: var(--wait-soft); color: var(--wait); font-size: 14px; }
+.reveal { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 900px; }
+.reveal .box { border-radius: 12px; padding: 12px 14px; border: 1px solid var(--line); background: var(--surface); }
+.reveal .box h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.reveal .box .v { font-weight: 700; font-size: 17px; }
+.reveal .box.hit { border-color: var(--ok); background: var(--ok-soft); }
+.reveal .box.miss { border-color: var(--no); background: var(--no-soft); }
+.small { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+/* ---- bottom: caption and controls ---- */
+.bottom { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; padding: 12px 22px; background: var(--surface); border-top: 1px solid var(--line); }
+.caption { font-size: 17px; font-style: italic; }
+.controls { display: flex; gap: 8px; align-items: center; }
+.controls button { padding: 8px 14px; border-radius: 9px; border: 1px solid var(--line); background: var(--raised); cursor: pointer; font-weight: 600; }
+.controls button.play { background: var(--accent); color: #fff; border-color: var(--accent); min-width: 104px; }
+.controls button:disabled { opacity: .4; cursor: default; }
+.progress { font-family: var(--mono); font-size: 13px; color: var(--muted); min-width: 64px; text-align: right; }
+
+@media (max-width: 980px) {
+  .middle { grid-template-columns: 1fr; }
+  .rail { grid-auto-flow: column; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+  .two, .wardgrid, .reveal { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <h1>Emergency Department · <span>Bed Placement</span></h1>
+    <div class="grow"></div>
+    <label>Case <select id="pick"></select></label>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+  <div class="middle">
+    <nav class="rail" id="rail"></nav>
+    <main class="stage" id="stage"></main>
+  </div>
+  <div class="bottom">
+    <div class="caption" id="caption"></div>
+    <div class="controls">
+      <button id="restart" title="From the start">⟲</button>
+      <button id="back" title="One step back">◀</button>
+      <button id="play" class="play">▶ Play</button>
+      <button id="next" title="Next step">⏭ Next</button>
+      <select id="speed" title="Speed"><option value="1">1x</option><option value="2">2x</option></select>
+      <span class="progress" id="progress"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+const CASES = /*CASES*/[];
+
+const STAGES = [
+  {key: "admission", name: "New admission", who: "Emergency department"},
+  {key: "patient", name: "Patient Agent", who: "reads the record"},
+  {key: "wards", name: "Department Agent", who: "ward by ward"},
+  {key: "code", name: "Code checks", who: "the proposal and the rules"},
+  {key: "judge", name: "Judge Agent", who: "checks the reading"},
+  {key: "manager", name: "Shift manager", who: "decides"},
+];
+const CAPTION = {
+  admission: "The physician decided to admit. The system receives only the case number and the time.",
+  patient: "Only the Patient Agent reads the record. Every need rests on a quote.",
+  wards: "The ward receives only the needs — never the patient's identity.",
+  code: "Code builds the proposal and checks every hard rule — the same way every time.",
+  judge: "The Judge Agent checks what code cannot: that the record was read right and the reason is true.",
+  manager: "The system recommends. The shift manager decides.",
+};
+const NEED_NAMES = {severe: "Severe", intensive_care: "ICU", observation: "Observation", isolation: "Isolation"};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+let current, steps = [], at = 0, timer = null, lastTile = null;
+
+/* ---------- the steps of one case ---------- */
+function stepsOf(c) {
+  const s = [{stage: "admission", ms: 3200}];
+  const findings = c.assessment ? c.assessment.findings : [];
+  s.push({stage: "patient", shown: 0, ms: 2200});
+  findings.forEach((_, i) => s.push({stage: "patient", shown: i + 1, ms: 2600}));
+  s.push({stage: "patient", shown: findings.length, needs: true, ms: 3800});
+  s.push({stage: "wards", visit: null, ms: 2600});
+  c.visits.forEach((v, i) => {
+    s.push({stage: "wards", visit: i, answered: false, ms: 3600});
+    s.push({stage: "wards", visit: i, answered: true, ms: 4200});
+  });
+  s.push({stage: "code", ms: 4600});
+  s.push({stage: "judge", ms: 5200});
+  s.push({stage: "manager", reveal: false, ms: 5200});
+  s.push({stage: "manager", reveal: true, ms: 0});
+  return {list: s};
+}
+
+/* ---------- render ---------- */
+function render() {
+  const step = steps.list[at], c = current, k = STAGES.findIndex((x) => x.key === step.stage);
+  $("rail").innerHTML = STAGES.map((x, i) =>
+    `<div class="item ${i < k ? "done" : i === k ? "now" : ""}"><div class="dot">${i < k ? "✓" : i + 1}</div>` +
+    `<div>${x.name}<span class="who">${x.who}</span></div></div>`).join("");
+  $("caption").textContent = CAPTION[step.stage];
+  $("progress").textContent = `${at + 1} / ${steps.list.length}`;
+  $("back").disabled = at === 0;
+  $("next").disabled = at === steps.list.length - 1;
+  $("clock").textContent = c.decided;
+  const view = {admission, patient, wards, code, judge, manager}[step.stage];
+  $("stage").innerHTML = view(c, step);
+  if (step.stage === "wards") moveToken(step); else lastTile = null;
+}
+
+function admission(c) {
+  return `<h2>Admissions board</h2><p class="sub">${esc(c.day)} · the emergency department</p><div class="board">` +
+    `<div class="row new"><span class="id">${esc(c.id)}</span><span>${esc(c.decided)}</span>` +
+    `<span>${esc(c.patient)} · triage ${esc(c.triage)} · ${esc(c.complaint)}</span><span class="tag go">needs a bed</span></div></div>`;
+}
+
+function highlight(text, quotes, freshIndex) {
+  let html = esc(text);
+  quotes.forEach((q, i) => {
+    const e = esc(q);
+    if (e && html.includes(e)) html = html.replace(e, `<mark class="${i === freshIndex ? "fresh" : ""}">${e}</mark>`);
+  });
+  return html;
+}
+
+function patient(c, step) {
+  if (!c.assessment) return `<h2>Patient Agent</h2><p class="sub">No assessment passed the handoff check — escalated.</p>`;
+  const shown = c.assessment.findings.slice(0, step.shown), quotes = shown.map((f) => f.quote);
+  const fresh = step.needs ? -1 : step.shown - 1;
+  const note = (label, text) => `<p class="label">${label}</p><div class="he">${highlight(text, quotes, fresh)}</div>`;
+  const cards = shown.map((f, i) => `<div class="finding ${i === fresh ? "enter" : ""}"><div class="claim">${esc(f.claim)}` +
+      `<span class="conf">· ${esc(f.confidence)} confidence</span></div><div class="q he">„${esc(f.quote)}“</div></div>`).join("");
+  const reading = step.shown === 0 ? `<p class="sub typing">Reading the record</p>` : "";
+  const needs = step.needs ? `<div class="enter"><p class="label" style="margin-top:14px">What the patient needs</p><div class="needs">` +
+      Object.entries(c.assessment.needs).map(([n, v]) => `<div class="need ${v ? "yes" : ""}"><b>${v ? "Yes" : "No"}</b><span>${NEED_NAMES[n]}</span></div>`).join("") +
+      `</div><div class="target">Target ward: <b>${esc(c.assessment.target)}</b>${c.assessment.binding ? " · the physician asked for it" : ""}</div>` +
+      (c.assessment.flags.length ? `<div class="warn">Flags for the shift manager: ${c.assessment.flags.map(esc).join(" · ")}</div>` : "") + `</div>` : "";
+  return `<h2>Patient Agent reads the record</h2><p class="sub">${esc(c.id)} · ${esc(c.patient)} · triage ${esc(c.triage)}</p>` +
+    `<div class="two"><div class="panel">${note("Triage note", c.notes.triage)}<div style="height:12px"></div>${note("Physician's note", c.notes.physician)}</div>` +
+    `<div>${reading}${cards}${needs}</div></div>`;
+}
+
+function wards(c, step) {
+  const byRung = {};
+  c.wards.forEach((w) => { const r = w.rung ?? "off"; (byRung[r] = byRung[r] || []).push(w); });
+  const now = step.visit;                                     // the visit on screen, or null before the first
+  const seen = (i) => i < (now ?? -1) || (i === now && step.answered);
+  const lastSeen = (id) => { let found = null; c.visits.forEach((v, i) => { if (v.ward === id && seen(i)) found = v; }); return found; };
+  const tile = (w) => {
+    const done = lastSeen(w.id), visiting = now !== null && c.visits[now].ward === w.id && !step.answered;
+    const later = c.visits.some((v, i) => v.ward === w.id && !seen(i));
+    const cls = [w.rung === null ? "off" : "", done && !visiting ? done.answer : "", visiting ? "visiting" : ""].join(" ");
+    const status = visiting ? "being asked" : done ? done.answer.toUpperCase() + (later ? " · asked again later" : "")
+      : later ? "to be asked" : w.rung === null ? "not on this ladder" : "not asked";
+    return `<div class="tile ${cls}" id="tile-${w.id}"><div class="n">${esc(w.name)}</div><div class="s">${status}</div></div>`;
+  };
+  const rungs = Object.keys(byRung).filter((r) => r !== "off").sort((a, b) => a - b);
+  const label = (r) => r === "1" ? `Rung 1<small>the target ward</small>` : `Rung ${r}<small>a temporary bed</small>`;
+  let html = `<h2>Department Agent — ward by ward</h2><p class="sub">Rung by rung, from the target ward outward. Wards on one rung are asked together.</p>` +
+    `<div class="wardgrid"><div class="panel"><div class="map" id="map"><div class="token" id="token">DA</div>` +
+    rungs.map((r) => `<div class="rung"><div class="rl">${label(r)}</div><div class="tiles">${byRung[r].map(tile).join("")}</div></div>`).join("") +
+    (byRung.off ? `<div class="rung"><div class="rl">Not on this ladder</div><div class="tiles">${byRung.off.map(tile).join("")}</div></div>` : "") +
+    `</div></div>`;
+  let screen = `<div class="screen"><div class="answer pending">The Department Agent goes to the target ward first.</div></div>`;
+  if (!c.visits.length) screen = `<div class="screen"><div class="answer pending">No ward was asked.</div></div>`;
+  if (now !== null) {
+    const v = c.visits[now], w = c.wards.find((x) => x.id === v.ward) || {name: v.ward, free: [], notes: []};
+    const again = c.visits.slice(0, now).some((x) => x.ward === v.ward);
+    const notes = w.notes.length ? w.notes.map((n) => `<div class="he">${esc(n)}</div>`).join("") : `<div class="small">No notes — the report is all there is.</div>`;
+    const answer = step.answered
+      ? `<div class="answer ${v.answer} enter"><div class="word">${v.answer.toUpperCase()}${v.bed ? ` · bed ${v.bed}` : ""}</div>` +
+        `<div style="margin-top:6px">${esc(v.reason)}</div>` +
+        (v.condition ? `<div class="small">Condition: ${esc(v.condition)}${v.minutes ? ` · in ${v.minutes} min` : " · no minutes given"}</div>` : "") + `</div>`
+      : `<div class="answer pending"><div class="typing">${esc(w.name)} is answering</div></div>`;
+    screen = `<div class="screen enter"><div class="box"><h3>${esc(w.name)} · what the report shows</h3>` +
+      `<div>Free: ${w.free.length ? w.free.map(esc).join(", ") : "none"}</div>` +
+      `<div class="sent">${again ? "Asked again — the ladder from the start, for the last-resort bed." : "The request: the bed type and the needs only."}</div></div>` +
+      `<div class="box secret"><h3>What only the ward knows</h3>${notes}</div><div>${answer}</div></div>`;
+  }
+  return html + screen + `</div>`;
+}
+
+function moveToken(step) {
+  const map = $("map"), token = $("token");
+  if (!map || !token) return;
+  const visiting = step.visit === null ? null : {id: current.visits[step.visit].ward};
+  const place = (id) => {
+    const t = id && $("tile-" + id);
+    if (!t) return {x: 0, y: -60, hidden: true};
+    const m = map.getBoundingClientRect(), r = t.getBoundingClientRect();
+    return {x: r.right - m.left - 30, y: r.top - m.top - 18};
+  };
+  const from = place(lastTile), to = place(visiting && visiting.id);
+  token.style.transition = "none";
+  token.style.transform = `translate(${from.x}px, ${from.y}px)`;
+  token.style.opacity = from.hidden && to.hidden ? 0 : 1;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    token.style.transition = "";
+    token.style.transform = `translate(${to.x}px, ${to.y}px)`;
+    token.style.opacity = to.hidden ? 0 : 1;
+  }));
+  lastTile = visiting ? visiting.id : null;
+}
+
+function checks(items) {
+  return items.map((i, n) => `<div class="check ${i.passed ? "" : "fail"} enter" style="animation-delay:${n * 0.35}s">` +
+    `<div class="mk">${i.passed ? "✓" : "✕"}</div><div><b>${i.number} · ${esc(i.name)}</b>${i.reason ? `<div class="why">${esc(i.reason)}</div>` : ""}</div></div>`).join("");
+}
+
+function code(c) {
+  if (!c.proposal) return `<h2>Code checks</h2><p class="sub">No proposal: ${esc(c.decision.escalation || "no ward offered a bed that meets the needs")}.</p>`;
+  return `<h2>Code builds the proposal and checks the rules</h2><p class="sub">The highest ward on the ladder that accepted — no model involved.</p>` +
+    `<div class="proposal">Proposal: <b>${esc(c.proposal.line)}</b></div><div class="list">${checks(c.proposal.checks)}</div>`;
+}
+
+function judge(c) {
+  if (!c.verdict) return `<h2>Judge Agent</h2><p class="sub">No proposal reached the Judge Agent.</p>`;
+  return `<h2>Judge Agent</h2><p class="sub">It sees the quoted sentences and the wards' answers — never the whole record.</p>` +
+    `<div class="list">${checks(c.verdict.items)}</div>` +
+    `<div class="proposal enter" style="margin-top:14px;animation-delay:${c.verdict.items.length * 0.35}s">Verdict: <b>${c.verdict.valid ? "valid" : "not valid"}</b></div>` +
+    (c.verdict.corrections || []).map((x) => `<div class="warn">An earlier proposal was sent back: ${esc(x)}</div>`).join("");
+}
+
+function manager(c, step) {
+  const d = c.decision;
+  let html = `<h2>Shift manager decides</h2><p class="sub">Cost of this case $${c.cost.toFixed(3)} · ${c.seconds} seconds</p>` +
+    `<div class="rec enter"><p class="label">The system recommends</p><div class="big">${esc(d.line)}</div><div class="why">${esc(d.reason)}</div>` +
+    (d.awaiting ? `<div class="small">Temporary: awaiting transfer to ${esc(d.awaiting)}.</div>` : "") +
+    (d.flags.length ? `<div class="warn">Flags: ${d.flags.map(esc).join(" · ")}</div>` : "") +
+    (d.escalation ? `<div class="warn">Escalated: ${esc(d.escalation)}</div>` : "") +
+    `<div class="btns"><span class="btn primary">✓ Approve</span><span class="btn">Change</span><span class="btn">⚠ Escalate</span></div></div>`;
+  if (!step.reveal) return html + `<div class="btns"><button class="btn" style="cursor:pointer" onclick="go(at + 1)">Reveal: expected answer and the single agent</button></div>`;
+  const e = c.expected, hit = sameAs(d.line, e);
+  return html + `<div class="reveal enter"><div class="box ${hit ? "hit" : "miss"}"><h3>Multi-agent system</h3><div class="v">${esc(d.line)}</div><div class="small">${esc(d.escalation || d.reason)}</div></div>` +
+    `<div class="box"><h3>Expected answer</h3><div class="v">${esc(e.action)}${e.ward ? " · " + esc(e.ward) : ""}</div><div class="small">${esc(e.rationale)}</div>` +
+    (e.by_occupancy ? `<div class="small">The record names neither internal medicine A nor B — scored by the occupancy rule.</div>` : "") + `</div>` +
+    (c.single_agent ? `<div class="box ${sameAs(c.single_agent.line, e) ? "hit" : "miss"}"><h3>Single agent — one agent, every tool</h3><div class="v">${esc(c.single_agent.line)}</div><div class="small">${esc(c.single_agent.reason)}</div></div>`
+                    : `<div class="box"><h3>Single agent</h3><div class="small">Not run on this case.</div></div>`) + `</div>`;
+}
+
+function sameAs(line, e) {
+  const action = line.split(" · ")[0];
+  return action === e.action && (!e.ward || line.includes(e.ward));
+}
+
+/* ---------- playing ---------- */
+function go(i) { at = Math.max(0, Math.min(i, steps.list.length - 1)); render(); if (timer && at === steps.list.length - 1) stop(); }
+function tick() {                       // plays up to the shift manager; the reveal is the presenter's click
+  go(at + 1);
+  if (at >= steps.list.length - 2) { stop(); return; }
+  timer = setTimeout(tick, steps.list[at].ms / Number($("speed").value));
+}
+function play() {
+  if (timer) return stop();
+  if (at >= steps.list.length - 2) go(0);
+  $("play").textContent = "⏸ Pause"; timer = setTimeout(tick, steps.list[at].ms / Number($("speed").value)); }
+function stop() { clearTimeout(timer); timer = null; $("play").textContent = "▶ Play"; }
+function load(i) { stop(); current = CASES[i]; steps = stepsOf(current); lastTile = null; go(0); }
+
+$("play").onclick = play;
+$("next").onclick = () => { stop(); go(at + 1); };
+$("back").onclick = () => { stop(); lastTile = null; go(at - 1); };
+$("restart").onclick = () => { stop(); lastTile = null; go(0); };
+$("pick").innerHTML = CASES.map((c, i) => `<option value="${i}">${c.matches ? "✓" : "✗"} ${esc(c.id)} · ward state ${esc(c.template)} · ${c.visits.length} ward${c.visits.length === 1 ? "" : "s"}</option>`).join("");
+$("pick").onchange = (e) => { load(Number(e.target.value)); e.target.blur(); };   // the arrows step, not switch the case
+$("speed").onchange = (e) => e.target.blur();
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "SELECT" && !["ArrowRight", "ArrowLeft", " "].includes(e.key)) return;
+  if (["ArrowRight", "ArrowLeft", " "].includes(e.key)) e.preventDefault();      // no scrolling, no select change
+  if (e.target.tagName === "SELECT") e.target.blur();
+  if (e.key === " ") play();
+  if (e.key === "ArrowRight") { stop(); go(at + 1); }
+  if (e.key === "ArrowLeft") { stop(); lastTile = null; go(at - 1); }
+});
+window.addEventListener("resize", () => { if (steps.list && steps.list[at].stage === "wards") { lastTile = null; render(); } });
+if (CASES.length) load(0); else $("stage").innerHTML = "<h2>No case</h2><p class='sub'>Run scripts/build_demo_replay.py after saving a case.</p>";
+</script>
+</body>
+</html>

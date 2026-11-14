@@ -1,0 +1,61 @@
+# The Judge's rubric — what a proposed placement is checked on before it becomes a decision.
+# Every item is pass / fail with a one-line reason. A failed blocking item makes the placement not valid.
+# checked_by: code — a check in code (run first, before the model) · judge — needs the model's understanding.
+# Approved by Lea 2026-10-17, item 11 added. Items 1-10 check a proposed placement; item 11 checks a proposed escalation.
+
+items:
+  1:
+    name: hard rules
+    text: The level of care is not below the need; observation needs an observation bed; isolation needs the isolation room; intensive care only for a patient who needs it; a severe patient never waits.
+    blocking: true
+    checked_by: code
+  2:
+    name: needs backed by the assessment
+    text: Every need is backed by the assessment's findings and quotes — negation, uncertainty and "cannot be ruled out" read right — and no need is left out where a quoted sentence shows it (2026-11-09).
+    blocking: true
+    checked_by: judge
+  3:
+    name: no flag dropped
+    text: Every flag the Patient Agent raised is on the decision; intensive care without a physician's request is marked for a physician's approval.
+    blocking: true
+    checked_by: code
+  4:
+    name: target ward kept
+    text: A ward the physician requested is never changed; a placement elsewhere is temporary, awaiting transfer to the target ward.
+    blocking: true
+    checked_by: code
+  5:
+    name: ladder order
+    text: No closer ward on the ladder that offered a suitable bed was skipped.
+    blocking: true
+    checked_by: code
+  6:
+    name: bed really offered
+    text: The ward offered this bed (accepted, or its condition is met), the bed exists in that ward and is of the type the patient needs.
+    blocking: true
+    checked_by: code
+  7:
+    name: waiting rule
+    text: Only a non-severe patient waits, up to an hour; a discharge in the report is waited for only in a weekday morning shift, unless the ward said otherwise.
+    blocking: true
+    checked_by: code
+  8:
+    name: grounded reason
+    text: The reason given to the shift manager matches the wards' answers and the assessment, with no invented fact.
+    blocking: true
+    checked_by: judge
+  9:
+    name: judgment note weighed
+    text: A judgment note of the Patient Agent (e.g. not a candidate for intensive care) is weighed and shown to the shift manager.
+    blocking: false
+    checked_by: judge
+  10:
+    name: typed reason at level 3
+    text: A placement on ladder level 3 or farther is marked as needing the shift manager's typed reason.
+    blocking: false
+    checked_by: code
+  11:
+    name: escalation only when no option is left
+    text: An escalation for lack of a bed is valid only when every ward on the ranking that could give a bed meeting the need was looked at, its notes included (a note can free a bed), and the isolation room as a last resort for an observation-only patient was not left unoffered.
+    blocking: true
+    checked_by: code

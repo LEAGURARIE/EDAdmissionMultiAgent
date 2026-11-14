@@ -4,7 +4,7 @@ Run (from the project folder):
     .venv\Scripts\python scripts\run_cases.py                       (decider: code_coordinator, the baseline)
     .venv\Scripts\python scripts\run_cases.py --cases P-001 P-007   (only these cases)
     .venv\Scripts\python scripts\run_cases.py --set second          (the second pairs file; or: paired)
-    .venv\Scripts\python scripts\run_cases.py --decider example_pipeline
+    .venv\Scripts\python scripts\run_cases.py --decider single_agent --paid   (a model decides: paid)
     .venv\Scripts\python scripts\run_cases.py --decider my_package.my_module:my_decider   (your own decider)
 
 The results are also saved to outputs/cases_<decider>.json (outputs/ is not uploaded to Git).
@@ -14,14 +14,11 @@ Owner: Lea Gur-Arie
 import argparse
 import json
 import sys
-from pathlib import Path
 
 from ed_admission import config
 from ed_admission.agents.budget import RunStopped
 from ed_admission.evaluation import deciders
 from ed_admission.evaluation import run_cases, run_paired
-
-PROJECT = Path(__file__).resolve().parents[1]
 
 
 def describe(decision) -> str:

@@ -4,9 +4,8 @@ from pathlib import Path
 
 import yaml
 
-from simple_deciders import first_free_bed
 from ed_admission.environment import load_template
-from ed_admission.evaluation import load_pairs, run_cases
+from ed_admission.evaluation import load_pairs
 
 PROJECT = Path(__file__).resolve().parents[1]
 ANSWER_KEY = PROJECT / "data" / "answer_key"

@@ -10,7 +10,6 @@ import yaml
 from ed_admission.contracts.negotiation import WardRequest
 from ed_admission.environment import load_scenario, load_template
 from ed_admission.environment.hospital import WaitingPatient
-from ed_admission.tools.negotiation import Negotiation
 from ed_admission.tools.rank_placements import PatientNeeds
 from ed_admission.tools.toolbox import Toolbox
 
@@ -31,7 +30,7 @@ def leaks(value) -> list[str]:
 @pytest.mark.parametrize("case_id, template, target", PAIRS[::7])       # a sample of pairs from every template
 def test_the_single_agents_tools_return_no_hint(case_id, template, target):
     engine = load_template(PROJECT / "data" / "templates" / f"{template}.yaml", target_ward=target)
-    tools = Toolbox("single_agent", engine, negotiation=Negotiation(engine, {}))
+    tools = Toolbox("single_agent", engine)
     seen = {
         "record": tools.read_patient_record(case_id),
         "news2": tools.compute_news2(case_id),

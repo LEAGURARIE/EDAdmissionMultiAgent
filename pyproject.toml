@@ -5,6 +5,9 @@ description = "Multi-agent system for Emergency Department admission placement i
 requires-python = ">=3.11"
 dependencies = [
     "anthropic",
+    "langchain-anthropic",
+    "langgraph",
+    "langgraph-checkpoint-sqlite",
     "pydantic",
     "pyyaml",
     "python-dotenv",

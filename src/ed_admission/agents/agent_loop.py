@@ -6,10 +6,13 @@ One loop for all the agents, so each agent adds only two things of its own: its 
   1  settings and budget guard   config/agents.yaml, checked and read in agents/budget.py: the model, effort,
                                  max_tokens, each agent's activation budget, the run's budget, the prices
   2  system prompt               given by each agent — not here
-  3  chat()                      the only place that talks to the model; prompt caching is on (automatic): the
-                                 tools, the system prompt and the conversation so far are read from the cache on
-                                 the next call — so the tools, the system prompt and the effort never change
-                                 inside a loop, and the history is only appended to
+  3  the model call              a caller — the only place that talks to the model. Two callers, one answer shape
+                                 (ModelReply): AnthropicCaller, the Anthropic SDK directly (the single agent:
+                                 chat(), unchanged), and LangChainCaller (the multi-agent system's agents). Both
+                                 send the same request: model, effort, max_tokens, the tools, no temperature, and
+                                 prompt caching (automatic): the tools, the system prompt and the conversation so
+                                 far are read from the cache on the next call — so the tools, the system prompt
+                                 and the effort never change inside a loop, and the history is only appended to
   4  vector database             not used: the record is read whole by a tool, the clinical lists are short and closed
   5  tools                       a Tool: the function the code runs, and the schema the model sees
   6  registry                    the tools passed to run_agent are the only ones the model is offered
@@ -39,15 +42,18 @@ How it works:
   - The cost is counted from the tokens the API reports, each kind at its own price (budget.call_cost).
   - Every tool call of one model answer is run, and all the results go back in one message.
   - No temperature is sent. Thinking is the model's adaptive thinking; its depth is `effort`.
-  - No fallback model here: the single agent calls Anthropic directly; a failure gets one retry, then the case is escalated. (The multi-agent system adds a fallback through LangChain.)
+  - No fallback model yet: a failure gets one retry, then the case is escalated. The multi-agent system's fallback
+    to another provider is added later as one more caller, without changing the agents (DECISIONS.md).
 
 Owner: Lea Gur-Arie
 """
 import json
 import re
+import threading
 import time
 from dataclasses import dataclass, field
 from functools import cache
+from types import SimpleNamespace
 from typing import Any, Callable
 
 import anthropic
@@ -63,17 +69,96 @@ def _client() -> anthropic.Anthropic:
     return anthropic.Anthropic(max_retries=1)          # one retry, then the caller escalates — never a guess
 
 
-# ============ 3. THE CHAT WRAPPER ============
+# ============ 3. THE MODEL CALL: one answer shape, two callers ============
+def _cached_system(system: str) -> list[dict]:
+    """Two cache breakpoints: the end of the system prompt — the tools and the prompt, the same in every case, so the
+    next case reads them from the cache (without it every case wrote them again: the trial of 2026-10-15) — and the
+    automatic one at the end of the conversation (cache_control on the request), for the next call of this case."""
+    return [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
+
+
 def chat(system: str, messages: list, tools: list[dict], agent: str, client=None):
-    """The only place that talks to the model. Returns the model's answer (a Message)."""
+    """The single agent's request, on the Anthropic SDK directly. Returns the model's answer (a Message)."""
     s = settings(agent)
-    # Two cache breakpoints: the end of the system prompt — the tools and the prompt, the same in every case, so the
-    # next case reads them from the cache (without it every case wrote them again: the trial of 2026-10-15) — and
-    # the automatic one at the end of the conversation, for the next call of this case.
-    cached_system = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
     return (client or _client()).messages.create(
-        model=s["model"], max_tokens=s["max_tokens"], system=cached_system, tools=tools, messages=messages,
+        model=s["model"], max_tokens=s["max_tokens"], system=_cached_system(system), tools=tools, messages=messages,
         output_config={"effort": s["effort"]}, cache_control={"type": "ephemeral"})
+
+
+@dataclass
+class ModelReply:
+    """One model answer, the same from every caller — the loop reads only this."""
+    content: list                   # the blocks: .type, and .text (text) or .name .id .input (tool_use)
+    stop_reason: str | None
+    usage: Any                      # input_tokens (uncached), cache_creation_input_tokens, cache_read_input_tokens,
+                                    # output_tokens — as the API counted them
+    model: str
+    turn: Any                       # what goes back into the history: the model's answer, unchanged — its thinking
+                                    # blocks included, so the next call reads the history from the cache
+    request_id: str | None = None   # the API's request id, when the caller can see it
+    stop_details: Any = None        # on a refusal: .category
+
+
+class AnthropicCaller:
+    """The single agent's caller: chat() — the request it always sent, unchanged."""
+
+    def __init__(self, client=None):
+        self.client = client                        # a test's scripted model; None: the real connection
+
+    def __call__(self, system: str, messages: list, tools: list[dict], agent: str) -> ModelReply:
+        message = chat(system, messages, tools, agent, self.client)
+        return ModelReply(content=message.content, stop_reason=message.stop_reason, usage=message.usage,
+                          model=getattr(message, "model", ""), turn={"role": "assistant", "content": message.content},
+                          request_id=getattr(message, "_request_id", None),
+                          stop_details=getattr(message, "stop_details", None))
+
+
+def _chat_model(agent: str, api_key: str | None = None) -> "ChatAnthropic":
+    """LangChain's Anthropic model for one agent, from config/agents.yaml. The key comes from the environment (a
+    test passes a placeholder). Imported here: the single agent never loads LangChain (DECISIONS.md).
+    Effort goes in output_config, as the single agent sends it: LangChain's own `effort` field would also add a
+    thinking setting of its own to some models (adaptive, summarized) — a request the single agent never sends."""
+    from langchain_anthropic import ChatAnthropic
+    if api_key is None:
+        load_dotenv()
+    s = settings(agent)
+    return ChatAnthropic(model=s["model"], max_tokens=s["max_tokens"], output_config={"effort": s["effort"]},
+                         max_retries=1,             # one retry, then the caller escalates — never a guess
+                         **({"api_key": api_key} if api_key else {}))
+
+
+def _block(block) -> SimpleNamespace:
+    """A LangChain content block (a dict) as the loop reads blocks: by attribute."""
+    return SimpleNamespace(**block) if isinstance(block, dict) else SimpleNamespace(type="text", text=str(block))
+
+
+class LangChainCaller:
+    """The multi-agent system's caller: the same request through LangChain (DECISIONS.md: LangChain is the model
+    call inside every agent's loop). Effort, max_tokens, strict tools and both cache breakpoints reach the API as
+    they are; no temperature is set, so none is sent (tests/test_model_callers.py checks the request)."""
+
+    def __init__(self, make_model: Callable[[str], "ChatAnthropic"] = _chat_model):
+        self.make_model = make_model                # agent -> its model; a test gives a model with a scripted client
+        self.models: dict[str, "ChatAnthropic"] = {}  # one model per agent, kept for the run (one connection each)
+        self._lock = threading.Lock()               # the wards of a rung call at once: one model per agent, still
+
+    def __call__(self, system: str, messages: list, tools: list[dict], agent: str) -> ModelReply:
+        with self._lock:
+            if agent not in self.models:
+                self.models[agent] = self.make_model(agent)
+        history = [{"role": "system", "content": _cached_system(system)}, *messages]
+        answer = self.models[agent].bind_tools(tools).invoke(history, cache_control={"type": "ephemeral"})
+        meta = answer.response_metadata
+        counted = meta.get("usage") or {}
+        usage = SimpleNamespace(
+            input_tokens=counted.get("input_tokens") or 0, output_tokens=counted.get("output_tokens") or 0,
+            cache_creation_input_tokens=counted.get("cache_creation_input_tokens") or 0,
+            cache_read_input_tokens=counted.get("cache_read_input_tokens") or 0)
+        content = answer.content if isinstance(answer.content, list) else [answer.content]
+        details = meta.get("stop_details")
+        return ModelReply(content=[_block(block) for block in content], stop_reason=meta.get("stop_reason"),
+                          usage=usage, model=meta.get("model", ""), turn=answer,
+                          stop_details=_block(details) if isinstance(details, dict) else details)
 
 
 # ============ 5. TOOLS: a function + the schema the model sees ============
@@ -145,24 +230,27 @@ class AgentResult:
     reminded: bool = False                  # the model got its one reminder
 
 
-def _call_record(iteration: int, response, cost: float, seconds: float) -> dict:
+def _call_record(iteration: int, response: ModelReply, cost: float, seconds: float) -> dict:
     """One model call, for the trace: who answered, why it stopped, the tokens of each kind, cost and time."""
     usage = response.usage
     return {"iter": iteration, "model_call": {
-        "model": getattr(response, "model", ""), "stop_reason": response.stop_reason,
+        "model": response.model, "stop_reason": response.stop_reason,
         "input_tokens": usage.input_tokens,
         "cache_write_tokens": getattr(usage, "cache_creation_input_tokens", 0) or 0,
         "cache_read_tokens": getattr(usage, "cache_read_input_tokens", 0) or 0,
         "output_tokens": usage.output_tokens, "cost_usd": round(cost, 6), "seconds": round(seconds, 2),
-        "request_id": getattr(response, "_request_id", None)}}
+        "request_id": response.request_id}}
 
 
 def run_agent(agent: str, system: str, task: str, tools: list[Tool], client=None,
               run_budget: RunBudget | None = None, done: Callable[[], bool] | None = None,
               remind: Callable[[], str | None] | None = None,
-              state: Callable[["AgentResult"], str] | None = None) -> AgentResult:
+              state: Callable[["AgentResult"], str] | None = None,
+              caller: Callable[..., ModelReply] | None = None) -> AgentResult:
     """Run one agent on one task until a final tool succeeds or `done` says so, the model stops, or the budget
     guard fires.
+    caller: who talks to the model — AnthropicCaller (the default: the single agent; `client` is its connection) or
+    LangChainCaller (the multi-agent system's agents).
     run_budget: the run this case belongs to (budget.start_run()); every call's cost is added to it.
     done: checked after every round of tool results — True ends the loop as final.
     remind: when the model stops before that, what is still left, in words (None: nothing) — sent once.
@@ -170,6 +258,7 @@ def run_agent(agent: str, system: str, task: str, tools: list[Tool], client=None
     caller's code from what really happened, sent as a system message (the operator's voice, never data), appended
     after the results so the cached history is untouched; the model need not reconstruct it from the whole history."""
     s = settings(agent)
+    caller = caller or AnthropicCaller(client)
     registry = {tool.name: tool for tool in tools}              # 6. only these tools are offered
     schemas = [tool.schema() for tool in tools]
     messages = [{"role": "user", "content": task}]              # 7. this case's conversation, and nothing else
@@ -182,7 +271,7 @@ def run_agent(agent: str, system: str, task: str, tools: list[Tool], client=None
         result.iterations += 1
         started = time.perf_counter()
         try:
-            response = chat(system, messages, schemas, agent, client)
+            response = caller(system, messages, schemas, agent)
         except anthropic.APIError as error:                     # after one retry by the client
             result.status = "failed"
             result.trace.append({"iter": result.iterations, "error": f"{type(error).__name__}: {error}"})
@@ -204,12 +293,12 @@ def run_agent(agent: str, system: str, task: str, tools: list[Tool], client=None
 
         if response.stop_reason == "refusal":
             result.status = "refused"
-            details = getattr(response, "stop_details", None)
-            result.trace.append({"iter": result.iterations, "refused": getattr(details, "category", None)})
+            result.trace.append({"iter": result.iterations,
+                                 "refused": getattr(response.stop_details, "category", None)})
             return result
 
         calls = [block for block in response.content if block.type == "tool_use"]
-        messages.append({"role": "assistant", "content": response.content})     # the history is only appended to
+        messages.append(response.turn)                          # the history is only appended to
         if not calls:                                           # the model stopped before the task is done
             text = " ".join(block.text for block in response.content if block.type == "text")
             result.trace.append({"iter": result.iterations, "stopped": response.stop_reason, "text": text})

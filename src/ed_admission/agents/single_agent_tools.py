@@ -4,7 +4,7 @@ Nine tools, the descriptions approved by Lea (2026-10-14), each in four parts �
   the patient   read_patient_record · compute_news2 · clinical_lists · record_assessment
   the wards     all_department_status · rank_placements · department_view
   the decision  decide · escalate_to_human
-department_view replaced ask_ward on 2026-10-15 (the fair comparison): the single agent reads each ward's notes
+The single agent reads each ward's notes (department_view, the fair comparison, 2026-10-15)
 itself, as the Department Agents do in the multi-agent system — no ward answers it from the true state.
 
 How they are built:

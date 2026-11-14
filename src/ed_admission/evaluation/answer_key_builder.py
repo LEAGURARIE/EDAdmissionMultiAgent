@@ -10,8 +10,10 @@ Inputs:
 
 The placement is derived by the same written rules the agents must follow (DECISIONS.md, "Placement"), from the
 TRUE needs of the patient — what a clinician knows after reading the whole record — and from the TRUE ward state:
-the template after its private ward notes are applied (what the Department Agents know). The output is a draft: Lea
-reviews it, and only then are the answers frozen. Re-running after freezing is not allowed (see `freeze`).
+the template after its private ward notes are applied (what the Department Agents know). The answers were built
+from these rules, reviewed by Lea and frozen (2026-10); the one-time build and freeze entry points were removed on
+2026-11-14. What stays is used by the evaluation and the tests: `build_one` (the answer for one pair from the rules),
+`expected_decision`, `true_ward_state`, `answer_path`, `paired_path` and the paired-case order `priority_key`.
 
 Owner: Lea Gur-Arie
 """
@@ -250,46 +252,13 @@ def build_one(pair: dict, inputs: dict, engine=None, report_engine=None) -> dict
     }
 
 
+
 def _read(name: str) -> dict:
     return yaml.safe_load((ANSWER_KEY / name).read_text(encoding="utf8"))
 
 
 def answer_path(pair: dict) -> Path:
     return ANSWER_KEY / f"{pair['case_id']}__{pair['template']}.yaml"
-
-
-def _build(pairs_file: str) -> list[dict]:
-    """Write one file per pair. Refuses to overwrite a file that is already frozen."""
-    pairs = _read(pairs_file)["pairs"]
-    inputs = _read("clinical_inputs.yaml")["cases"]
-    answers = []
-    for pair in pairs:
-        path = answer_path(pair)
-        if path.exists() and yaml.safe_load(path.read_text(encoding="utf8")).get("frozen"):
-            raise RuntimeError(f"{path.name} is frozen — expected answers do not change after freezing")
-        answer = build_one(pair, inputs[pair["case_id"]])
-        path.write_text(yaml.safe_dump(answer, allow_unicode=True, sort_keys=False), encoding="utf8")
-        answers.append(answer)
-    return answers
-
-
-def build_all() -> list[dict]:
-    """The first set: 60 pairs."""
-    return _build("pairs.yaml")
-
-
-def build_set2() -> list[dict]:
-    """The second pairs file: templates T13-T22, and the added records P-061-P-074 in existing templates."""
-    return _build("pairs_set2.yaml")
-
-
-def unfreeze(pairs_file: str) -> None:
-    """Return the answers of one set to draft — only when an approved decision changes them; they are approved again."""
-    for path in [answer_path(pair) for pair in _read(pairs_file)["pairs"]]:
-        answer = yaml.safe_load(path.read_text(encoding="utf8"))
-        answer["approved_by"], answer["frozen"] = None, False
-        path.write_text(yaml.safe_dump(answer, allow_unicode=True, sort_keys=False), encoding="utf8")
-
 
 # ---------------------------------------------------------------------- paired cases: two patients, one bed
 
@@ -314,64 +283,3 @@ def priority_key(case: dict, patient: dict, inputs: dict) -> tuple:
     assert config.placement_rules()["competing_for_one_bed"] ==         ["needs_the_bed_type_first", "severe_first", "earlier_decision_first"]
     return (_last_resort(case, patient, inputs), inputs[patient["case_id"]]["patient_type"] not in SEVERE_TYPES,
             -patient["decided_minutes_before"])
-
-
-def build_paired() -> list[dict]:
-    """Two patients wait at the same moment for one suitable bed (data/answer_key/paired_cases.yaml).
-    The approved rule: a patient who needs the bed type before one for whom it is only a last resort; then severe
-    before non-severe; then the earlier admission decision. The other patient gets the next option by the usual
-    rules. Refuses to overwrite a frozen file."""
-    inputs = _read("clinical_inputs.yaml")["cases"]
-    answers = []
-    for case in _read("paired_cases.yaml")["cases"]:
-        path = paired_path(case)
-        if path.exists() and yaml.safe_load(path.read_text(encoding="utf8")).get("frozen"):
-            raise RuntimeError(f"{path.name} is frozen — expected answers do not change after freezing")
-        first = {"template": case["template"], "target_ward": case["patients"][0]["target_ward"]}
-        engine, report_engine = true_ward_state(first), true_ward_state(first, with_notes=False)
-        order = sorted(case["patients"], key=lambda p: priority_key(case, p, inputs))
-        results = {p["case_id"]: build_one({"case_id": p["case_id"], "template": case["template"],
-                                            "target_ward": p["target_ward"]}, inputs[p["case_id"]],
-                                           engine, report_engine) for p in order}
-        for result in results.values():
-            for key in ("approved_by", "frozen"):
-                result.pop(key)
-        answer = {"id": case["id"], "template": case["template"],
-                  "patients": case["patients"],
-                  "priority": [p["case_id"] for p in order],
-                  "answers": [results[p["case_id"]] for p in case["patients"]],
-                  "approved_by": None, "frozen": False}
-        path.write_text(yaml.safe_dump(answer, allow_unicode=True, sort_keys=False), encoding="utf8")
-        answers.append(answer)
-    return answers
-
-
-def freeze(approved_by: str, date: str, pairs_file: str = "pairs.yaml") -> None:
-    """Mark the expected answers of one set as approved and frozen."""
-    for path in [answer_path(pair) for pair in _read(pairs_file)["pairs"]]:
-        answer = yaml.safe_load(path.read_text(encoding="utf8"))
-        answer["approved_by"] = f"{approved_by}, {date}"
-        answer["frozen"] = True
-        path.write_text(yaml.safe_dump(answer, allow_unicode=True, sort_keys=False), encoding="utf8")
-
-
-def unfreeze_all() -> None:
-    """Return the whole evaluation to draft — only when an approved decision asks for it; it is approved again."""
-    unfreeze("pairs.yaml")
-    unfreeze("pairs_set2.yaml")
-    for case in _read("paired_cases.yaml")["cases"]:
-        path = paired_path(case)
-        answer = yaml.safe_load(path.read_text(encoding="utf8"))
-        answer["approved_by"], answer["frozen"] = None, False
-        path.write_text(yaml.safe_dump(answer, allow_unicode=True, sort_keys=False), encoding="utf8")
-
-
-def freeze_all(approved_by: str, date: str) -> None:
-    """Freeze the whole evaluation at once: both pairs files and the paired cases."""
-    freeze(approved_by, date, "pairs.yaml")
-    freeze(approved_by, date, "pairs_set2.yaml")
-    for case in _read("paired_cases.yaml")["cases"]:
-        path = paired_path(case)
-        answer = yaml.safe_load(path.read_text(encoding="utf8"))
-        answer["approved_by"], answer["frozen"] = f"{approved_by}, {date}", True
-        path.write_text(yaml.safe_dump(answer, allow_unicode=True, sort_keys=False), encoding="utf8")

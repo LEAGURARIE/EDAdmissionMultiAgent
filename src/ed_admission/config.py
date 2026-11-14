@@ -1,7 +1,8 @@
 """One place that reads the configuration files.
 
 config/hospital.yaml          what exists: wards and beds, and how long cleaning, holds and approvals take
-config/agents.yaml            the agents' models, effort, the budget guard and the prices
+config/agents.yaml            the agents' models, effort, the free-text limits, the budget guard and the prices
+config/judge_rubric.yaml      the Judge's rubric: what a proposed placement is checked on
 config/clinical_rules/*.yaml  what is right to do: ladders, complaint -> ward, NEWS2 levels, placement rules,
                               severity judgments
 
@@ -39,6 +40,18 @@ def _read(path: Path) -> dict:
 def agents() -> dict:
     """The agents' settings: the model of each agent, effort, max_tokens, the budget guard and the prices."""
     return _read(PROJECT / "config" / "agents.yaml")
+
+
+def text_limits() -> dict[str, int]:
+    """The longest free text of each field that passes between parts of the multi-agent system, in characters
+    (config/agents.yaml; checked when loaded, agents/budget.py)."""
+    return agents()["text_limits"]
+
+
+@cache
+def judge_rubric() -> dict[int, dict]:
+    """The Judge's rubric: item number -> name, text, blocking, checked_by (code or judge)."""
+    return {int(number): item for number, item in _read(PROJECT / "config" / "judge_rubric.yaml")["items"].items()}
 
 
 @cache
@@ -103,6 +116,12 @@ def severity_judgment() -> dict[str, list[dict]]:
 def structured_signs() -> dict:
     """What a code baseline can read from structured fields to conclude observation (no free text)."""
     return _read(RULES / "structured_signs.yaml")
+
+
+@cache
+def evaluation() -> dict:
+    """The evaluation's fixed values: the charter's targets, the comparison's repetitions and its side checks."""
+    return _read(PROJECT / "config" / "evaluation.yaml")
 
 
 @cache

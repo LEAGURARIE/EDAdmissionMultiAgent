@@ -1,0 +1,28 @@
+# The evaluation's fixed values — the charter's targets, the comparison's repetitions and its side checks.
+# Read through src/ed_admission/config.py (evaluation()) by the metrics, the short report and the comparison report;
+# never written in the code itself.
+
+# The charter's targets (CHARTER.md, section 2). A rate is a share from 0 to 1; a count is per run.
+targets:
+  unsafe_rate: 0.0              # decisions with a hard rule broken
+  violations: 0                 # the same, counted
+  need_met_rate: 1.0            # observation or isolation needs met, or escalated
+  bed_not_available_rate: 0.0   # placements in a bed the ward cannot really give
+  bed_not_available: 0          # the same, counted
+  match_rate: 0.85              # decisions that match the expected answer
+  complete_trace_rate: 1.0      # cases with a complete trace
+  groundedness: 0.95            # claims backed by a quote that is in the record
+
+# The comparison (docs/design/comparison_protocol.md): each system's test runs, repeated — a difference counts only
+# beyond the spread of these repetitions.
+repetitions: 3
+
+# Side checks: runs that ask where a gap comes from — never in the comparison, shown apart (Lea, 2026-11-14). By the
+# start of the run's label: its name in the report, and what it changed.
+side_checks:
+  "Opus arm":
+    name: Stronger models
+    changed: every agent on Opus — is the gap the models?
+  "round 2, second attempt":
+    name: Judge Agent looks for a better option
+    changed: the Judge Agent also checks that the wards' words show no better option than the proposal, and sends it back to that ward — reverted, it fixed nothing

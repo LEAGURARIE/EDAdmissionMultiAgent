@@ -12,19 +12,29 @@ Everything else — by rule, challenge, trap, template, each day, minutes saved,
 
 Owner: Lea Gur-Arie
 """
+from ed_admission import config
 from ed_admission.evaluation import metrics
+
+LOWER_IS_BETTER = {"unsafe_rate", "bed_not_available_rate"}
+
+
+def _target(key: str) -> str:
+    """The charter's target in words (config/evaluation.yaml); minutes to a bed: less than the baseline."""
+    targets = config.evaluation()["targets"]
+    return f"{targets[key]:.0%}" if key in targets else "less than the baseline"
+
 
 # group, key, label, kind, target in words
 ROWS = [
-    ("Safe", "unsafe_rate", "hard rule broken", "rate", "0%"),
-    ("", "need_met_rate", "needs met", "rate", "100%"),
-    ("", "bed_not_available_rate", "bed the ward can't give", "rate", "0%"),
-    ("Suitable", "match_rate", "match", "rate", "85%"),
-    ("Fast", "minutes_to_bed", "minutes to a bed", "minutes", "less than the baseline"),
+    ("Safe", "unsafe_rate", "hard rule broken", "rate", _target("unsafe_rate")),
+    ("", "need_met_rate", "needs met", "rate", _target("need_met_rate")),
+    ("", "bed_not_available_rate", "bed the ward can't give", "rate", _target("bed_not_available_rate")),
+    ("Suitable", "match_rate", "match", "rate", _target("match_rate")),
+    ("Fast", "minutes_to_bed", "minutes to a bed", "minutes", _target("minutes_to_bed")),
 ]
 TRACKED = [
-    ("Tracked", "complete_trace_rate", "complete traces", "rate", "100%"),
-    ("", "groundedness", "groundedness", "rate", "95%"),
+    ("Tracked", "complete_trace_rate", "complete traces", "rate", _target("complete_trace_rate")),
+    ("", "groundedness", "groundedness", "rate", _target("groundedness")),
 ]
 
 
@@ -64,9 +74,8 @@ def _met(key: str, value, baseline) -> bool | None:
         return None
     if key == "minutes_to_bed":
         return baseline is not None and value < baseline
-    if key in ("unsafe_rate", "bed_not_available_rate"):
-        return value == 0
-    return value >= {"need_met_rate": 1.0, "match_rate": 0.85, "complete_trace_rate": 1.0, "groundedness": 0.95}[key]
+    target = config.evaluation()["targets"][key]
+    return value <= target if key in LOWER_IS_BETTER else value >= target
 
 
 def render(columns: dict[str, dict], judged: str | None = None, baseline: str = "code coordinator") -> str:

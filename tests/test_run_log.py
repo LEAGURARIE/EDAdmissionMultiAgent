@@ -37,7 +37,7 @@ def test_runs_accumulate_and_a_rerun_with_the_same_label_replaces_its_own_row(ou
     repetitions of a test, each with its own label, must all be kept)."""
     first = run_log.new_run("system", "never_asks", "first try")
     run_log.log_run(first, {"match_rate": 0.1})
-    other = run_log.new_run("system", "example_pipeline")
+    other = run_log.new_run("system", "multi_agent")
     run_log.log_run(other, {"match_rate": 0.2, "groundedness": 1.0})       # a new column
     again = run_log.new_run("system", "never_asks", "first try")
     run_log.log_run(again, {"match_rate": 0.3})
@@ -45,7 +45,7 @@ def test_runs_accumulate_and_a_rerun_with_the_same_label_replaces_its_own_row(ou
     run_log.log_run(another, {"match_rate": 0.4})
     rows = _rows(outputs / run_log.RUNS)
     assert [(r["decider"], r["label"], r["match_rate"]) for r in rows] == [
-        ("example_pipeline", "", "0.2"), ("never_asks", "first try", "0.3"), ("never_asks", "second try", "0.4")]
+        ("multi_agent", "", "0.2"), ("never_asks", "first try", "0.3"), ("never_asks", "second try", "0.4")]
     assert "groundedness" in rows[0] and rows[1]["groundedness"] == ""
 
 

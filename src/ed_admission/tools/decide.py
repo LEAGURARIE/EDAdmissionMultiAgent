@@ -13,6 +13,9 @@ A decision that breaks a rule is refused with the reasons, and the Coordinator t
                               intensive care as the target ward (PatientAssessment.target)
   nothing is dropped          every flag the Patient Agent raised is in the decision · intensive care that the
                               physician did not request (NEWS2 7 or more) is marked for a physician's approval
+  no vital sign, no bed       a patient whose record has no vital sign at all is not placed and does not wait —
+                              escalated to the shift manager (Lea, 2026-11-08): without one NEWS2 proves no level of
+                              care, and a bed chosen from the free text alone may be below the need
 
 An escalation always passes: handing the patient to the shift manager is never unsafe.
 These are the same rules the metrics count as violations (evaluation/metrics.py) — there against the expected
@@ -21,9 +24,18 @@ answers, here against the Patient Agent's assessment.
 Owner: Lea Gur-Arie
 """
 from ed_admission.contracts.agent_outputs import PatientAssessment
+from ed_admission.contracts.patient_record import Vitals
 from ed_admission.environment import load_hospital
 from ed_admission.environment.decision import Action, Decision
+from ed_admission.tools import patient_record
+from ed_admission.tools.news2 import compute_news2
 from ed_admission.tools.rank_placements import INTERNAL_MEDICINE
+
+
+def no_vital_sign(patient_id: str) -> bool:
+    """The record has no vital sign at all: NEWS2 has not one known point."""
+    vitals = Vitals(**patient_record.read_patient_record(patient_id)["vitals"])
+    return not compute_news2(vitals).points
 
 
 class RuleViolation(Exception):
@@ -38,6 +50,9 @@ def broken_rules(decision: Decision, assessment: PatientAssessment) -> list[str]
     """Every hard rule this decision breaks, in words. Empty: the decision may go to the shift manager."""
     if decision.action == Action.ESCALATE:
         return []
+    if no_vital_sign(decision.patient_id):
+        return ["no vital sign in the record: NEWS2 proves no level of care — escalate to the shift manager "
+                "(missing_vital_sign)"]
     reasons = []
     needs_observation = assessment.observation or assessment.severe
 

@@ -21,8 +21,6 @@ the file and this code agree. Only the evaluation code reads it — like every f
 
 Owner: Lea Gur-Arie
 """
-from pathlib import Path
-
 import yaml
 
 from ed_admission import config

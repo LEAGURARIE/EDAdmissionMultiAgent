@@ -1,14 +1,11 @@
-"""Two agents and a Coordinator — the toolbox: who may use which tool, the Patient Agent run through assess_patient,
-and the hard rules checked in code by decide (tools/decide.py)."""
+"""The toolbox: who may use which tool, and the hard rules checked in code by decide (tools/decide.py)."""
 from pathlib import Path
 
 import pytest
 
-from ed_admission.contracts.agent_outputs import Finding, PatientAssessment
-from ed_admission.contracts.negotiation import WardRequest
+from ed_admission.contracts.agent_outputs import PatientAssessment
 from ed_admission.environment import load_template
 from ed_admission.environment.decision import Decision, Flag
-from ed_admission.observability.tracing import Trace
 from ed_admission.tools.decide import RuleViolation, broken_rules
 from ed_admission.tools.toolbox import PERMISSIONS, PermissionDenied, Toolbox
 
@@ -34,24 +31,14 @@ def place(bed: int, **changes) -> Decision:
 
 def test_each_role_has_its_own_tools():
     tools = {role: {tool for tool, roles in PERMISSIONS.items() if role in roles}
-             for role in ("patient", "department", "coordinator")}
-    assert tools["patient"] == {"read_patient_record", "compute_news2", "clinical_lists"}
-    assert tools["department"] == {"department_view"}
-    assert tools["coordinator"] == {"assess_patient", "all_department_status", "rank_placements", "ask_ward",
-                                    "escalate_to_human", "decide"}
+             for role in ("patient", "department", "judge")}
+    assert tools["patient"] == {"read_patient_record", "compute_news2", "clinical_lists", "record_assessment"}
+    assert tools["department"] == {"department_view", "answer_ward"}
+    assert tools["judge"] == {"read_case", "give_verdict"}
 
 
 def test_no_agent_holds_or_releases_a_bed():
     assert not {"hold_bed", "release_hold"} & set(PERMISSIONS)       # the environment holds it when the case closes
-
-
-def test_the_coordinator_never_reads_the_record_itself():
-    coordinator = Toolbox("coordinator", engine())
-    for tool in (coordinator.read_patient_record, coordinator.compute_news2):
-        with pytest.raises(PermissionDenied):
-            tool("P-001")
-    with pytest.raises(PermissionDenied):
-        coordinator.clinical_lists()
 
 
 def test_the_patient_agent_sees_no_ward():
@@ -63,56 +50,30 @@ def test_the_patient_agent_sees_no_ward():
         patient.decide(place(1))
 
 
-def test_no_agent_can_call_another_agent_only_the_coordinator_can():
-    """No handoff between agents: the tools that run an agent — assess_patient (the Patient Agent) and ask_ward (a
-    Department Agent) — belong to the Coordinator alone, and neither agent can read what the other reads."""
+def test_neither_agent_reads_what_the_other_reads():
+    """No handoff between agents: the Coordinator (the graph's code) runs every agent; an agent has no tool that runs
+    another one, and neither agent can read what the other reads."""
     patient = Toolbox("patient", engine())
     department = Toolbox("department", engine(), ward_id=WARD)
-    request = WardRequest(bed_type="regular", severe=False, observation=False, isolation=False, target_ward=WARD)
-    for agent in (patient, department):
-        with pytest.raises(PermissionDenied):
-            agent.assess_patient("P-001")
-        with pytest.raises(PermissionDenied):
-            agent.ask_ward(WARD, request)
     with pytest.raises(PermissionDenied):
         patient.department_view()                                    # the Patient Agent never reaches a ward
     with pytest.raises(PermissionDenied):
         department.read_patient_record("P-001")                      # a Department Agent never reaches the record
-    for tool in ("assess_patient", "ask_ward"):
-        assert not PERMISSIONS[tool] & {"patient", "department"}
 
 
-# ---------------------------------------------------------------- assess_patient
-
-def test_assess_patient_runs_the_patient_agent_with_its_own_toolbox_and_checks_the_quotes():
-    seen = {}
-
-    def patient_agent(toolbox, patient_id):
-        seen["role"] = toolbox.role
-        record = toolbox.read_patient_record(patient_id)
-        real = record["physician_note"].split()[0]
-        return assessment(findings=[Finding(claim="in the record", quote=real),
-                                    Finding(claim="made up", quote="words that are not in the record")])
-
-    trace = Trace("P-001", "test")
-    coordinator = Toolbox("coordinator", engine(), trace=trace, patient_agent=patient_agent)
-    found = coordinator.assess_patient("P-001")
-    assert seen["role"] == "patient"
-    assert [f.grounded for f in found.findings] == [True, False]
-    assert len(trace.claims) == 2                                   # handed to the trace: groundedness is measured
-
+# ---------------------------------------------------------------- decide
 
 def test_decide_needs_the_assessment_first():
     with pytest.raises(ValueError, match="assess"):
-        Toolbox("coordinator", engine()).decide(place(1))
+        Toolbox("single_agent", engine()).decide(place(1))
 
 
-def test_the_coordinator_cannot_change_what_the_patient_agent_found():
-    coordinator = Toolbox("coordinator", engine(), patient_agent=lambda toolbox, pid: assessment(observation=True, severe=True))
-    coordinator.assess_patient("P-001")
+def test_a_decision_cannot_go_below_the_kept_assessment():
+    single = Toolbox("single_agent", engine())
+    single.record_assessment("P-001", assessment(observation=True, severe=True))
     with pytest.raises(RuleViolation, match="observation"):
-        coordinator.decide(place(1))                                 # a regular bed
-    assert coordinator.decide(place(11)).bed_number == 11            # an observation bed
+        single.decide(place(1))                                      # a regular bed
+    assert single.decide(place(11)).bed_number == 11                 # an observation bed
 
 
 # ---------------------------------------------------------------- the hard rules
@@ -170,3 +131,33 @@ def test_a_patient_who_needs_intensive_care_has_intensive_care_as_the_target():
     assert broken_rules(icu, needs_it) == []
     wrong = Decision(patient_id="P-001", action="wait", target_ward="internal_medicine_a")      # the old target
     assert any("needs intensive care" in reason for reason in broken_rules(wrong, needs_it))
+
+
+# ---- no vital sign at all: escalate (Lea, 2026-11-08)
+NO_VITALS = {"respiratory_rate": None, "oxygen_saturation": None, "supplemental_oxygen": None, "spo2_scale_2": False,
+             "systolic_bp": None, "heart_rate": None, "consciousness": None, "temperature": None}
+
+
+@pytest.fixture
+def no_vital_signs(monkeypatch):
+    """P-001's record with every vital sign empty — no record in data/records is like this."""
+    from ed_admission.tools import patient_record
+    real = patient_record.read_patient_record
+    monkeypatch.setattr(patient_record, "read_patient_record",
+                        lambda patient_id: {**real(patient_id), "vitals": NO_VITALS})
+
+
+@pytest.mark.parametrize("decision", [place(1), Decision(patient_id="P-001", action="wait", target_ward=WARD)])
+def test_a_patient_with_no_vital_sign_is_neither_placed_nor_waits(no_vital_signs, decision):
+    reasons = broken_rules(decision, assessment())
+    assert len(reasons) == 1 and "no vital sign" in reasons[0] and "escalate" in reasons[0]
+
+
+def test_a_patient_with_no_vital_sign_is_escalated(no_vital_signs):
+    assert broken_rules(Decision.escalate("P-001", "no vital signs measured"), assessment()) == []
+
+
+def test_one_missing_vital_sign_does_not_stop_a_placement():
+    from ed_admission.tools.decide import no_vital_sign
+    assert not no_vital_sign("P-002")                     # oxygen saturation missing, the other signs known
+    assert broken_rules(place(1, patient_id="P-002"), assessment()) == []

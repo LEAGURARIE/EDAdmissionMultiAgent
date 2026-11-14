@@ -6,7 +6,7 @@ are the number each agent has to beat:
     department(view, request)        -> WardAnswer          (a negotiation responder)
 
 The toolbox is built with the agent's role (tools/toolbox.py), so an example uses only the tools its agent may use.
-Not a baseline and not reported.
+Not a baseline and not reported: scripts/run_agent_metrics.py prints them next to an agent measured alone.
 
 Owner: Lea Gur-Arie
 """
@@ -51,9 +51,9 @@ def department(view, request: WardRequest) -> WardAnswer:
     free = [b["bed"] for b in view.report["free_beds"] if b["bed_type"] == request.bed_type]
     if free:
         bed = request.proposed_bed if request.proposed_bed in free else free[0]
-        return WardAnswer(answer=Answer.ACCEPT, bed_number=bed, reason="a bed is free in our report")
+        return WardAnswer(answer=Answer.ACCEPT, bed_number=bed, reason="a bed is free in our report", source="report")
     cleaning = [b["bed"] for b in view.report["cleaning_beds"] if b["bed_type"] == request.bed_type]
     if cleaning and not request.severe:
-        return WardAnswer(answer=Answer.CONDITION, bed_number=cleaning[0], reason="a bed is being cleaned",
+        return WardAnswer(answer=Answer.CONDITION, bed_number=cleaning[0], reason="a bed is being cleaned", source="report",
                           condition="after cleaning")
     return WardAnswer(answer=Answer.DECLINE, reason=f"no free {request.bed_type} bed in our report")

@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from ed_admission import config
-from ed_admission.agents.budget import ModelPrices, agents_config, reload
+from ed_admission.agents.budget import LongPromptPrices, ModelPrices, agents_config, reload
 
 AGENTS_FILE = config.PROJECT / "config" / "agents.yaml"
 FIELDS = ("input", "cache_write", "cache_read", "output")
@@ -58,10 +58,15 @@ def display_name(model_id: str) -> str:
     return f"Claude {family.capitalize()} {'.'.join(version)}"
 
 
+_LONG_ROW = re.compile(r"for prompts over ([\d,]+) tokens")
+
+
 def page_prices(page: str, model_id: str) -> ModelPrices | None:
     """The model's row in the pricing table: base input · 5m cache write · 1h cache write · cache read · output.
-    None when the row is not there or cannot be read."""
+    A model priced by prompt length has two rows — "(for prompts up to N tokens)" and "(for prompts over N
+    tokens)"; the second becomes long_prompt. None when the row is not there or cannot be read."""
     name = display_name(model_id)
+    rows = {}                                                     # "standard" / "long": (prices, above_tokens)
     for line in page.splitlines():
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
         if len(cells) == 6 and re.sub(r"\s*\(.*$", "", cells[0]) == name:   # "Claude Mythos 5.1 ([limited ...])"
@@ -69,8 +74,31 @@ def page_prices(page: str, model_id: str) -> ModelPrices | None:
             if not all(found):                                    # the table changed shape: not readable
                 return None
             numbers = [float(match.group(1)) for match in found]
-            return ModelPrices(input=numbers[0], cache_write=numbers[1], cache_read=numbers[3], output=numbers[4])
-    return None
+            prices = dict(input=numbers[0], cache_write=numbers[1], cache_read=numbers[3], output=numbers[4])
+            long = _LONG_ROW.search(cells[0])
+            kind = "long" if long else "standard"
+            if kind not in rows:                                  # the first table on the page: the standard API
+                rows[kind] = (prices, int(long.group(1).replace(",", "")) if long else None)
+    if "standard" not in rows:
+        return None
+    long_prompt = None
+    if "long" in rows:
+        prices, above = rows["long"]
+        long_prompt = LongPromptPrices(above_tokens=above, **prices)
+    return ModelPrices(**rows["standard"][0], long_prompt=long_prompt)
+
+
+def _differences(model_id: str, ours: ModelPrices, theirs: ModelPrices) -> list[tuple[str, str, float, float]]:
+    """Every price that differs — the long-prompt prices too (a missing tier counts as 0)."""
+    changes = [(model_id, name, getattr(ours, name), getattr(theirs, name))
+               for name in FIELDS if getattr(ours, name) != getattr(theirs, name)]
+    if ours.long_prompt != theirs.long_prompt:
+        for name in ("above_tokens", *FIELDS):
+            mine = getattr(ours.long_prompt, name, 0) if ours.long_prompt else 0
+            page = getattr(theirs.long_prompt, name, 0) if theirs.long_prompt else 0
+            if mine != page:
+                changes.append((model_id, f"long.{name}", mine, page))
+    return changes
 
 
 # ============ THE CHECK ============
@@ -82,8 +110,7 @@ def compare(page: str) -> PriceCheck:
         if theirs is None:
             missing.append(model_id)
             continue
-        changes += [(model_id, name, getattr(ours, name), getattr(theirs, name))
-                    for name in FIELDS if getattr(ours, name) != getattr(theirs, name)]
+        changes += _differences(model_id, ours, theirs)
     if missing:
         return PriceCheck("unreadable", problem=f"no row on the page for {', '.join(missing)}")
     return PriceCheck("changed", changes) if changes else PriceCheck("match")

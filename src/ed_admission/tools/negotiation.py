@@ -1,24 +1,18 @@
-"""The negotiation channel: the Coordinator Agent asks a ward, the ward's Department Agent answers ("ping-pong").
+"""What a ward's Department Agent sees, and the code check on where its answer says a bed comes from.
 
-One Negotiation per placement case. It
-  - passes the request to the ward's responder with only that ward's view (its report and its private notes);
-  - counts requests and enforces the limits (config/clinical_rules/placement_rules.yaml, negotiation):
-    3 per ward, 8 per case — past them it raises LimitReached, and the Coordinator escalates;
-  - (the time the requests take is not set here: in a scripted day the engine measures the whole decision);
-  - records every request and answer for the trace.
+  DepartmentView       one ward's report and its private notes — nothing about the patient beyond the request,
+                       nothing about other wards (the Department Agent's department_view, tools/toolbox.py)
+  bed_source_failure   a bed "from the report" must be one the report shows coming free; a bed "from a note" needs
+                       the ward to have a note (answer_ward refuses a failure)
 
-A responder is any callable (DepartmentView, WardRequest) -> WardAnswer: the Department Agent, or, for tests and
-for the Code Coordinator baseline, `truthful_ward`, which answers from the ward's true state.
+The request and the answer themselves are contracts (contracts/negotiation.py). The multi-agent system asks the
+wards through its graph (orchestration/graph.py), which also enforces the request limits.
 
 Owner: Lea Gur-Arie
 """
-from dataclasses import dataclass, field
-from typing import Callable
+from dataclasses import dataclass
 
-from ed_admission import config
-from ed_admission.contracts.negotiation import Answer, WardAnswer, WardRequest
-from ed_admission.environment.hospital import BedStatus, BedType
-from ed_admission.environment.ward_truth import true_state
+from ed_admission.contracts.negotiation import WardAnswer
 
 
 @dataclass
@@ -30,49 +24,20 @@ class DepartmentView:
     notes: list[str]
 
 
-Responder = Callable[[DepartmentView, WardRequest], WardAnswer]
+def beds_in_report(report: dict) -> set[int]:
+    """The beds the ward's report shows coming free: free now, in cleaning, or expected to be discharged today."""
+    return {entry["bed"] for key in ("free_beds", "cleaning_beds", "expected_discharges_today")
+            for entry in report.get(key, [])}
 
 
-class LimitReached(Exception):
-    """Too many requests — to one ward, or in the whole case. The Coordinator escalates."""
-
-
-@dataclass
-class Negotiation:
-    engine: object
-    responders: dict[str, Responder]               # ward id -> its Department Agent (or a code responder)
-    exchanges: list[dict] = field(default_factory=list)
-
-    def view(self, ward_id: str) -> DepartmentView:
-        return DepartmentView(ward_id, self.engine.department_status(ward_id), self.engine.ward_notes(ward_id))
-
-    def ask(self, ward_id: str, request: WardRequest) -> WardAnswer:
-        limits = config.placement_rules()["negotiation"]
-        to_ward = sum(1 for e in self.exchanges if e["ward"] == ward_id)
-        if to_ward >= limits["max_requests_per_ward"]:
-            raise LimitReached(f"{limits['max_requests_per_ward']} requests to {ward_id} already")
-        if len(self.exchanges) >= limits["max_requests_per_case"]:
-            raise LimitReached(f"{limits['max_requests_per_case']} requests in this case already")
-        answer = self.responders[ward_id](self.view(ward_id), request)
-        self.exchanges.append({"ward": ward_id, "request": request.model_dump(), "answer": answer.model_dump(mode="json")})
-        return answer
-
-
-def truthful_ward(engine) -> Responder:
-    """A code responder that answers from the ward's true state (environment/ward_truth.py) — the answer a ward gives
-    on the phone. For tests and for the code baselines; the Department Agent reads the notes' text instead."""
-    def respond(view: DepartmentView, request: WardRequest) -> WardAnswer:
-        real = true_state(engine, patient_target=request.target_ward)
-        beds = [b for b in real.hospital.ward(view.ward_id).beds
-                if b.bed_type == BedType(request.bed_type) and b.status == BedStatus.FREE]
-        if beds:
-            chosen = next((b for b in beds if b.number == request.proposed_bed), beds[0])
-            return WardAnswer(answer=Answer.ACCEPT, bed_number=chosen.number, reason="a bed is free")
-        soon = [b for b in real.hospital.ward(view.ward_id).beds
-                if b.bed_type == BedType(request.bed_type) and b.status == BedStatus.CLEANING]
-        if soon and not request.severe:
-            return WardAnswer(answer=Answer.CONDITION, bed_number=soon[0].number, reason="a bed is being cleaned",
-                              condition="after cleaning",
-                              available_in_minutes=max(0, soon[0].cleaning_until - engine.clock))
-        return WardAnswer(answer=Answer.DECLINE, reason=f"no {request.bed_type} bed this ward can give now")
-    return respond
+def bed_source_failure(answer: WardAnswer, view: DepartmentView) -> str | None:
+    """Where the ward said it knows the bed is free, checked in code (Lea, 2026-11-08). A bed "from the report" must
+    be one the report shows coming free; a bed "from a note" needs the ward to have a note — whether the note really
+    speaks of that bed needs language, so it stays with the environment and the shift manager. None: no problem."""
+    if answer.bed_number is None:
+        return None
+    if answer.source == "report" and answer.bed_number not in beds_in_report(view.report):
+        return "bed_not_in_report"
+    if answer.source == "note" and not view.notes:
+        return "no_ward_note"
+    return None

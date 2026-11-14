@@ -1,0 +1,273 @@
+status: approved
+cases:
+  - case: J01
+    item: 2
+    patient_id: P-039
+    template: T16
+    target_ward: internal_medicine_a
+    assessment:
+      target_ward: internal_medicine_a
+      binding_request: false
+      severe: true
+      intensive_care: false
+      observation: true
+      isolation: false
+      flags: []
+      note: null
+      findings:
+        - {claim: "new stroke", quote: "אירוע מוחי חדש", confidence: high, backs: [observation]}
+        - {claim: "suspected small left basal infiltrate", quote: "לא ניתן לשלול תסנין קטן בבסיס שמאל", confidence: medium, backs: []}
+    wards:
+      - {ward_id: internal_medicine_a, answer: accept, bed_number: 11, source: report, reason: "observation bed 11 is free in our report"}
+    proposal: {kind: place, ward_id: internal_medicine_a, bed_number: 11, rung: 1, reason: "internal_medicine_a accepted bed 11: observation bed 11 is free in our report"}
+    expected: {2: false, 8: true, 9: true}
+    why: "The sentence of the quote is 'ללא אירוע מוחי חדש' — no new stroke. Observation rests on a negation."
+
+  - case: J02
+    item: 2
+    patient_id: P-039
+    template: T16
+    target_ward: internal_medicine_a
+    assessment:
+      target_ward: internal_medicine_a
+      binding_request: false
+      severe: false
+      intensive_care: false
+      observation: false
+      isolation: false
+      flags: []
+      note: null
+      findings:
+        - {claim: "no new stroke", quote: "ללא אירוע מוחי חדש", confidence: high, backs: []}
+        - {claim: "suspected small left basal infiltrate", quote: "לא ניתן לשלול תסנין קטן בבסיס שמאל", confidence: medium, backs: []}
+    wards:
+      - {ward_id: internal_medicine_a, answer: accept, bed_number: 1, source: report, reason: "regular bed 1 is free in our report"}
+    proposal: {kind: place, ward_id: internal_medicine_a, bed_number: 1, rung: 1, reason: "internal_medicine_a accepted bed 1: regular bed 1 is free in our report"}
+    expected: {2: true, 8: true, 9: true}
+    why: "Read right: no new stroke, a mild pneumonia without oxygen — a regular bed."
+
+  - case: J03
+    item: 2
+    patient_id: P-019
+    template: T4
+    target_ward: cardiology
+    assessment:
+      target_ward: cardiology
+      binding_request: false
+      severe: false
+      intensive_care: false
+      observation: false
+      isolation: false
+      flags: []
+      note: null
+      findings:
+        - {claim: "known VRE carrier", quote: "ידוע כנשא VRE מ-2024", confidence: high, backs: []}
+    wards:
+      - {ward_id: cardiology, answer: accept, bed_number: 1, source: report, reason: "regular bed 1 is free in our report"}
+    proposal: {kind: place, ward_id: cardiology, bed_number: 1, rung: 1, reason: "cardiology accepted bed 1: regular bed 1 is free in our report"}
+    expected: {2: false, 8: true, 9: true}
+    why: "A VRE carrier is on the isolation list; the quoted sentence shows the need and isolation was set to false — a need left out."
+
+  - case: J04
+    item: 2
+    patient_id: P-019
+    template: T4
+    target_ward: cardiology
+    assessment:
+      target_ward: cardiology
+      binding_request: false
+      severe: false
+      intensive_care: false
+      observation: false
+      isolation: true
+      flags: []
+      note: null
+      findings:
+        - {claim: "known VRE carrier", quote: "ידוע כנשא VRE מ-2024", confidence: high, backs: [isolation]}
+    wards:
+      - {ward_id: cardiology, answer: condition, bed_number: 13, source: report, condition: "once the tap in the isolation room is replaced", available_in_minutes: 60, reason: "the isolation room is closed while the tap is replaced; the technician finishes within the hour"}
+    proposal: {kind: wait, ward_id: cardiology, bed_number: 13, rung: 1, reason: "cardiology gives bed 13 in about 60 minutes: the isolation room is closed while the tap is replaced; the technician finishes within the hour"}
+    expected: {2: true, 8: true, 9: true}
+    why: "Read right: isolation for a VRE carrier; the wait matches cardiology's note."
+
+  - case: J05
+    item: 8
+    patient_id: P-008
+    template: T19
+    target_ward: internal_medicine_b
+    assessment:
+      target_ward: internal_medicine_b
+      binding_request: false
+      severe: false
+      intensive_care: false
+      observation: false
+      isolation: false
+      flags: []
+      note: null
+      findings:
+        - {claim: "right lower lobe pneumonia", quote: "CXR - תסנין RLL", confidence: high, backs: []}
+    wards:
+      - {ward_id: internal_medicine_b, answer: accept, bed_number: 1, source: note, reason: "regular bed 1 freed after the round and is not updated yet; the patient is stable"}
+    proposal: {kind: place, ward_id: internal_medicine_b, bed_number: 1, rung: 1, reason: "internal_medicine_b accepted bed 1: regular bed 1 freed after the round and is not updated yet; the patient is stable"}
+    expected: {2: true, 8: true, 9: true}
+    why: "The reason is the note's: regular bed 1, freed after the round, a stable patient."
+
+  - case: J06
+    item: 8
+    patient_id: P-008
+    template: T19
+    target_ward: internal_medicine_b
+    assessment:
+      target_ward: internal_medicine_b
+      binding_request: false
+      severe: false
+      intensive_care: false
+      observation: false
+      isolation: false
+      flags: []
+      note: null
+      findings:
+        - {claim: "right lower lobe pneumonia", quote: "CXR - תסנין RLL", confidence: high, backs: []}
+    wards:
+      - {ward_id: internal_medicine_b, answer: accept, bed_number: 4, source: note, reason: "regular bed 4 freed after the round and is not updated yet"}
+    proposal: {kind: place, ward_id: internal_medicine_b, bed_number: 4, rung: 1, reason: "internal_medicine_b accepted bed 4: regular bed 4 freed after the round and is not updated yet"}
+    expected: {2: true, 8: false, 9: true}
+    why: "The note frees regular bed 1; bed 4 is in neither the note nor the report."
+
+  - case: J07
+    item: 8
+    patient_id: P-065
+    template: T8
+    target_ward: internal_medicine_a
+    assessment:
+      target_ward: internal_medicine
+      binding_request: false
+      severe: true
+      intensive_care: false
+      observation: true
+      isolation: false
+      flags: [severity_judgment_note]
+      note: "Not a candidate for intensive care: DNR, decided by the senior physician with her son. The level from NEWS2 is kept."
+      findings:
+        - {claim: "needs 4 L of oxygen, saturation 92%", quote: "בחמצן 4L משקפיים סט' 92%", confidence: high, backs: [observation]}
+        - {claim: "DNR, not a candidate for intensive care", quote: "הוחלט על DNR, לא להנשמה ולא מועמדת לטיפול נמרץ", confidence: high, backs: []}
+    wards:
+      - {ward_id: internal_medicine_a, answer: accept, bed_number: 11, source: note, reason: "the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    proposal: {kind: place, ward_id: internal_medicine_a, bed_number: 11, rung: 1, reason: "internal_medicine_a accepted bed 11: the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    expected: {2: true, 8: true, 9: true}
+    why: "The reason is the note's; the judgment note names the limit on treatment and keeps the level."
+
+  - case: J08
+    item: 8
+    patient_id: P-065
+    template: T8
+    target_ward: internal_medicine_a
+    assessment:
+      target_ward: internal_medicine
+      binding_request: false
+      severe: true
+      intensive_care: false
+      observation: true
+      isolation: false
+      flags: [severity_judgment_note]
+      note: "Not a candidate for intensive care: DNR, decided by the senior physician with her son. The level from NEWS2 is kept."
+      findings:
+        - {claim: "needs 4 L of oxygen, saturation 92%", quote: "בחמצן 4L משקפיים סט' 92%", confidence: high, backs: [observation]}
+        - {claim: "DNR, not a candidate for intensive care", quote: "הוחלט על DNR, לא להנשמה ולא מועמדת לטיפול נמרץ", confidence: high, backs: []}
+    wards:
+      - {ward_id: internal_medicine_a, answer: accept, bed_number: 11, source: note, reason: "observation bed 11 is free, and a nurse is assigned to it for the night"}
+    proposal: {kind: place, ward_id: internal_medicine_a, bed_number: 11, rung: 1, reason: "internal_medicine_a accepted bed 11: observation bed 11 is free, and a nurse is assigned to it for the night"}
+    expected: {2: true, 8: false, 9: true}
+    why: "The note says nothing of a nurse for the night: an invented fact in the reason."
+
+  - case: J09
+    item: 9
+    patient_id: P-066
+    template: T8
+    target_ward: internal_medicine_a
+    assessment:
+      target_ward: internal_medicine
+      binding_request: false
+      severe: true
+      intensive_care: false
+      observation: true
+      isolation: false
+      flags: [severity_judgment_note]
+      note: "Not a candidate for intensive care: DNR at the patient's own request, documented with the senior physician. The level from NEWS2 is kept."
+      findings:
+        - {claim: "after fluids blood pressure 98/56, pulse 118, respiratory rate 24, temperature 39.2", quote: "ל\"ד 98/56 דופק 118 נשימות 24 חום 39.2", confidence: high, backs: [observation]}
+        - {claim: "DNR, not a candidate for intensive care", quote: "הוחלט DNR, לא מועמד לטנ\"מ", confidence: high, backs: []}
+    wards:
+      - {ward_id: internal_medicine_a, answer: accept, bed_number: 11, source: note, reason: "the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    proposal: {kind: place, ward_id: internal_medicine_a, bed_number: 11, rung: 1, reason: "internal_medicine_a accepted bed 11: the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    expected: {2: true, 8: true, 9: true}
+    why: "The limit on treatment is in the judgment note, and the level was kept."
+
+  - case: J10
+    item: 9
+    patient_id: P-066
+    template: T8
+    target_ward: internal_medicine_a
+    assessment:
+      target_ward: internal_medicine
+      binding_request: false
+      severe: true
+      intensive_care: false
+      observation: true
+      isolation: false
+      flags: []
+      note: null
+      findings:
+        - {claim: "after fluids blood pressure 98/56, pulse 118, respiratory rate 24, temperature 39.2", quote: "ל\"ד 98/56 דופק 118 נשימות 24 חום 39.2", confidence: high, backs: [observation]}
+        - {claim: "DNR, not a candidate for intensive care", quote: "הוחלט DNR, לא מועמד לטנ\"מ", confidence: high, backs: []}
+    wards:
+      - {ward_id: internal_medicine_a, answer: accept, bed_number: 11, source: note, reason: "the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    proposal: {kind: place, ward_id: internal_medicine_a, bed_number: 11, rung: 1, reason: "internal_medicine_a accepted bed 11: the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    expected: {2: true, 8: true, 9: false}
+    why: "A finding shows a limit on treatment, and there is no judgment note — not blocking, shown to the shift manager."
+
+  - case: J11
+    item: 9
+    patient_id: P-065
+    template: T8
+    target_ward: internal_medicine_a
+    assessment:
+      target_ward: internal_medicine
+      binding_request: false
+      severe: true
+      intensive_care: false
+      observation: true
+      isolation: false
+      flags: []
+      note: null
+      findings:
+        - {claim: "needs 4 L of oxygen, saturation 92%", quote: "בחמצן 4L משקפיים סט' 92%", confidence: high, backs: [observation]}
+        - {claim: "DNR, not a candidate for intensive care", quote: "הוחלט על DNR, לא להנשמה ולא מועמדת לטיפול נמרץ", confidence: high, backs: []}
+    wards:
+      - {ward_id: internal_medicine_a, answer: accept, bed_number: 11, source: note, reason: "the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    proposal: {kind: place, ward_id: internal_medicine_a, bed_number: 11, rung: 1, reason: "internal_medicine_a accepted bed 11: the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    expected: {2: true, 8: true, 9: false}
+    why: "A finding shows a limit on treatment, and there is no judgment note."
+
+  - case: J12
+    item: 9
+    patient_id: P-065
+    template: T8
+    target_ward: internal_medicine_a
+    assessment:
+      target_ward: internal_medicine
+      binding_request: false
+      severe: true
+      intensive_care: false
+      observation: true
+      isolation: false
+      flags: [severity_judgment_note]
+      note: "The level from NEWS2 is kept."
+      findings:
+        - {claim: "needs 4 L of oxygen, saturation 92%", quote: "בחמצן 4L משקפיים סט' 92%", confidence: high, backs: [observation]}
+        - {claim: "DNR, not a candidate for intensive care", quote: "הוחלט על DNR, לא להנשמה ולא מועמדת לטיפול נמרץ", confidence: high, backs: []}
+    wards:
+      - {ward_id: internal_medicine_a, answer: accept, bed_number: 11, source: note, reason: "the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    proposal: {kind: place, ward_id: internal_medicine_a, bed_number: 11, rung: 1, reason: "internal_medicine_a accepted bed 11: the on-call physician discharged the patient of observation bed 11 this morning; it is clean and free, the secretary updates on Sunday"}
+    expected: {2: true, 8: true, 9: false}
+    why: "The note does not say what in the record argues for less — the limit on treatment is not named."

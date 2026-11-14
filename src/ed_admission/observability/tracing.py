@@ -15,17 +15,20 @@ trace records how the case ended (`ended`: the agent loop's status). database/ru
 costs.csv; `system` says which system decided — the single agent, the multi-agent system, or code.
 
 Traces are saved as JSON lines in outputs/traces/ (not uploaded to Git); scripts/run_metrics.py saves each run's
-traces as traces/<run id>.jsonl, and the admissions log points to them.
+traces as traces/<run id>.jsonl, and the admissions log points to them. A paid run also writes every trace the moment
+it is collected (`listening`, used by evaluation/deciders.paid_run) to traces/journal-<decider>-<start>.jsonl, so a
+run killed half way still has the record of every case it paid for.
 
 Owner: Lea Gur-Arie
 """
 import json
 import time
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 
 from ed_admission import config
 
-# The steps every case must have, in the order of the placement case (orchestration/placement_case.py).
+# The steps every case must have, in order — the milestones a decider writes (agents/multi_agent.py, single_agent.py).
 REQUIRED_STEPS = ("patient_assessed", "availability_collected", "ranked", "rules_checked", "decided")
 SINGLE_AGENT_ROLE = "single_agent"     # an agent call by this role means the single agent decided the case
 
@@ -136,11 +139,24 @@ class Trace:
 # ---------------------------------------------------------------------- handing traces to the measurement
 
 _COLLECTED: list[Trace] = []
+_LISTENERS: list = []           # called with every trace as it is collected — e.g. the paid-run journal
 
 
 def collect(trace: Trace) -> None:
-    """Called by a decider once a case is decided — the Coordinator Agent's `run`, or the example pipeline."""
+    """Called by a decider once a case is decided — the multi-agent system's graph, the single agent, or the example pipeline."""
     _COLLECTED.append(trace)
+    for listener in list(_LISTENERS):
+        listener(trace)
+
+
+@contextmanager
+def listening(listener):
+    """While inside: `listener(trace)` runs on every trace as soon as it is collected."""
+    _LISTENERS.append(listener)
+    try:
+        yield
+    finally:
+        _LISTENERS.remove(listener)
 
 
 def take() -> list[Trace]:

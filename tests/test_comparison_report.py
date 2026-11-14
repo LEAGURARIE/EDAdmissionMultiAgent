@@ -84,6 +84,30 @@ def test_the_latest_three_complete_test_runs_are_taken():
     assert report.build()["runs"]["single_agent"] == [f"2026101{i}-1000-single_agent" for i in (1, 2, 3)]
 
 
+def test_a_side_check_is_never_taken_even_when_it_is_the_latest():
+    three("single_agent", 1)
+    three("multi_agent", 4)
+    for i in range(3):                                                    # every agent on Opus: a side check
+        log("multi_agent", f"2026102{i}-1000-opus", SAME, label=f"Opus arm: test · repetition {i + 1}")
+    assert report.build()["runs"]["multi_agent"] == [f"2026101{i}-1000-multi_agent" for i in (4, 5, 6)]
+
+
+def test_a_side_check_is_shown_apart_against_the_frozen_system_on_the_same_set():
+    three("single_agent", 1)
+    three("multi_agent", 4, match_rate=[0.60, 0.61, 0.58])
+    log("multi_agent", "20261017-1000-dev", {**SAME, "match_rate": 0.68}, set_name="dev")     # the frozen system
+    log("multi_agent", "20261020-1000-opus", {**SAME, "match_rate": 0.77}, set_name="dev", label="Opus arm: dev")
+    for i, match in enumerate((0.58, 0.64, 0.61)):
+        log("multi_agent", f"2026102{i + 1}-1000-opus", {**SAME, "match_rate": match},
+            label=f"Opus arm: test · repetition {i + 1}")
+    checks = {c["set"]: c for c in report.build()["side_checks"] if c["label"] == "Opus arm"}
+    assert checks["dev"]["frozen_runs"] == ["20261017-1000-dev"] and len(checks["test"]["runs"]) == 3
+    match = {c: next(m for m in checks[c]["measures"] if m["key"] == "match_rate") for c in checks}
+    assert match["dev"]["verdict"] == "one run — no spread"                    # 0.77 vs 0.68: one run each
+    assert match["test"]["verdict"] == "the same"                              # 0.58–0.64 vs 0.58–0.61
+    assert "Where the gap comes from" in report.markdown(report.build())
+
+
 def test_runs_on_different_cases_are_not_compared():
     three("single_agent", 1)
     log("multi_agent", "20261015-1000-x", SAME, decisions={"P-009": ("place", "cardiology")})
@@ -105,7 +129,48 @@ def test_the_days_are_read_from_their_own_runs():
                                                "busy_day violations": 0, "busy_day bed_not_available": 1,
                                                "baseline busy_day minutes to bed": 44.0}, set_name="none")
     day = report.build()["days"]["busy_day"]
-    assert day["single_agent"]["minutes to bed"] == 31.5 and day["baseline minutes to bed"] == 44.0
+    assert day["single_agent"]["minutes to bed"] == 31.5 and day["baseline"]["minutes to bed"] == 44.0
+
+
+def day_run(system, day, minutes, placed, baseline_minutes, baseline_placed, hour="10"):
+    log(system, f"20261016-{hour}00-{day}", {"days": day, f"{day} minutes to bed": minutes, f"{day} placed": placed,
+                                             f"baseline {day} minutes to bed": baseline_minutes,
+                                             f"baseline {day} placed": baseline_placed}, set_name="none")
+
+
+def test_the_three_days_are_pooled_over_every_patient_placed():
+    three("single_agent", 1)
+    day_run("single_agent", "busy_day", 30.0, 15, 20.0, 15, "10")
+    day_run("single_agent", "evening_night", 10.0, 12, 40.0, 12, "11")
+    day_run("single_agent", "weekend", 20.0, 12, 30.0, 10, "12")
+    pooled = report.build()["three_days"]
+    assert pooled["single_agent"] == pytest.approx((30 * 15 + 10 * 12 + 20 * 12) / 39)    # weighted, not 20.0
+    assert pooled["baseline"] == pytest.approx((20 * 15 + 40 * 12 + 30 * 10) / 37)
+    assert pooled["multi_agent"] is None
+
+
+def test_no_pooled_minutes_without_all_three_days():
+    three("single_agent", 1)
+    day_run("single_agent", "busy_day", 30.0, 15, 20.0, 15)
+    assert report.build()["three_days"]["single_agent"] is None
+
+
+def test_the_contention_day_is_apart_and_has_no_minutes(outputs):
+    three("single_agent", 1)
+    log("single_agent", "20261016-1300-c", {
+        "days": "competing_for_a_bed", "competing moments as designed": 3, "competing moments right": 3,
+        "competing_for_a_bed violations": 0, "competing_for_a_bed bed_not_available": 0,
+        "baseline competing moments as designed": 0, "baseline competing moments right": 0,
+        "baseline competing_for_a_bed violations": 4, "baseline competing_for_a_bed bed_not_available": 0},
+        set_name="none")
+    built = report.build()
+    assert "competing_for_a_bed" not in built["days"]
+    assert built["contention"]["single_agent"]["moments right"] == "3 of 3"
+    assert built["contention"]["baseline"] == {"moments right": "0 of 0", "violations": 4.0,
+                                               "bed_not_available": 0.0}
+    text = report.markdown(built)
+    day4 = text.split("## Competing for a bed")[1]
+    assert "minutes to bed" not in day4 and "| competing_for_a_bed | violations | 0 | — | 4 |" in day4
 
 
 def test_the_monthly_cost_only_when_the_admissions_are_given():

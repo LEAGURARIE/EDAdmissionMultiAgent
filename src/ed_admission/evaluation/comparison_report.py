@@ -6,7 +6,13 @@ What it reads, from the run history (database/run_log.py):
   admissions.csv   one row per decision: for the stability of the decisions across repetitions
 What it takes:
   - for each system, its latest 3 test runs (--set test), never a partial run — the 3 repetitions
+  - never a side check: a run whose label starts with one of the side checks (config/evaluation.yaml — the Opus arm)
+    asks where a gap comes from, it is not the system compared (comparison protocol, section 9). The side checks are
+    shown apart, each against the frozen system — the version of its chosen test runs — on the same set
   - for each system and each scripted day, its latest run of that day (the days run once per system)
+  - the days in two parts: the three days of a shift, for the minutes to a bed — day by day and pooled over every
+    patient placed — and the contention day apart: its moments decided right and its safety, never its minutes
+    (two patients and one bed: one of them waits by design, and a system that misses the need waits less)
   - the runs must have decided the same cases — across the repetitions and across the two systems — or the report
     is refused and says why
 How it reads the result — decided in the protocol before any run:
@@ -27,17 +33,30 @@ from ed_admission import config
 from ed_admission.database import run_log
 
 SYSTEMS = ("single_agent", "multi_agent")
-REPETITIONS = 3
-DAYS = ("busy_day", "evening_night", "weekend", "competing_for_a_bed")
+REPETITIONS = config.evaluation()["repetitions"]                # config/evaluation.yaml
+SHIFT_DAYS = ("busy_day", "evening_night", "weekend")        # the minutes to a bed
+CONTENTION_DAY = "competing_for_a_bed"                       # shown apart: moments and safety, not minutes
+SIDE_CHECKS = {prefix: (check["name"], check["changed"])            # label start -> name, what it changed
+               for prefix, check in config.evaluation()["side_checks"].items()}
+SIDE_MEASURES = [("match_rate", "match", "higher"), ("violations", "hard-rule violations", "lower"),
+                 ("escalations", "escalations", "lower"), ("cost_mean_usd", "USD per case", "lower")]
+
+def _target(key: str) -> str:
+    """The charter's target in words (config/evaluation.yaml): a rate in percent, a count as it is."""
+    targets = config.evaluation()["targets"]
+    if key not in targets:
+        return ""
+    return f"{targets[key]:.0%}" if isinstance(targets[key], float) else str(targets[key])
+
 
 # group, column in runs.csv, label, which way is better, the baseline's column, the charter's target
 MEASURES = [
-    ("quality: safe", "violations", "hard-rule violations", "lower", "baseline violations", "0"),
-    ("quality: safe", "need_met_rate", "needs met or escalated", "higher", "baseline need_met_rate", "100%"),
-    ("quality: safe", "bed_not_available", "beds the ward cannot give", "lower", "baseline bed_not_available", "0"),
-    ("quality: suitable", "match_rate", "decisions that match the answer", "higher", "baseline match_rate", "85%"),
-    ("quality: tracked", "complete_trace_rate", "complete traces", "higher", None, "100%"),
-    ("quality: tracked", "groundedness", "claims backed by the record", "higher", None, "95%"),
+    ("quality: safe", "violations", "hard-rule violations", "lower", "baseline violations", _target("violations")),
+    ("quality: safe", "need_met_rate", "needs met or escalated", "higher", "baseline need_met_rate", _target("need_met_rate")),
+    ("quality: safe", "bed_not_available", "beds the ward cannot give", "lower", "baseline bed_not_available", _target("bed_not_available")),
+    ("quality: suitable", "match_rate", "decisions that match the answer", "higher", "baseline match_rate", _target("match_rate")),
+    ("quality: tracked", "complete_trace_rate", "complete traces", "higher", None, _target("complete_trace_rate")),
+    ("quality: tracked", "groundedness", "claims backed by the record", "higher", None, _target("groundedness")),
     ("latency", "mean_seconds", "seconds per case, mean", "lower", "baseline mean_seconds", ""),
     ("latency", "seconds_p95", "seconds per case, 95th percentile", "lower", None, ""),
     ("cost", "cost_mean_usd", "USD per case, mean", "lower", None, ""),
@@ -45,7 +64,8 @@ MEASURES = [
     ("cost", "cost_max_usd", "USD per case, maximum", "lower", None, ""),
     ("cost", "cost_total_usd", "USD per run", "lower", None, ""),
 ]
-DAY_MEASURES = [("minutes to bed", "lower"), ("violations", "lower"), ("bed_not_available", "lower")]
+DAY_MEASURES = ["minutes to bed", "violations", "bed_not_available"]
+CONTENTION_MEASURES = ["moments right", "violations", "bed_not_available"]
 
 
 class NotComparable(Exception):
@@ -81,16 +101,20 @@ def _number(value) -> float | None:
         return None
 
 
+def _side_check(row: dict) -> bool:
+    return str(row.get("label", "")).startswith(tuple(SIDE_CHECKS))
+
+
 def _complete(row: dict) -> bool:
     return str(row.get("partial_run", "")).lower() not in ("true", "1")
 
 
 def latest_test_runs(runs: list[dict]) -> dict[str, list[dict]]:
-    """Each system's latest REPETITIONS test runs, partial runs left out."""
+    """Each system's latest REPETITIONS test runs, partial runs and side checks left out."""
     chosen = {}
     for system in SYSTEMS:
-        mine = sorted((r for r in runs if r.get("system") == system and r.get("set") == "test" and _complete(r)),
-                      key=lambda r: r["run_id"])
+        mine = sorted((r for r in runs if r.get("system") == system and r.get("set") == "test" and _complete(r)
+                       and not _side_check(r)), key=lambda r: r["run_id"])
         chosen[system] = mine[-REPETITIONS:]
     return chosen
 
@@ -180,23 +204,116 @@ def build(admissions_per_month: int | None = None) -> dict:
                                 for s in SYSTEMS}, "baseline": None, "winner": row["winner"]})
                 break
 
-    days = {}
-    for day in DAYS:
-        for system in SYSTEMS:
-            mine = sorted((r for r in runs if r.get("system") == system and r.get("days") == day and _complete(r)),
-                          key=lambda r: r["run_id"])
-            if mine:
-                latest = mine[-1]
-                days.setdefault(day, {})[system] = {name: _number(latest.get(f"{day} {name}"))
-                                                    for name, _ in DAY_MEASURES}
-                days[day]["baseline minutes to bed"] = _number(latest.get(f"baseline {day} minutes to bed"))
-                if day == "competing_for_a_bed":
-                    days[day][system]["moments right"] = (f"{latest.get('competing moments right', '')} of "
-                                                          f"{latest.get('competing moments as designed', '')}")
-    return {"runs": {s: [r["run_id"] for r in chosen[s]] for s in SYSTEMS},
+    days, latest = shift_days(runs)
+    return {"side_checks": side_checks(runs, chosen["multi_agent"]),"runs": {s: [r["run_id"] for r in chosen[s]] for s in SYSTEMS},
             "repetitions": {s: len(chosen[s]) for s in SYSTEMS},
             "stability": {s: stability(admissions, chosen[s]) for s in SYSTEMS},
-            "rows": rows, "days": days, "reading": reading(rows, measured)}
+            "rows": rows, "days": days, "three_days": pooled_minutes(latest),
+            "contention": contention_day(runs), "reading": reading(rows, measured)}
+
+
+# ============ THE SIDE CHECKS ============
+def _spread(runs: list[dict], key: str) -> Spread | None:
+    values = [v for v in (_number(r.get(key)) for r in runs) if v is not None]
+    return Spread(values) if values else None
+
+
+def side_checks(runs: list[dict], frozen_test: list[dict]) -> list[dict]:
+    """Each side check, set by set, against the frozen multi-agent system on the same set: the frozen system is the
+    version of its chosen test runs; on the test set its chosen runs, on another set its complete runs of that
+    version. A difference counts only beyond the spread, as in the comparison — and a single run has none."""
+    if not frozen_test:
+        return []
+    version = frozen_test[0].get("version")
+    checks = []
+    for prefix, (name, changed) in SIDE_CHECKS.items():
+        mine = [r for r in runs if str(r.get("label", "")).startswith(prefix) and _complete(r)
+                and r.get("system") == "multi_agent" and r.get("set") in ("dev", "test")]
+        for set_name in ("dev", "test"):
+            check = sorted((r for r in mine if r["set"] == set_name), key=lambda r: r["run_id"])
+            if not check:
+                continue
+            frozen = frozen_test if set_name == "test" else [
+                r for r in runs if r.get("system") == "multi_agent" and r.get("set") == set_name
+                and r.get("version") == version and _complete(r) and not _side_check(r)]
+            measures = []
+            for key, label, direction in SIDE_MEASURES:
+                a, b = _spread(check, key), _spread(frozen, key)
+                verdict = better(direction, a, b)
+                if a is None or b is None:
+                    said = ""
+                elif min(len(a.values), len(b.values)) < 2:
+                    said = "one run — no spread"          # a single run has no range: nothing counts as beyond it
+                else:
+                    said = "better" if verdict == 1 else "worse" if verdict == -1 else "the same"
+                measures.append({"key": key, "measure": label, "check": a, "frozen": b, "verdict": said})
+            checks.append({"check": name, "label": prefix, "changed": changed, "set": set_name,
+                           "runs": [r["run_id"] for r in check], "frozen_runs": [r["run_id"] for r in frozen],
+                           "measures": measures})
+    return checks
+
+
+# ============ THE SCRIPTED DAYS ============
+def _latest_day_run(runs: list[dict], system: str, day: str) -> dict | None:
+    mine = sorted((r for r in runs if r.get("system") == system and r.get("days") == day and _complete(r)
+                   and not _side_check(r)), key=lambda r: r["run_id"])
+    return mine[-1] if mine else None
+
+
+def shift_days(runs: list[dict]) -> tuple[dict, dict]:
+    """The three days of a shift, day by day: each system's latest run of the day, and the baseline from it.
+    Also returns those runs, for the pooled minutes."""
+    days, latest = {}, {}
+    for day in SHIFT_DAYS:
+        for system in SYSTEMS:
+            run = _latest_day_run(runs, system, day)
+            if run:
+                latest.setdefault(system, {})[day] = run
+                days.setdefault(day, {})[system] = {name: _number(run.get(f"{day} {name}")) for name in DAY_MEASURES}
+                days[day].setdefault("baseline", {name: _number(run.get(f"baseline {day} {name}"))
+                                                  for name in DAY_MEASURES})
+    return days, latest
+
+
+def _pool(runs_by_day: dict, prefix: str) -> float | None:
+    """The mean minutes to a bed over every patient placed on the three days: each day weighted by its placed
+    patients. None unless all three days are there, with their placed counts."""
+    total = placed = 0.0
+    for day in SHIFT_DAYS:
+        run = runs_by_day.get(day)
+        minutes = _number(run.get(f"{prefix}{day} minutes to bed")) if run else None
+        count = _number(run.get(f"{prefix}{day} placed")) if run else None
+        if minutes is None or count is None:
+            return None
+        total, placed = total + minutes * count, placed + count
+    return total / placed if placed else None
+
+
+def pooled_minutes(latest: dict) -> dict:
+    """The three days together: each system's pooled minutes to a bed, and the baseline's — from the first system
+    whose day runs have it (the baseline is the same code in both)."""
+    pooled = {system: _pool(latest.get(system, {}), "") for system in SYSTEMS}
+    pooled["baseline"] = next((value for value in (_pool(latest.get(s, {}), "baseline ") for s in SYSTEMS)
+                               if value is not None), None)
+    return pooled
+
+
+def contention_day(runs: list[dict]) -> dict:
+    """The contention day apart: moments decided right out of those reached as designed, and its safety — for each
+    system and for the baseline. No minutes to a bed."""
+    found = {}
+    for system in SYSTEMS:
+        run = _latest_day_run(runs, system, CONTENTION_DAY)
+        if not run:
+            continue
+        for who, prefix in ((system, ""), ("baseline", "baseline ")):
+            if who in found or run.get(f"{prefix}competing moments as designed") in (None, ""):
+                continue
+            found[who] = {"moments right": f"{run.get(f'{prefix}competing moments right')} of "
+                                           f"{run.get(f'{prefix}competing moments as designed')}",
+                          **{name: _number(run.get(f"{prefix}{CONTENTION_DAY} {name}"))
+                             for name in ("violations", "bed_not_available")}}
+    return found
 
 
 # ============ PRINTED AND SAVED ============
@@ -204,6 +321,13 @@ def _cell(value) -> str:
     if value is None:
         return "—"
     return value.text() if isinstance(value, Spread) else f"{value:.3f}" if isinstance(value, float) else str(value)
+
+
+def _day_cell(value, name: str) -> str:
+    """A day's number: minutes with one decimal, counts whole."""
+    if not isinstance(value, float):
+        return _cell(value)
+    return f"{value:.1f}" if name.startswith("minutes") else f"{value:.0f}"
 
 
 def markdown(report: dict) -> str:
@@ -223,15 +347,33 @@ def markdown(report: dict) -> str:
         lines.append(f"| {row['group']} | {row['measure']} | {_cell(row['single_agent'])} | "
                      f"{_cell(row['multi_agent'])} | {_cell(row['baseline'])} | {row['target']} | "
                      f"{names.get(row['winner'], 'tie' if row['single_agent'] and row['multi_agent'] else '—')} |")
+    header = ["| Day | Measure | " + " | ".join(names.values()) + " | Baseline |", "|---|---|---|---|---|"]
     if report["days"]:
-        lines += ["", "## The scripted days — once per system", "",
-                  "| Day | Measure | " + " | ".join(names.values()) + " | Baseline |", "|---|---|---|---|---|"]
+        lines += ["", "## The three days of a shift — once per system: the minutes to a bed", "", *header]
         for day, by_system in report["days"].items():
-            for name in [m for m, _ in DAY_MEASURES] + (["moments right"] if day == "competing_for_a_bed" else []):
-                cells = [_cell(by_system.get(s, {}).get(name)) for s in SYSTEMS]
-                base = _cell(by_system.get("baseline minutes to bed")) if name == "minutes to bed" else "—"
-                lines.append(f"| {day} | {name} | {cells[0]} | {cells[1]} | {base} |")
+            for name in DAY_MEASURES:
+                cells = [_day_cell(by_system.get(who, {}).get(name), name) for who in (*SYSTEMS, "baseline")]
+                lines.append(f"| {day} | {name} | " + " | ".join(cells) + " |")
+        pooled = report["three_days"]
+        lines.append("| **the three days** | **minutes to bed, every patient placed** | "
+                     + " | ".join(_day_cell(pooled.get(who), "minutes") for who in (*SYSTEMS, "baseline")) + " |")
+    if report["contention"]:
+        lines += ["", "## Competing for a bed (day 4) — apart: moments decided right, not the minutes to a bed", "",
+                  *header]
+        for name in CONTENTION_MEASURES:
+            cells = [_day_cell(report["contention"].get(who, {}).get(name), name) for who in (*SYSTEMS, "baseline")]
+            lines.append(f"| {CONTENTION_DAY} | {name} | " + " | ".join(cells) + " |")
     lines += ["", f"**Reading:** {report['reading']}"]
+    if report.get("side_checks"):
+        lines += ["", "## Where the gap comes from — side checks, never in the comparison", "",
+                  "Each against the frozen multi-agent system on the same set; \"the same\" — the ranges overlap.", "",
+                  "| Side check | What it changed | Set | Runs | Measure | Side check | Frozen system | Beyond the spread |",
+                  "|---|---|---|---|---|---|---|---|"]
+        for check in report["side_checks"]:
+            for measure in check["measures"]:
+                lines.append(f"| {check['check']} | {check['changed']} | {check['set']} | "
+                             f"{len(check['runs'])} vs {len(check['frozen_runs'])} | {measure['measure']} | "
+                             f"{_cell(measure['check'])} | {_cell(measure['frozen'])} | {measure['verdict'] or '—'} |")
     return "\n".join(lines) + "\n"
 
 

@@ -1,12 +1,12 @@
 """Measuring one agent alone (evaluation/agent_metrics.py), the code examples of the two agents
-(orchestration/example_agents.py), and choosing a decider by name or by import path (evaluation/deciders.py)."""
+(evaluation/example_agents.py), and choosing a decider by name or by import path (evaluation/deciders.py)."""
 import pytest
 
 from ed_admission.contracts.agent_outputs import PatientAssessment
 from ed_admission.contracts.negotiation import Answer, WardAnswer
 from ed_admission.evaluation import agent_metrics, deciders
-from ed_admission.orchestration import example_agents
-from ed_admission.orchestration.example_pipeline import example_pipeline
+from ed_admission.baselines.code_coordinator import code_coordinator
+from ed_admission.evaluation import example_agents
 
 TRUTH = agent_metrics.records()
 
@@ -66,9 +66,9 @@ def test_a_department_agent_that_always_declines_is_right_only_where_there_is_no
 
 
 def test_deciders_by_name_or_by_import_path():
-    assert deciders.resolve("example_pipeline") is example_pipeline
-    assert deciders.resolve("ed_admission.orchestration.example_pipeline:example_pipeline") is example_pipeline
-    assert deciders.label("ed_admission.orchestration.example_pipeline:example_pipeline") == "example_pipeline"
+    assert deciders.resolve("code_coordinator") is code_coordinator
+    assert deciders.resolve("ed_admission.baselines.code_coordinator:code_coordinator") is code_coordinator
+    assert deciders.label("ed_admission.baselines.code_coordinator:code_coordinator") == "code_coordinator"
     with pytest.raises(ValueError):
         deciders.resolve("no_such_decider")
 

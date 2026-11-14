@@ -6,7 +6,7 @@ Run (from the project folder):
     .venv\\Scripts\\python scripts\\run_scenario.py data\\scenarios\\busy_day.yaml
     .venv\\Scripts\\python scripts\\run_scenario.py --policy none           (nobody decides: the queue only grows)
 
-Policies: code_coordinator (default — the baseline) · example_pipeline · none ·
+Policies: code_coordinator (default — the baseline) · single_agent · multi_agent (paid) · none ·
 module:function (your own decider).
 Owner: Lea Gur-Arie
 """

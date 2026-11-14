@@ -3,7 +3,7 @@ ready, discharges expected today (likely within the hour or not), the day, the s
 identifiers, never the private notes.
 
 Two bindings, both enforced in tool code (tools/toolbox.py):
-  Coordinator Agent    — every ward's report (all_department_status), never the private notes.
+  Coordinator          — every ward's report (all_department_status), never the private notes.
   Department Agent     — bound in advance to its own ward; takes no ward name. Gets its report and its notes
                          (department_view).
 

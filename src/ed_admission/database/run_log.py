@@ -59,16 +59,18 @@ def _same_run(row: dict, run: dict) -> bool:
     return all(row.get(k, "") == run[k] for k in ("kind", "decider", "agent", "version", "label"))
 
 
-def _write(name: str, run: dict, rows: list[dict]) -> Path:
+def _write(name: str, run: dict, rows: list[dict], keep_this_run: bool = False) -> Path:
     """Replace this decider's earlier rows at the same version, append the new ones; the header grows with new
-    columns, so old rows keep their place."""
+    columns, so old rows keep their place. `keep_this_run`: the rows this very run already wrote stay — a run that
+    writes one row at a time (append_costs)."""
     path = config.outputs_dir() / name
     kept, header = [], []
     if path.exists():
         with path.open(encoding="utf8", newline="") as file:
             reader = csv.DictReader(file)
             header = list(reader.fieldnames or [])
-            kept = [r for r in reader if not _same_run(r, run)]
+            kept = [r for r in reader if not _same_run(r, run)
+                    or (keep_this_run and r.get("run_id") == run["run_id"])]
     for row in rows:
         header += [k for k in row if k not in header]
     with path.open("w", encoding="utf8", newline="") as file:
@@ -91,6 +93,12 @@ def log_admissions(run: dict, rows: list[dict]) -> Path:
 def log_costs(run: dict, rows: list[dict]) -> Path:
     """The run's rows in costs.csv — one per case."""
     return _write(COSTS, run, [{**run, **row} for row in rows])
+
+
+def append_costs(run: dict, rows: list[dict]) -> Path:
+    """Add rows to this run's rows in costs.csv, as each paid item ends — so a run stopped half way keeps the record
+    of what it paid for. An earlier run with the same decider, version and label is still replaced."""
+    return _write(COSTS, run, [{**run, **row} for row in rows], keep_this_run=True)
 
 
 def cost_row(source: str, trace) -> dict:

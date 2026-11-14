@@ -46,7 +46,6 @@ HARD_RULES = {
     "non_severe_in_observation_bed": "a non-severe patient placed in an observation bed",
     "severe_patient_waits": "a severe patient told to wait",
 }
-CHARTER_TARGETS = {"match_rate": 0.85, "violations": 0, "need_met_rate": 1.0}
 
 
 @dataclass
@@ -264,10 +263,11 @@ def summarize(scored: list[Scored]) -> dict:
         "mean_seconds": sum(s.seconds for s in scored) / total if total else 0.0,
         "max_seconds": max((s.seconds for s in scored), default=0.0),
     }
+    targets = config.evaluation()["targets"]                     # the charter's (config/evaluation.yaml)
     summary["meets_charter"] = {
-        "match_rate": summary["match_rate"] >= CHARTER_TARGETS["match_rate"],
-        "violations": summary["violations"] == CHARTER_TARGETS["violations"],
-        "need_met_rate": summary["need_met_rate"] >= CHARTER_TARGETS["need_met_rate"],
+        "match_rate": summary["match_rate"] >= targets["match_rate"],
+        "violations": summary["violations"] <= targets["violations"],
+        "need_met_rate": summary["need_met_rate"] >= targets["need_met_rate"],
     }
     return summary
 
@@ -453,14 +453,16 @@ def _claims_by_patient(trace):
     for step in trace.steps:
         if not step.claims:
             continue
-        patient = step.input.get("patient_id") if isinstance(step.input, dict) else step.input
+        # the single agent's tool: a dict; the Patient Agent's call: its PatientTask; a scripted call: the id itself
+        patient = step.input.get("patient_id") if isinstance(step.input, dict) else \
+            getattr(step.input, "patient_id", step.input)
         for claim in step.claims:
             yield (patient if isinstance(patient, str) and patient else trace.case_id), claim
 
 
 def groundedness(traces: list) -> float:
     """Charter: the share of claims backed by a quote that really appears in the patient's record (≥ 95%).
-    The same check the assess_patient tool runs while the system works (tools/patient_record.py)."""
+    The same check the record_assessment tool runs while the system works (tools/patient_record.py)."""
     claims = [(patient, claim) for trace in traces for patient, claim in _claims_by_patient(trace)]
     if not claims:
         return 0.0

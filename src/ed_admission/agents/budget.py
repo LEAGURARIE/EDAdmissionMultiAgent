@@ -33,12 +33,21 @@ class _Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
-class ModelPrices(_Strict):
+class TokenPrices(_Strict):
     """USD per million tokens, as on Anthropic's pricing page."""
     input: PositiveFloat
     cache_write: PositiveFloat               # the 5-minute cache
     cache_read: PositiveFloat
     output: PositiveFloat
+
+
+class LongPromptPrices(TokenPrices):
+    """The prices of a call whose prompt is over above_tokens (Haiku 5.5)."""
+    above_tokens: PositiveInt
+
+
+class ModelPrices(TokenPrices):
+    long_prompt: LongPromptPrices | None = None   # None: one price at any prompt length
 
 
 class Prices(_Strict):
@@ -59,10 +68,22 @@ class Budget(_Strict):
     run_cost_cap_usd: dict[System, PositiveFloat]       # per system: the single agent, the multi-agent system
 
 
+class TextLimits(_Strict):
+    """The longest free text of each handoff field, in characters (contracts/agent_outputs.py, negotiation.py)."""
+    claim: PositiveInt
+    quote: PositiveInt
+    note: PositiveInt
+    reason: PositiveInt
+    condition: PositiveInt
+    correction: PositiveInt
+
+
 class AgentsConfig(_Strict):
     models: dict[str, str]
     effort: Literal["low", "medium", "high", "xhigh", "max"]
     max_tokens: PositiveInt
+    parallel_agent_calls: PositiveInt          # the multi-agent system's runs at once
+    text_limits: TextLimits
     budget: Budget
     prices: Prices
 
@@ -108,9 +129,13 @@ def settings(agent: str) -> dict:
 # ============ THE COST OF ONE CALL ============
 def call_cost(usage, prices: ModelPrices) -> float:
     """USD of one model call: each kind of token the API counted, at its own price.
-    input_tokens are only the uncached ones; the cached ones come in the two cache fields."""
+    input_tokens are only the uncached ones; the cached ones come in the two cache fields. The prompt's length is
+    all three together: over long_prompt.above_tokens, the whole call pays the long-prompt prices."""
     written = getattr(usage, "cache_creation_input_tokens", 0) or 0
     read = getattr(usage, "cache_read_input_tokens", 0) or 0
+    long = prices.long_prompt
+    if long is not None and usage.input_tokens + written + read > long.above_tokens:
+        prices = long
     return (usage.input_tokens * prices.input + written * prices.cache_write
             + read * prices.cache_read + usage.output_tokens * prices.output) / MILLION
 

@@ -12,7 +12,7 @@ Works on the ward reports only — what every decider may see. Given the patient
 5. Ladder level 3 or farther needs a typed reason with the shift manager's approval (Decision.needs_typed_reason).
 6. No safe option → escalate.
 What a ward says in the negotiation (a bed that frees soon, a bed not really available) is not in the report: the
-Coordinator Agent weighs it over this ranking, and the Code Coordinator baseline learns it by phone.
+Coordinator weighs it over this ranking, and the Code Coordinator baseline learns it by phone.
 
 Returns every option in order — the first is the recommendation — and a reason for every ward left out.
 
@@ -21,10 +21,6 @@ Owner: Lea Gur-Arie
 from dataclasses import dataclass, field
 
 from ed_admission import config
-
-BED_FOR_NEED = {"regular": "regular", "observation": "observation", "isolation": "isolation",
-                "intensive_care": "intensive_care"}
-
 
 @dataclass
 class PatientNeeds:

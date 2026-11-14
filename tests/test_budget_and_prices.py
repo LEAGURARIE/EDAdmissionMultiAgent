@@ -52,8 +52,8 @@ def test_the_single_agent_gets_its_own_budget():
 @pytest.mark.parametrize("change, words", [
     (lambda v: v.update(effort="extreme"), "effort"),
     (lambda v: v["budget"]["activation"]["single_agent"].update(max_iterations=-1), "max_iterations"),
-    (lambda v: v["models"].update(another_agent="claude-opus-5-5"), "without a budget"),
-    (lambda v: v["models"].update(single_agent="claude-unknown-1"), "without prices"),
+    (lambda v: v["budget"]["activation"].pop("department"), "without a budget"),
+    (lambda v: v["models"].update(patient="claude-unknown-1"), "without prices"),
     (lambda v: v["prices"]["models"]["claude-opus-5-5"].pop("cache_read"), "cache_read"),
     (lambda v: v.update(temperature=0.2), "temperature"),
     (lambda v: v["budget"]["run_cost_cap_usd"].pop("multi_agent"), "multi_agent"),

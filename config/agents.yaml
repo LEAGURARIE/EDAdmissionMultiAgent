@@ -2,9 +2,14 @@
 # To try another model or effort for one agent, change its line here — nothing else.
 
 # The model each agent calls (Anthropic). No temperature is ever sent: these models reject it.
-# The single agent is frozen on the strongest model.
+# The single agent is frozen on the strongest model. The multi-agent system started cheap (Lea, 2026-10-17) and
+# keeps the cheapest model that meets its target: the Patient Agent on Sonnet — nothing after it reads the record —
+# the Department Agent on Sonnet since whole-system round 1 (2026-11-12), the Judge Agent on Haiku.
 models:
   single_agent: claude-opus-5-5
+  patient: claude-sonnet-5-5
+  department: claude-sonnet-5-5
+  judge: claude-haiku-5-5
 
 # How hard the model thinks before it answers: low | medium | high | xhigh | max.
 # The model's own default is medium; high is the advice for multi-step tool use.
@@ -13,6 +18,22 @@ effort: high
 # The longest answer of one model call, in tokens.
 max_tokens: 16000
 
+# The multi-agent system: at most this many agent runs at once (the wards of one rung run in parallel) — kept under
+# the model provider's rate limit.
+parallel_agent_calls: 4
+
+# The longest free text, in characters, of each field that passes from one part of the multi-agent system to
+# another (contracts/agent_outputs.py, contracts/negotiation.py). Text over its limit fails the handoff check in code:
+# long enough for one clinical sentence or a quoted line of the record, short enough that text cannot carry a hidden
+# set of instructions. Starting values — set from measurement.
+text_limits:
+  claim: 300            # a finding's claim
+  quote: 500            # a finding's quote from the record
+  note: 500             # the judgment note
+  reason: 300           # a ward's reason, a rubric item's reason
+  condition: 200        # a ward's condition
+  correction: 500       # the Judge's correction, the feedback a ward gets in the correction round
+
 # The budget guard. Over any limit the loop stops and never guesses: the case is escalated to the shift manager.
 # Starting values — set from measurement after the first trial.
 budget:
@@ -20,8 +41,11 @@ budget:
   # For the single agent one activation is one case, so this is also its per-case limit.
   activation:
     single_agent: {max_iterations: 15, cost_cap_usd: 1.00}
-  # One case of the multi-agent system, every agent together — enforced when that system is built. 20% above the
-  # single agent's: the fixed overhead of several agents (docs/design/comparison_protocol.md, section 8).
+    patient: {max_iterations: 8, cost_cap_usd: 0.50}
+    department: {max_iterations: 8, cost_cap_usd: 0.50}
+    judge: {max_iterations: 8, cost_cap_usd: 0.50}
+  # One case of the multi-agent system, every agent together — enforced by its graph. 20% above the single agent's:
+  # the fixed overhead of several agents (docs/design/comparison_protocol.md, section 8).
   # (The single agent's per-case cap is its activation cap above: one activation is one case.)
   case_cost_cap_usd:
     multi_agent: 1.20
@@ -36,8 +60,14 @@ budget:
 # than recheck_after_days; if it is, scripts/check_prices.py compares these prices with the page and stops the run
 # when one changed.
 prices:
-  checked: 2026-10-17
+  checked: 2026-11-14
   source: https://platform.claude.com/docs/en/about-claude/pricing.md
   recheck_after_days: 30
   models:
     claude-opus-5-5: {input: 4.00, cache_write: 5.00, cache_read: 0.20, output: 20.00}
+    claude-sonnet-5-5: {input: 2.00, cache_write: 2.50, cache_read: 0.10, output: 10.00}
+    # Haiku 5.5 is priced by prompt length: a call whose prompt — every input token, cached ones included — is over
+    # above_tokens pays the long_prompt prices for the whole call. Opus and Sonnet have one price at any length.
+    claude-haiku-5-5:
+      {input: 0.10, cache_write: 0.125, cache_read: 0.01, output: 0.50,
+       long_prompt: {above_tokens: 100000, input: 0.50, cache_write: 0.625, cache_read: 0.05, output: 2.50}}
